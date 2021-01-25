@@ -1,9 +1,6 @@
 from QLearn import QLearn
 from QPlaneEnv import QPlaneEnv
 
-# [lat, long, elev, pitch, roll, yaw, gear] -998->NO CHANGE
-flight_origin = [37.524, -122.06899,  6000, 0, 0, 0, 1] # Palo Alto
-flight_destinaion = [37.505, -121.843611, 6000, -998, -998, -998, 1] # Sunol Valley
 
 n_epochs = 100  # Number of generations
 n_steps  = 500  # Number of inputs per generation
@@ -11,9 +8,9 @@ n_actions = 7  # Number of possible inputs to choose from
 end = 50  # End parameter
 
 n_states = 240  # Number of states
-gamma = 0.95
-lr = 0.01
-epsilon = 0.10
+gamma = 0.95  #
+lr = 0.01  # Learning Rate
+epsilon = 0.10  # Starting Epsilon Rate, affects the exploration probability. Will decay
 
 dictObservation = {
     "lat":  0,
@@ -32,10 +29,15 @@ dictAction = {
     "ru-": 5,
     "no" : 6}
 
+# -998->NO CHANGE 
+flight_origin = [37.524, -122.06899,  6000, 0, 0, 0, 1] # Palo Alto
+flight_destinaion = [37.505, -121.843611, 6000, -998, -998, -998, 1] # Sunol Valley
+
 env = QPlaneEnv(flight_origin, flight_destinaion, n_actions, end)
 Q = QLearn(n_states, n_actions, gamma, lr, epsilon)
 
 
+# prints out all metrics
 def log(i_epoch, i_step, reward, state, actions_binary, observation, control):
     print("\t\tGame ", i_epoch)
     print("\t\t\tMove ", i_step)
@@ -47,6 +49,7 @@ def log(i_epoch, i_step, reward, state, actions_binary, observation, control):
     print("\t\t\tCurrent Reward: ", reward)
 
 
+# A single step(input), this will repeat n_steps times throughout a epoch
 def step(i_step, done, reward, oldObservation):
     oldState = env.get_state_from_observation(oldObservation)
     action = Q.select_action(oldState, i_epoch, n_epochs)
@@ -58,6 +61,7 @@ def step(i_step, done, reward, oldObservation):
     return done, oldState, newState, action, actions_binary, oldObservation, newObservation, control, reward
 
 
+# A epoch is one full run, from respawn/reset to the final step.
 def epoch(i_epoch):
     oldObservation = env.reset(env.starting_position)
     done = False

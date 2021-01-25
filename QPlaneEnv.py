@@ -5,17 +5,6 @@ import imp
 import numpy as np
 
 
-################################################################################
-
-## positions in xplane are observations
-## format [lat, long, alt, pitch, roll, true heading/yaw, gear]
-## Palo Alto
-## starting_position    = [37.524, -122.06899,  4000, 0.0, 0.0, 0.0, 1]
-## Sunol Regional Wilderness (20 kms about east from Palo Alto)
-## destination_position = [37.505, -121.843611, 4000, 0.0, 0.0, 0.0, 1]
-
-################################################################################
-
 class QPlaneEnv():
 
     def __init__(self, orig, dest, acts_bin, end_param):
@@ -26,10 +15,6 @@ class QPlaneEnv():
         self.end_game_threshold = end_param
         self.xpc = imp.load_source('xpc','xpc.py')
 
-    ################################################################################
-
-
-    ##########################################################################
 
     def send_posi(self, posi):
         client = self.xpc.XPlaneConnect()

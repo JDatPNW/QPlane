@@ -7,14 +7,30 @@ flight_destinaion = [37.505, -121.843611, 6000, -998, -998, -998, 1] # Sunol Val
 
 n_epochs = 100  # Number of generations
 n_steps  = 500  # Number of inputs per generation
-n_actions = 6  # Number of possible inputs to choose from
+n_actions = 7  # Number of possible inputs to choose from
 end = 50  # End parameter
 
-n_states = 240
-n_actions = 7
+n_states = 240  # Number of states
 gamma = 0.95
 lr = 0.01
 epsilon = 0.10
+
+dictObservation = {
+    "lat":  0,
+    "long": 1,
+    "alt":  2,
+    "pitch":3,
+    "roll": 4,
+    "yaw":  5,
+    "gear": 6}
+dictAction = {
+    "pi+": 0,
+    "pi-": 1,
+    "ro+": 2,
+    "ro-": 3,
+    "ru+": 4,
+    "ru-": 5,
+    "no" : 6}
 
 env = QPlaneEnv(flight_origin, flight_destinaion, n_actions, end)
 Q = QLearn(n_states, n_actions, gamma, lr, epsilon)
@@ -24,9 +40,9 @@ def log(i_epoch, i_step, reward, state, actions_binary, observation, control):
     print("\t\tGame ", i_epoch)
     print("\t\t\tMove ", i_step)
     print("\t\t\tState ", state)
-    print("\t\t\t                 [p+,p-,ro+,ro-,ru+,ru-,n]")
+    print("\t\t\t\t\t\t\t[p+,p-,ro+,ro-,ru+,ru-,n]")
     print("\t\t\tactions_binary = ", actions_binary)
-    print("\t\t\tCurrent Orientation: ", observation[3:6])
+    print("\t\t\tCurrent Orientation: ", observation[dictObservation["pitch"]:dictObservation["gear"]])
     print("\t\t\tCurrent Control:", control)
     print("\t\t\tCurrent Reward: ", reward)
 

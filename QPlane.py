@@ -39,7 +39,8 @@ flightDestinaion = [33.508, 126.487, 6000, -998, -998, -998, 1]  # Jeju SK
 
 env = QPlaneEnv(flightOrigin, flightDestinaion, n_actions,
                 end, dictObservation, dictAction)
-Q = QLearn(n_states, n_actions, gamma, lr, epsilon, decayRate, epsilonMin, n_epochsBeforeDecay)
+Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
+           decayRate, epsilonMin, n_epochsBeforeDecay)
 
 
 # prints out all metrics
@@ -62,7 +63,8 @@ def log(i_epoch, i_step, reward, state, actions_binary, observation, control, ex
 # A single step(input), this will repeat n_steps times throughout a epoch
 def step(i_step, done, reward, oldObservation):
     oldState = env.getState(oldObservation)
-    action, explore, currentEpsilon = Q.selectAction(oldState, i_epoch, n_epochs)
+    action, explore, currentEpsilon = Q.selectAction(
+        oldState, i_epoch, n_epochs)
     connectionError = 0
     errorCode = 0
 
@@ -84,7 +86,8 @@ def step(i_step, done, reward, oldObservation):
     # Check if connections can be established 10x
     for attempt in range(10):
         try:
-            reward, done = env.step(action, oldObservation, newObservation)  # Part that gets checked
+            # Part that gets checked
+            reward, done = env.step(action, oldObservation, newObservation)
         except socket.error as socketError:  # the specific error for connections used by xpc
             errorCode = socketError  # if it fils get error code/ reason for error
             continue

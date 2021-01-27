@@ -7,14 +7,16 @@ import numpy as np
 
 class QPlaneEnv():
 
-    def __init__(self, orig, dest, acts_bin, end_param):
-        self.starting_position = orig
-        self.destination_position = dest
-        self.previous_position = orig
-        self.actions_binary_n = acts_bin
-        self.end_game_threshold = end_param
+    def __init__(self, orig, dest, n_acts, endParam, dictObservation, dictAction):
+        self.startingPosition = orig
+        self.destinationPosition = dest
+        self.previousPosition = orig
+        self.n_actions = n_acts
+        self.endThreshold = endParam
         self.xpc = imp.load_source('xpc','xpc.py')
-
+        self.dictObservation = dictObservation
+        self.dictAction = dictAction
+        self.startingVelocity = -50
 
     def send_posi(self, posi):
         client = self.xpc.XPlaneConnect()
@@ -27,7 +29,7 @@ class QPlaneEnv():
 
         client.sendDREF("sim/flightmodel/position/local_vx", 0)
         client.sendDREF("sim/flightmodel/position/local_vy", 0)
-        client.sendDREF("sim/flightmodel/position/local_vz", -50)
+        client.sendDREF("sim/flightmodel/position/local_vz", self.startingVelocity)
 
         client.sendDREF("sim/flightmodel/position/theta", 0)
         client.sendDREF("sim/flightmodel/position/phi", 0)
@@ -56,7 +58,6 @@ class QPlaneEnv():
 
     def get_posi(self):
         client = self.xpc.XPlaneConnect()
-        #r = client.getDREFs(drefs_position)
         r = client.getPOSI(0)
         client.close()
         return r
@@ -64,7 +65,6 @@ class QPlaneEnv():
 
     def get_ctrl(self):
         client = self.xpc.XPlaneConnect()
-        #r = client.getDREFs(drefs_controls)
         r = client.getCTRL(0)
         client.close()
         return r
@@ -73,53 +73,53 @@ class QPlaneEnv():
     def reset(self, posi):
         self.send_posi(posi)
         self.send_velo()
-        self.send_ctrl([0,0,0,0,0,0,1])
+        self.send_ctrl([0,0,0,0,0,0,1]) # this means it will not control the stick during the reset
         new_posi = self.get_posi()
         return new_posi
 
 
-    def convert_action_to_control(self, ctrl, action, reward, position):
-        # actions_binary = [pi+, pi-, ro+, ro-, ru+, ru-]
-        # pitch = ctrl[0] - roll =  ctrl[1] - rudder = ctrl[2]
+    def getControl(self, ctrl, action, reward, observation):
+        # translate the action to the controll space value
+        actionCtrl = 0
+        if(action <= self.dictAction["pi-"]):
+            actionCtrl = 0
+        elif(action <= self.dictAction["ro-"]):
+            actionCtrl = 1
+        elif action <= self.dictAction["ru-"]:
+            actionCtrl = 2
 
-        if action < 2:
-            takeaction = 0
-        elif action < 4:
-            takeaction = 1
-        elif action < 6:
-            takeaction = 2
-        elif action < 7:
-            takeaction = 0
+        ctrl = [0, 0, 0, 0.5, -998, -998]  # throttle set to .5 by default
+        actionDimension = 3 + actionCtrl   # translate the action value to the observation space value
 
-        ctrl = [0, 0, 0, 0.5, -998, -998]
-        if(action !=6):
-            if position[3+takeaction] < -180 or position[3+takeaction]> 180:
-               ctrl[takeaction] =  1
-            elif -180 <=position[3+takeaction]< -50 or  50 <=position[3+takeaction]< 180:
-               ctrl[takeaction] =  0.5
-            elif -50 <=position[3+takeaction]< -25 or 25 <=position[3+takeaction]< 50:
-               ctrl[takeaction] =  0.2
-            elif -25 <=position[3+takeaction]< -15 or 15 <=position[3+takeaction]< 25:
-               ctrl[takeaction] =  0.15
-            elif -15 <=position[3+takeaction]< -10 or 10 <=position[3+takeaction]< 15:
-               ctrl[takeaction] =  0.12
-            elif -10 <=position[3+takeaction]< -5 or 5 <=position[3+takeaction]< 10:
-               ctrl[takeaction] =  0.1
-            elif -5 <=position[3+takeaction]< -2 or 2 <=position[3+takeaction]< 5:
-               ctrl[takeaction] =  0.05
-            elif -2 <=position[3+takeaction]< -1 or 1 <=position[3+takeaction]< 2:
-               ctrl[takeaction] =  0.02
-            elif -1 <=position[3+takeaction]< 0 or  0 <=position[3+takeaction]< 1:
-               ctrl[takeaction] =  0.01
+        # this is to make actions less significant if the plane is more stable
+        if(action != self.dictAction["no"]):
+            if observation[actionDimension] < -180 or observation[actionDimension]> 180:
+               ctrl[actionCtrl] =  1
+            elif -180 <=observation[actionDimension]< -50 or  50 <=observation[actionDimension]< 180:
+               ctrl[actionCtrl] =  0.5
+            elif -50 <=observation[actionDimension]< -25 or 25 <=observation[actionDimension]< 50:
+               ctrl[actionCtrl] =  0.2
+            elif -25 <=observation[actionDimension]< -15 or 15 <=observation[actionDimension]< 25:
+               ctrl[actionCtrl] =  0.15
+            elif -15 <=observation[actionDimension]< -10 or 10 <=observation[actionDimension]< 15:
+               ctrl[actionCtrl] =  0.12
+            elif -10 <=observation[actionDimension]< -5 or 5 <=observation[actionDimension]< 10:
+               ctrl[actionCtrl] =  0.1
+            elif -5 <=observation[actionDimension]< -2 or 2 <=observation[actionDimension]< 5:
+               ctrl[actionCtrl] =  0.05
+            elif -2 <=observation[actionDimension]< -1 or 1 <=observation[actionDimension]< 2:
+               ctrl[actionCtrl] =  0.02
+            elif -1 <=observation[actionDimension]< 0 or  0 <=observation[actionDimension]< 1:
+               ctrl[actionCtrl] =  0.01
             else:
                 print("DEBUG - should not get here")
         else:
             ctrl = [0, 0, 0, 0.5, -998, -998]
 
-        if(action%2 != 0):
-            ctrl[takeaction] = -ctrl[takeaction]
+        if(action%2 != 0):  # check if action should be positive or negative
+            ctrl[actionCtrl] = -ctrl[actionCtrl]
 
-        actions_binary = np.zeros(self.actions_binary_n, dtype=int)
+        actions_binary = np.zeros(self.n_actions, dtype=int)
         actions_binary[action] = 1
 
         return ctrl, actions_binary
@@ -127,22 +127,21 @@ class QPlaneEnv():
 
 
     def update(self, action, reward, position):
-        old_ctrl = self.get_ctrl()
-        new_ctrl, actions_binary = self.convert_action_to_control(old_ctrl, action , reward, position)
-        self.send_ctrl(new_ctrl) ## set control surfaces e.g. pilot the plane
+        oldCtrl = self.get_ctrl()
+        newCtrl, actions_binary = self.getControl(oldCtrl, action , reward, position)
+        self.send_ctrl(newCtrl)
         posi = self.get_posi()
-        return posi, actions_binary, new_ctrl
+        return posi, actions_binary, newCtrl
 
 
-    def encode_state_xplane(self, pitch, roll, yaw):
-        # 15 x 15 + 15 = 240
+    def encodeState(self, pitch, roll, yaw):
         i = pitch
         i = i * 15
         i = i + roll
         return i
 
 
-    def range_to_vector_index(self, i):
+    def encodeRotation(self, i):
 
         if -180 <= i < -50:
            return 0
@@ -178,80 +177,68 @@ class QPlaneEnv():
            return 0
 
 
-    def six_pack_values_to_vectors(self, pitch_ob, roll_ob, yaw_ob):
-        pitch_vector_index = self.range_to_vector_index(pitch_ob)
-        roll_vector_index = self.range_to_vector_index(roll_ob)
-        yaw_vector_index = self.range_to_vector_index(yaw_ob)
-        return pitch_vector_index, roll_vector_index, yaw_vector_index
+    def encodeRotations(self, pitch, roll, yaw):
+        pitchEnc = self.encodeRotation(pitch)
+        rollEnc = self.encodeRotation(roll)
+        yawEnc = self.encodeRotation(yaw)
+        return pitchEnc, rollEnc, yawEnc
 
 
-    def get_state_from_observation(self, observation):
-       # observation = [lat, long, alt, pitch, roll, yaw, gear]
-       # states are pitch, roll, yaw readings from the six pack
-       # states = 9x9x9 = 729
+    def getState(self, observation):
+       pitch = observation[self.dictObservation["pitch"]]
+       roll = observation[self.dictObservation["roll"]]
+       yaw = observation[self.dictObservation["yaw"]]
+       pitchEnc, rollEnc, yawEnc = self.encodeRotations(pitch, roll, yaw)
 
-       state = 0
-
-       pitch_ob = observation[3] #pitch
-       roll_ob = observation[4] #roll
-       yaw_ob = observation[5] #yaw
-       pitch_index, roll_index, yaw_index = self.six_pack_values_to_vectors(pitch_ob, roll_ob, yaw_ob)
-
-       state = self.encode_state_xplane(pitch_index, roll_index, yaw_index)
-       return state
+       state = self.encodeState(pitchEnc, rollEnc, yawEnc)
+       return int(state)
 
 
-    def reward_function(self, action, position_before_action, current_position):
-        roll = float(abs(current_position[4]/180)*3)
-        pitch = float(abs(current_position[3]/180)*2)
+    def rewardFunction(self, action, oldObservation, newObservation):
+        roll = float(abs(newObservation[self.dictObservation["roll"]]/180)*3)
+        pitch = float(abs(newObservation[self.dictObservation["pitch"]]/180)*2)
         reward = float((5 - (roll + pitch )) / 5)
 
-        if(abs(current_position[4]) > 50):
+        if(abs(newObservation[self.dictObservation["roll"]]) > 50):
             reward = reward * 0.25
-        elif(abs(current_position[4]) > 25):
+        elif(abs(newObservation[self.dictObservation["roll"]]) > 25):
             reward = reward * 0.5
-        elif(abs(current_position[4]) > 10):
+        elif(abs(newObservation[self.dictObservation["roll"]]) > 10):
             reward = reward * 0.575
-        elif(abs(current_position[4]) > 5):
+        elif(abs(newObservation[self.dictObservation["roll"]]) > 5):
             reward = reward * 0.9
-        elif(abs(current_position[4]) > 2):
+        elif(abs(newObservation[self.dictObservation["roll"]]) > 2):
             reward = reward * 0.95
-        elif(abs(current_position[4]) > 1):
+        elif(abs(newObservation[self.dictObservation["roll"]]) > 1):
             reward = reward * 0.99
 
-        if(abs(current_position[3]) > 40):
+        if(abs(newObservation[self.dictObservation["pitch"]]) > 40):
             reward = reward * 0.1
-        elif(abs(current_position[3]) > 25):
+        elif(abs(newObservation[self.dictObservation["pitch"]]) > 25):
             reward = reward * 0.25
-        elif(abs(current_position[3]) > 10):
+        elif(abs(newObservation[self.dictObservation["pitch"]]) > 10):
             reward = reward * 0.5
-        elif(abs(current_position[3]) > 5):
+        elif(abs(newObservation[self.dictObservation["pitch"]]) > 5):
             reward = reward * 0.75
-        elif(abs(current_position[3]) > 2):
+        elif(abs(newObservation[self.dictObservation["pitch"]]) > 2):
             reward = reward * 0.85
-        elif(abs(current_position[3]) > 1):
+        elif(abs(newObservation[self.dictObservation["pitch"]]) > 1):
             reward = reward * 0.99
 
-        ## if action == pitch up
-        if (action == 0):
-            if (current_position[3] > 2.0):
-                reward = reward * 0.25
-                #print("if action == pitch up")
-
-        ## if action == pitch down
-        if (action == 1):
-            if (current_position[3] < -2.0):
-                reward = reward * 0.25
-                #print("if action == pitch down")
-
-        ## if action == roll right
-        if (action == 2):
-            if (current_position[4] > 2.0):
+        if (action == self.dictAction["pi+"]):
+            if (newObservation[self.dictObservation["pitch"]] > 2.0):
                 reward = reward * 0.25
 
-        ## if action == roll left
-        if (action == 3):
-            if (current_position[4] < -2.0):
+        if (action == self.dictAction["pi-"]):
+            if (newObservation[self.dictObservation["pitch"]] < -2.0):
+                reward = reward * 0.25
+
+        if (action == self.dictAction["ro+"]):
+            if (newObservation[self.dictObservation["roll"]] > 2.0):
+                reward = reward * 0.25
+
+        if (action == self.dictAction["ro-"]):
+            if (newObservation[self.dictObservation["roll"]] < -2.0):
                 reward = reward * 0.25
 
         done = False
@@ -261,8 +248,8 @@ class QPlaneEnv():
         return reward, done
 
 
-    def step(self, action, position_before_action, current_position):
+    def step(self, action, oldObservation, newObservation):
         done = False
         reward = 0
-        reward, done = self.reward_function(action, position_before_action, current_position)
+        reward, done = self.rewardFunction(action, oldObservation, newObservation)
         return reward, done

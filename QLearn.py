@@ -1,41 +1,36 @@
 import numpy as np
-import time
-import math
 import random
 
 class QLearn():
 
-    def __init__(self, n_stat, n_acts, gamm, lr, eps):
+    def __init__(self, n_stat, n_acts, gamm, lr, eps, dec, min):
         self.n_states = n_stat
         self.n_actions = n_acts
         self.gamma = gamm
-        self.learning_rate = lr
+        self.learningRate = lr
         self.epsilon = eps
-        self.q_table = np.zeros( [self.n_states, self.n_actions] )
+        self.decay = dec
+        self.epsMin = min
+        self.qTable = np.zeros( [self.n_states, self.n_actions] )
 
-    #############################################################################
-
-    def select_action(self, state, episode, n_epochs):
-        action = 0
-        e_pred = random.uniform(0, 1)
-
-        if (  (episode/n_epochs) < 0.25  ):  # was previously 0.85  ## 0.85 some random and 0.15 no random
-            selected_q_row = self.q_table[state,:] + np.random.randn(    1, self.n_actions  ) * (  1.0/(episode+1)  )
-            action = np.argmax(  selected_q_row  )
+    # get action for current state
+    def selectAction(self, state, episode, n_epochs):
+        explorationTreshold = random.uniform(0, 1)
+        explore = False
+        # Check if explore or explore with current epsilon vs random number between 0 and 1
+        if explorationTreshold > self.epsilon:
+            action = np.argmax(self.qTable[state,:])  # explore, which means predicted action
         else:
-            selected_q_row = self.q_table[state,:]
-            action = np.argmax(  selected_q_row  )
+            action = int(random.uniform(0, self.n_actions))  # Explore, which means random action
+            explore = True
+        # decay epsilon
+        if(self.epsilon > self.epsMin):  # decay the value
+            self.epsilon = self.epsilon * (1 - self.decay)
+        elif(self.epsilon < self.epsMin):  # if decayed too far set to min
+            self.epsilon = self.epsMin
 
-        return action
+        return action, explore
 
-    ###############################################################################
-
-    def learn(self, s, action, reward, s_):
-       lr = self.learning_rate
-       y = self.gamma
-       a = action
-       r = reward
-       self.q_table[s,a] = self.q_table[s,a] + lr*(r + y * np.max(self.q_table[s_,:]) - self.q_table[s,a] )
-
-
-##############################################################################################
+    # update q table
+    def learn(self, state, action, reward, new_state):
+        self.qTable[state, action] = (1 - self.learningRate) * self.qTable[state, action] + self.learningRate * (reward + self.gamma * np.max(self.qTable[new_state, :]))  # Bellman

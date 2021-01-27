@@ -13,7 +13,7 @@ lr = 0.1  # Learning Rate. If LR is 0 then the Q value would not update. The hig
 epsilon = 1.0  # Starting Epsilon Rate, affects the exploration probability. Will decay
 decayRate = 0.00001  # Rate at which epsilon will decay per step
 epsilonMin = 0.01  # Minimum value at which epsilon will stop decaying
-n_epochsBeforeDecay = 15
+n_epochsBeforeDecay = 15  # number of games to be played before epsilon starts to decay
 
 dictObservation = {
     "lat": 0,
@@ -43,7 +43,7 @@ Q = QLearn(n_states, n_actions, gamma, lr, epsilon, decayRate, epsilonMin, n_epo
 
 
 # prints out all metrics
-def log(i_epoch, i_step, reward, state, actions_binary, observation, control, explore, connectionError, errorCode):
+def log(i_epoch, i_step, reward, state, actions_binary, observation, control, explore, connectionError, errorCode, currentEpsilon):
     print("\t\tGame ", i_epoch)
     print("\t\t\tMove ", i_step)
     print("\t\t\tState ", state)
@@ -53,6 +53,7 @@ def log(i_epoch, i_step, reward, state, actions_binary, observation, control, ex
     print("\t\t\tCurrent Orientation: ",
           observation[dictObservation["pitch"]:dictObservation["gear"]])
     print("\t\t\tExplored (Random): ", explore)
+    print("\t\t\tCurrent Epsilon: ", currentEpsilon)
     print("\t\t\tCurrent Reward: ", reward)
     print("\t\t\tConnection Error?: ", connectionError)
     print("\t\t\tError Code: ", errorCode)
@@ -61,7 +62,7 @@ def log(i_epoch, i_step, reward, state, actions_binary, observation, control, ex
 # A single step(input), this will repeat n_steps times throughout a epoch
 def step(i_step, done, reward, oldObservation):
     oldState = env.getState(oldObservation)
-    action, explore = Q.selectAction(oldState, i_epoch, n_epochs)
+    action, explore, currentEpsilon = Q.selectAction(oldState, i_epoch, n_epochs)
     connectionError = 0
     errorCode = 0
 
@@ -95,7 +96,7 @@ def step(i_step, done, reward, oldObservation):
     newState = env.getState(newObservation)
     Q.learn(oldState, action, reward, newState)
     oldObservation = newObservation
-    return done, oldState, newState, action, actions_binary, oldObservation, newObservation, control, reward, explore, connectionError, errorCode
+    return done, oldState, newState, action, actions_binary, oldObservation, newObservation, control, reward, explore, connectionError, errorCode, currentEpsilon
 
 
 # A epoch is one full run, from respawn/reset to the final step.
@@ -104,10 +105,10 @@ def epoch(i_epoch):
     done = False
     reward = 0
     for i_step in range(n_steps):
-        done, oldState, newState, action, actions_binary, oldObservation, newObservation, control, reward, explore, connectionError, errorCode = step(
+        done, oldState, newState, action, actions_binary, oldObservation, newObservation, control, reward, explore, connectionError, errorCode, currentEpsilon = step(
             i_step, done, reward, oldObservation)
         log(i_epoch, i_step, reward, oldState,
-            actions_binary, oldObservation, control, explore, connectionError, errorCode)
+            actions_binary, oldObservation, control, explore, connectionError, errorCode, currentEpsilon)
         if done:
             break
 

@@ -29,13 +29,13 @@ class QLearn():
             explore = True
 
         # decay epsilon
-        if(episode > self.n_epochsBeforeDecay):
+        if(episode >= self.n_epochsBeforeDecay):
             if(self.epsilon > self.epsMin):  # decay the value
                 self.epsilon = self.epsilon * (1 - self.decay)
             elif(self.epsilon < self.epsMin):  # if decayed too far set to min
                 self.epsilon = self.epsMin
 
-        return action, explore
+        return action, explore, self.epsilon
 
     # update q table
     def learn(self, state, action, reward, new_state):

@@ -13,6 +13,7 @@ lr = 0.1  # Learning Rate. If LR is 0 then the Q value would not update. The hig
 epsilon = 1.0  # Starting Epsilon Rate, affects the exploration probability. Will decay
 decayRate = 0.00001  # Rate at which epsilon will decay per step
 epsilonMin = 0.01  # Minimum value at which epsilon will stop decaying
+n_epochsBeforeDecay = 15
 
 dictObservation = {
     "lat": 0,
@@ -38,7 +39,7 @@ flightDestinaion = [33.508, 126.487, 6000, -998, -998, -998, 1]  # Jeju SK
 
 env = QPlaneEnv(flightOrigin, flightDestinaion, n_actions,
                 end, dictObservation, dictAction)
-Q = QLearn(n_states, n_actions, gamma, lr, epsilon, decayRate, epsilonMin)
+Q = QLearn(n_states, n_actions, gamma, lr, epsilon, decayRate, epsilonMin, n_epochsBeforeDecay)
 
 
 # prints out all metrics

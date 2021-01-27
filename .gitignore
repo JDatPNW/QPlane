@@ -1,5 +1,6 @@
 #Project Specific
-./X-Plane.lnk
+X-Plane.lnk
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

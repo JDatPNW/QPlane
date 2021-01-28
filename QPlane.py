@@ -40,7 +40,7 @@ dictErrors = {
 # -998->NO CHANGE
 flightOrigin = [35.126, 126.809, 6000, 0.5, 0, 0, 1]  # Gwangju SK
 flightDestinaion = [33.508, 126.487, 6000, -998, -998, -998, 1]  # Jeju SK
-startingVelocity = -60
+startingVelocity = -55
 #  Other locations to use: Memmingen: [47.988, 10.240], Chicago: [41.976, -87.902]
 
 env = QPlaneEnv(flightOrigin, flightDestinaion, n_actions,
@@ -51,19 +51,19 @@ Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
 
 # prints out all metrics
 def log(i_epoch, i_step, reward, state, actions_binary, observation, control, explore, currentEpsilon):
-    print("\t\tGame ", i_epoch)
-    print("\t\t\tMove ", i_step)
-    print("\t\t\tState ", state)
-    print("\t\t\t\t[p+,p-,ro+,ro-,ru+,ru-,n]")
-    print("\t\t\tactions_binary = ", actions_binary)
-    print("\t\t\tCurrent Control:", control)
-    print("\t\t\tCurrent Orientation: ",
-          observation[dictObservation["pitch"]:dictObservation["gear"]])
-    print("\t\t\tCurrent AVE of QTable: ", np.average(Q.qTable))
-    print("\t\t\tExplored (Random): ", explore)
-    print("\t\t\tCurrent Epsilon: ", currentEpsilon)
-    print("\t\t\tCurrent Reward: ", reward)
-    print("\t\t\tError Code: ", dictErrors)
+    print("\t\tGame ", i_epoch,
+          "\t\t\tMove ", i_step,
+          "\n\t\t\tState ", state,
+          "\n\t\t\t\t[p+,p-,ro+,ro-,ru+,ru-,n]",
+          "\n\t\t\tactions_binary = ", actions_binary,
+          "\n\t\t\tCurrent Control:", control,
+          "\n\t\t\tCurrent Orientation: ",
+          observation[dictObservation["pitch"]:dictObservation["gear"]],
+          "\n\t\t\tCurrent AVE of QTable: ", np.average(Q.qTable),
+          "\n\t\t\tExplored (Random): ", explore,
+          "\n\t\t\tCurrent Epsilon: ", currentEpsilon,
+          "\n\t\t\tCurrent Reward: ", reward,
+          "\n\t\t\tError Code: ", dictErrors)
 
 
 # A single step(input), this will repeat n_steps times throughout a epoch
@@ -78,13 +78,15 @@ def step(i_step, done, reward, oldObservation):
             newObservation, actions_binary, control = env.update(
                 action, reward, oldObservation)  # Part that gets checked
         except socket.error as socketError:  # the specific error for connections used by xpc
-            dictErrors["update"] = socketError  # if it fils get error code/ reason for error
+            # if it fils get error code/ reason for error
+            dictErrors["update"] = socketError
             continue
         else:
             break
     else:  # if all 10 attempts fail
         newObservation, actions_binary, control = oldObservation,
-        [0, 0, 0, 0, 0, 0, 1], [0, 0, 0, -998, -998, -998]  # set values to dummy values - do nothing
+        # set values to dummy values - do nothing
+        [0, 0, 0, 0, 0, 0, 1], [0, 0, 0, -998, -998, -998]
 
     # Check if connections can be established 10x
     for attempt in range(10):
@@ -92,7 +94,8 @@ def step(i_step, done, reward, oldObservation):
             # Part that gets checked
             reward, done = env.step(action, oldObservation, newObservation)
         except socket.error as socketError:  # the specific error for connections used by xpc
-            dictErrors["step"] = socketError  # if it fils get error code/ reason for error
+            # if it fils get error code/ reason for error
+            dictErrors["step"] = socketError
             continue
         else:
             break
@@ -110,9 +113,11 @@ def epoch(i_epoch):
 
     for attempt in range(25):
         try:
-            oldObservation = env.reset(env.startingPosition)  # Part that gets checked
+            # Part that gets checked
+            oldObservation = env.reset(env.startingPosition)
         except socket.error as socketError:  # the specific error for connections used by xpc
-            dictErrors["reset"] = socketError  # if it fils get error code/ reason for error
+            # if it fils get error code/ reason for error
+            dictErrors["reset"] = socketError
             continue
         else:
             break

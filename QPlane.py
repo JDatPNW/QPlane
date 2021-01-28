@@ -89,7 +89,6 @@ def step(i_step, done, reward, oldObservation):
             newObservation, actions_binary, control = env.update(
                 action, reward, oldObservation)  # Part that gets checked
         except socket.error as socketError:  # the specific error for connections used by xpc
-            # if it fils get error code/ reason for error
             dictErrors["update"] = socketError
             continue
         else:
@@ -102,10 +101,8 @@ def step(i_step, done, reward, oldObservation):
     # Check if connections can be established 10x
     for attempt in range(10):
         try:
-            # Part that gets checked
             reward, done = env.step(action, oldObservation, newObservation)
         except socket.error as socketError:  # the specific error for connections used by xpc
-            # if it fils get error code/ reason for error
             dictErrors["step"] = socketError
             continue
         else:
@@ -124,16 +121,14 @@ def epoch(i_epoch):
 
     for attempt in range(25):
         try:
-            # Part that gets checked
             oldObservation = env.reset(env.startingPosition)
         except socket.error as socketError:  # the specific error for connections used by xpc
-            # if it fils get error code/ reason for error
             dictErrors["reset"] = socketError
             continue
         else:
             break
     else:  # if all 25 attempts fail
-        pass  # Error was during reset
+        oldObservation = env.startingPosition  # Error was during reset
 
     done = False
     reward = 0

@@ -4,7 +4,7 @@ from QPlaneEnv import QPlaneEnv
 import socket
 
 n_epochs = 500  # Number of generations
-n_steps = 100  # Number of inputs per generation
+n_steps = 500  # Number of inputs per generation
 n_actions = 7  # Number of possible inputs to choose from
 end = 50  # End parameter
 
@@ -52,7 +52,7 @@ Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
 # prints out all metrics
 def log(i_epoch, i_step, reward, state, actions_binary, observation, control, explore, currentEpsilon):
     print("\t\tGame ", i_epoch,
-          "\t\t\tMove ", i_step,
+          "\n\t\t\tMove ", i_step,
           "\n\t\t\tState ", state,
           "\n\t\t\t\t[p+,p-,ro+,ro-,ru+,ru-,n]",
           "\n\t\t\tactions_binary = ", actions_binary,

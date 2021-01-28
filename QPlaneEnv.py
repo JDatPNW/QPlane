@@ -23,58 +23,59 @@ class QPlaneEnv():
     def send_velo(self):
         client = self.xpc.XPlaneConnect()
 
-        client.sendDREF("sim/flightmodel/position/local_vx", 0)
-        client.sendDREF("sim/flightmodel/position/local_vy", 0)
-        client.sendDREF("sim/flightmodel/position/local_vz", self.startingVelocity)
+        client.sendDREF("sim/flightmodel/position/local_vx", 0)  # The velocity in local OGL coordinates +vx=E -vx=W
+        client.sendDREF("sim/flightmodel/position/local_vy", 0)  # The velocity in local OGL coordinates +=Vertical (up)
+        client.sendDREF("sim/flightmodel/position/local_vz", self.startingVelocity)  # The velocity in local OGL coordinates -vz=S +vz=N
 
         client.close()
         client = self.xpc.XPlaneConnect()
 
-        client.sendDREF("sim/flightmodel/position/theta", 0)
-        client.sendDREF("sim/flightmodel/position/phi", 0)
-        client.sendDREF("sim/flightmodel/position/psi", 0)
+        client.sendDREF("sim/flightmodel/position/theta", 0)  # The pitch of the aircraft relative to the earth precisely below the aircraft
+        client.sendDREF("sim/flightmodel/position/phi", 0)  # The roll of the aircraft in degrees – OpenGL coordinates
+        client.sendDREF("sim/flightmodel/position/psi", 0)  # The true heading of the aircraft in degrees from the Z axis – OpenGL coordinates
 
         client.close()
         client = self.xpc.XPlaneConnect()
 
-        client.sendDREF("sim/flightmodel/position/local_ax", 0)
-        client.sendDREF("sim/flightmodel/position/local_ay", 0)
-        client.sendDREF("sim/flightmodel/position/local_az", 0)
+        client.sendDREF("sim/flightmodel/position/local_ax", 0)  # The acceleration in local OGL coordinates +ax=E -ax=W
+        client.sendDREF("sim/flightmodel/position/local_ay", 0)  # The acceleration in local OGL coordinates +=Vertical (up)
+        client.sendDREF("sim/flightmodel/position/local_az", 0)  # The acceleration in local OGL coordinates -az=S +az=N
 
         client.close()
         client = self.xpc.XPlaneConnect()
 
-        client.sendDREF("sim/flightmodel/position/P", 0)
-        client.sendDREF("sim/flightmodel/position/Q", 0)
-        client.sendDREF("sim/flightmodel/position/R", 0)
+        client.sendDREF("sim/flightmodel/position/P", 0)  # The roll rotation rates (relative to the flight)
+        client.sendDREF("sim/flightmodel/position/Q", 0)  # The pitch rotation rates (relative to the flight)
+        client.sendDREF("sim/flightmodel/position/R", 0)  # The yaw rotation rates (relative to the flight)
 
         client.close()
         client = self.xpc.XPlaneConnect()
 
-        client.sendDREF("sim/flightmodel/position/true_theta", 0)
-        client.sendDREF("sim/flightmodel/position/true_phi", 0)
-        client.sendDREF("sim/flightmodel/position/true_psi", 0)
+        client.sendDREF("sim/flightmodel/position/true_theta", 0)  # The pitch of the aircraft relative to the earth precisely below the aircraft
+        client.sendDREF("sim/flightmodel/position/true_phi", 0)  # The roll of the aircraft relative to the earth precisely below the aircraft
+        client.sendDREF("sim/flightmodel/position/true_psi", 0)  # The heading of the aircraft relative to the earth precisely below the aircraft – true degrees north, always
 
         client.close()
         client = self.xpc.XPlaneConnect()
 
         # Wind speed
-        client.sendDREF("sim/weather/wind_speed_kt[0]", 0)
-        client.sendDREF("sim/weather/wind_speed_kt[1]", 0)
-        client.sendDREF("sim/weather/wind_speed_kt[2]", 0)
+        client.sendDREF("sim/weather/wind_speed_kt[0]", 0)  # >= 0 The wind speed in knots.
+        client.sendDREF("sim/weather/wind_speed_kt[1]", 0)  # >= 0 The wind speed in knots.
+        client.sendDREF("sim/weather/wind_speed_kt[2]", 0)  # >= 0 The wind speed in knots.
 
         client.close()
         client = self.xpc.XPlaneConnect()
 
-        client.sendDREF("sim/weather/wind_turbulence_percent", 0)
-        client.sendDREF("sim/weather/wind_direction_degt[0]", 0)
-        client.sendDREF("sim/weather/wind_direction_degt[1]", 0)
-        client.sendDREF("sim/weather/wind_direction_degt[2]", 0)
+        client.sendDREF("sim/weather/wind_turbulence_percent", 0)  # [0.0 – 1.0] The percentage of wind turbulence present.
+
+        client.sendDREF("sim/weather/wind_direction_degt[0]", 0)  # [0 – 360) The direction the wind is blowing from in degrees from true north c lockwise.
+        client.sendDREF("sim/weather/wind_direction_degt[1]", 0)  # [0 – 360) The direction the wind is blowing from in degrees from true north c lockwise.
+        client.sendDREF("sim/weather/wind_direction_degt[2]", 0)  # [0 – 360) The direction the wind is blowing from in degrees from true north c lockwise.
 
         client.close()
         client = self.xpc.XPlaneConnect()
 
-        client.sendDREF("sim/operation/failures/rel_g_fuel", 0)
+        client.sendDREF("sim/operation/failures/rel_g_fuel", 0)  # fuel quantity
 
         client.close()
 

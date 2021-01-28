@@ -1,7 +1,12 @@
+import socket
+import time
 import numpy as np
 from QLearn import QLearn
 from QPlaneEnv import QPlaneEnv
-import socket
+
+timeStart = time.time()
+timeEnd = time.time()
+logPeriod = 10
 
 n_epochs = 500  # Number of generations
 n_steps = 500  # Number of inputs per generation
@@ -51,8 +56,13 @@ Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
 
 # prints out all metrics
 def log(i_epoch, i_step, reward, state, actions_binary, observation, control, explore, currentEpsilon):
+    global timeStart  # Used to print time ellapsed between log calls
+    global timeEnd  # Used to print time ellapsed between log calls
+
+    timeEnd = time.time()  # End timer here
     print("\t\tGame ", i_epoch,
           "\n\t\t\tMove ", i_step,
+          "\n\t\t\tTime taken ", timeEnd - timeStart,
           "\n\t\t\tState ", state,
           "\n\t\t\t\t[p+,p-,ro+,ro-,ru+,ru-,n]",
           "\n\t\t\tactions_binary = ", actions_binary,
@@ -64,6 +74,7 @@ def log(i_epoch, i_step, reward, state, actions_binary, observation, control, ex
           "\n\t\t\tCurrent Epsilon: ", currentEpsilon,
           "\n\t\t\tCurrent Reward: ", reward,
           "\n\t\t\tError Code: ", dictErrors)
+    timeStart = time.time()  # Start timer here
 
 
 # A single step(input), this will repeat n_steps times throughout a epoch
@@ -129,8 +140,9 @@ def epoch(i_epoch):
     for i_step in range(n_steps):
         done, oldState, newState, action, actions_binary, oldObservation, newObservation, control, reward, explore, currentEpsilon = step(
             i_step, done, reward, oldObservation)
-        log(i_epoch, i_step, reward, oldState,
-            actions_binary, oldObservation, control, explore, currentEpsilon)
+        if(i_step % logPeriod == 0):  # log every logPeriod steps
+            log(i_epoch, i_step, reward, oldState,
+                actions_binary, oldObservation, control, explore, currentEpsilon)
         dictErrors["reset"], dictErrors["update"], dictErrors["step"] = [0, 0, 0]
         if done:
             break

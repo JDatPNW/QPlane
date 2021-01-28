@@ -27,35 +27,24 @@ class QPlaneEnv():
         client.sendDREF("sim/flightmodel/position/local_vy", 0)  # The velocity in local OGL coordinates +=Vertical (up)
         client.sendDREF("sim/flightmodel/position/local_vz", self.startingVelocity)  # The velocity in local OGL coordinates -vz=S +vz=N
 
-        client.close()
-        client = self.xpc.XPlaneConnect()
-
         client.sendDREF("sim/flightmodel/position/theta", 0)  # The pitch of the aircraft relative to the earth precisely below the aircraft
         client.sendDREF("sim/flightmodel/position/phi", 0)  # The roll of the aircraft in degrees – OpenGL coordinates
         client.sendDREF("sim/flightmodel/position/psi", 0)  # The true heading of the aircraft in degrees from the Z axis – OpenGL coordinates
-
-        client.close()
-        client = self.xpc.XPlaneConnect()
 
         client.sendDREF("sim/flightmodel/position/local_ax", 0)  # The acceleration in local OGL coordinates +ax=E -ax=W
         client.sendDREF("sim/flightmodel/position/local_ay", 0)  # The acceleration in local OGL coordinates +=Vertical (up)
         client.sendDREF("sim/flightmodel/position/local_az", 0)  # The acceleration in local OGL coordinates -az=S +az=N
 
-        client.close()
-        client = self.xpc.XPlaneConnect()
-
         client.sendDREF("sim/flightmodel/position/P", 0)  # The roll rotation rates (relative to the flight)
         client.sendDREF("sim/flightmodel/position/Q", 0)  # The pitch rotation rates (relative to the flight)
         client.sendDREF("sim/flightmodel/position/R", 0)  # The yaw rotation rates (relative to the flight)
-
-        client.close()
-        client = self.xpc.XPlaneConnect()
 
         client.sendDREF("sim/flightmodel/position/true_theta", 0)  # The pitch of the aircraft relative to the earth precisely below the aircraft
         client.sendDREF("sim/flightmodel/position/true_phi", 0)  # The roll of the aircraft relative to the earth precisely below the aircraft
         client.sendDREF("sim/flightmodel/position/true_psi", 0)  # The heading of the aircraft relative to the earth precisely below the aircraft – true degrees north, always
 
         client.close()
+        '''
         client = self.xpc.XPlaneConnect()
 
         # Wind speed
@@ -81,6 +70,7 @@ class QPlaneEnv():
         client.sendDREF("sim/operation/failures/rel_cop_dgy", 0)  # Directional Gyro (CoPilot) failure_enum
 
         client.close()
+        '''
 
     def send_ctrl(self, ctrl):
         client = self.xpc.XPlaneConnect()
@@ -221,30 +211,30 @@ class QPlaneEnv():
         reward = float((5 - (roll + pitch)) / 5)
 
         if(abs(newObservation[self.dictObservation["roll"]]) > 50):
-            reward = reward * 0.25
+            reward = reward * 0.01
         elif(abs(newObservation[self.dictObservation["roll"]]) > 25):
-            reward = reward * 0.5
+            reward = reward * 0.05
         elif(abs(newObservation[self.dictObservation["roll"]]) > 10):
-            reward = reward * 0.575
+            reward = reward * 0.125
         elif(abs(newObservation[self.dictObservation["roll"]]) > 5):
-            reward = reward * 0.9
+            reward = reward * 0.25
         elif(abs(newObservation[self.dictObservation["roll"]]) > 2):
-            reward = reward * 0.95
+            reward = reward * 0.5
         elif(abs(newObservation[self.dictObservation["roll"]]) > 1):
-            reward = reward * 0.95
+            reward = reward * 0.75
 
         if(abs(newObservation[self.dictObservation["pitch"]]) > 40):
-            reward = reward * 0.1
+            reward = reward * 0.01
         elif(abs(newObservation[self.dictObservation["pitch"]]) > 25):
-            reward = reward * 0.25
+            reward = reward * 0.05
         elif(abs(newObservation[self.dictObservation["pitch"]]) > 10):
-            reward = reward * 0.5
+            reward = reward * 0.125
         elif(abs(newObservation[self.dictObservation["pitch"]]) > 5):
-            reward = reward * 0.75
+            reward = reward * 0.25
         elif(abs(newObservation[self.dictObservation["pitch"]]) > 2):
-            reward = reward * 0.85
+            reward = reward * 0.5
         elif(abs(newObservation[self.dictObservation["pitch"]]) > 1):
-            reward = reward * 0.95
+            reward = reward * 0.75
         '''
         if (action == self.dictAction["pi+"]):
             if (newObservation[self.dictObservation["pitch"]] > 2.0):

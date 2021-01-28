@@ -4,7 +4,7 @@ import imp
 
 class QPlaneEnv():
 
-    def __init__(self, orig, dest, n_acts, endParam, dictObservation, dictAction):
+    def __init__(self, orig, dest, n_acts, endParam, dictObservation, dictAction, speed):
         self.startingPosition = orig
         self.destinationPosition = dest
         self.previousPosition = orig
@@ -13,7 +13,7 @@ class QPlaneEnv():
         self.xpc = imp.load_source('xpc', 'xpc.py')
         self.dictObservation = dictObservation
         self.dictAction = dictAction
-        self.startingVelocity = -50
+        self.startingVelocity = speed
 
     def send_posi(self, posi):
         client = self.xpc.XPlaneConnect()

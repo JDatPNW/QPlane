@@ -40,10 +40,11 @@ dictErrors = {
 # -998->NO CHANGE
 flightOrigin = [35.126, 126.809, 6000, 0.5, 0, 0, 1]  # Gwangju SK
 flightDestinaion = [33.508, 126.487, 6000, -998, -998, -998, 1]  # Jeju SK
+startingVelocity = -60
 #  Other locations to use: Memmingen: [47.988, 10.240], Chicago: [41.976, -87.902]
 
 env = QPlaneEnv(flightOrigin, flightDestinaion, n_actions,
-                end, dictObservation, dictAction)
+                end, dictObservation, dictAction, startingVelocity)
 Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
            decayRate, epsilonMin, n_epochsBeforeDecay)
 

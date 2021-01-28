@@ -25,24 +25,56 @@ class QPlaneEnv():
 
         client.sendDREF("sim/flightmodel/position/local_vx", 0)
         client.sendDREF("sim/flightmodel/position/local_vy", 0)
-        client.sendDREF("sim/flightmodel/position/local_vz",
-                        self.startingVelocity)
+        client.sendDREF("sim/flightmodel/position/local_vz", self.startingVelocity)
+
+        client.close()
+        client = self.xpc.XPlaneConnect()
 
         client.sendDREF("sim/flightmodel/position/theta", 0)
         client.sendDREF("sim/flightmodel/position/phi", 0)
         client.sendDREF("sim/flightmodel/position/psi", 0)
 
+        client.close()
+        client = self.xpc.XPlaneConnect()
+
         client.sendDREF("sim/flightmodel/position/local_ax", 0)
         client.sendDREF("sim/flightmodel/position/local_ay", 0)
         client.sendDREF("sim/flightmodel/position/local_az", 0)
+
+        client.close()
+        client = self.xpc.XPlaneConnect()
 
         client.sendDREF("sim/flightmodel/position/P", 0)
         client.sendDREF("sim/flightmodel/position/Q", 0)
         client.sendDREF("sim/flightmodel/position/R", 0)
 
+        client.close()
+        client = self.xpc.XPlaneConnect()
+
         client.sendDREF("sim/flightmodel/position/true_theta", 0)
         client.sendDREF("sim/flightmodel/position/true_phi", 0)
         client.sendDREF("sim/flightmodel/position/true_psi", 0)
+
+        client.close()
+        client = self.xpc.XPlaneConnect()
+
+        # Wind speed
+        client.sendDREF("sim/weather/wind_speed_kt[0]", 0)
+        client.sendDREF("sim/weather/wind_speed_kt[1]", 0)
+        client.sendDREF("sim/weather/wind_speed_kt[2]", 0)
+
+        client.close()
+        client = self.xpc.XPlaneConnect()
+
+        client.sendDREF("sim/weather/wind_turbulence_percent", 0)
+        client.sendDREF("sim/weather/wind_direction_degt[0]", 0)
+        client.sendDREF("sim/weather/wind_direction_degt[1]", 0)
+        client.sendDREF("sim/weather/wind_direction_degt[2]", 0)
+
+        client.close()
+        client = self.xpc.XPlaneConnect()
+
+        client.sendDREF("sim/operation/failures/rel_g_fuel", 0)
 
         client.close()
 
@@ -195,7 +227,7 @@ class QPlaneEnv():
         elif(abs(newObservation[self.dictObservation["roll"]]) > 2):
             reward = reward * 0.95
         elif(abs(newObservation[self.dictObservation["roll"]]) > 1):
-            reward = reward * 0.99
+            reward = reward * 0.95
 
         if(abs(newObservation[self.dictObservation["pitch"]]) > 40):
             reward = reward * 0.1
@@ -208,8 +240,8 @@ class QPlaneEnv():
         elif(abs(newObservation[self.dictObservation["pitch"]]) > 2):
             reward = reward * 0.85
         elif(abs(newObservation[self.dictObservation["pitch"]]) > 1):
-            reward = reward * 0.99
-
+            reward = reward * 0.95
+        '''
         if (action == self.dictAction["pi+"]):
             if (newObservation[self.dictObservation["pitch"]] > 2.0):
                 reward = reward * 0.25
@@ -225,7 +257,7 @@ class QPlaneEnv():
         if (action == self.dictAction["ro-"]):
             if (newObservation[self.dictObservation["roll"]] < -2.0):
                 reward = reward * 0.25
-
+        '''
         done = False
         if False:  # Would be used for end parameter - for example, if plane crahsed done, or if plane reached end done
             done = True

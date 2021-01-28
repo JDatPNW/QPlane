@@ -1,3 +1,4 @@
+import numpy as np
 from QLearn import QLearn
 from QPlaneEnv import QPlaneEnv
 import socket
@@ -11,7 +12,7 @@ n_states = 240  # Number of states
 gamma = 0.95  # The discount rate - between 0 an 1!  if = 0 then no learning, ! The higher it is the more the new q will factor into the update of the q value
 lr = 0.1  # Learning Rate. If LR is 0 then the Q value would not update. The higher the value the quicker the agent will adopt the NEW Q value. If lr = 1, the updated value would be exactly be the newly calculated q value, completely ignoring the previous one
 epsilon = 1.0  # Starting Epsilon Rate, affects the exploration probability. Will decay
-decayRate = 0.00001  # Rate at which epsilon will decay per step
+decayRate = 0.0001  # Rate at which epsilon will decay per step
 epsilonMin = 0.01  # Minimum value at which epsilon will stop decaying
 n_epochsBeforeDecay = 31  # number of games to be played before epsilon starts to decay
 
@@ -37,7 +38,7 @@ dictErrors = {
     "step": 0}
 
 # -998->NO CHANGE
-flightOrigin = [35.126, 126.809, 6000, 0, 0, 0, 1]  # Gwangju SK
+flightOrigin = [35.126, 126.809, 6000, 0.5, 0, 0, 1]  # Gwangju SK
 flightDestinaion = [33.508, 126.487, 6000, -998, -998, -998, 1]  # Jeju SK
 #  Other locations to use: Memmingen: [47.988, 10.240], Chicago: [41.976, -87.902]
 
@@ -57,6 +58,7 @@ def log(i_epoch, i_step, reward, state, actions_binary, observation, control, ex
     print("\t\t\tCurrent Control:", control)
     print("\t\t\tCurrent Orientation: ",
           observation[dictObservation["pitch"]:dictObservation["gear"]])
+    print("\t\t\tCurrent AVE of QTable: ", np.average(Q.qTable))
     print("\t\t\tExplored (Random): ", explore)
     print("\t\t\tCurrent Epsilon: ", currentEpsilon)
     print("\t\t\tCurrent Reward: ", reward)
@@ -80,8 +82,8 @@ def step(i_step, done, reward, oldObservation):
         else:
             break
     else:  # if all 10 attempts fail
-        newObservation, actions_binary, control = oldObservation, [
-            0, 0, 0, 0, 0, 0, 1], [0, 0, 0, 0, -998, -998]  # set values to dummy values - do nothing
+        newObservation, actions_binary, control = oldObservation,
+        [0, 0, 0, 0, 0, 0, 1], [0, 0, 0, -998, -998, -998]  # set values to dummy values - do nothing
 
     # Check if connections can be established 10x
     for attempt in range(10):
@@ -116,7 +118,6 @@ def epoch(i_epoch):
     else:  # if all 25 attempts fail
         pass  # Error was during reset
 
-    oldObservation = env.reset(env.startingPosition)
     done = False
     reward = 0
     for i_step in range(n_steps):

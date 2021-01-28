@@ -110,6 +110,9 @@ class QPlaneEnv():
         else:
             ctrl = [0, 0, 0, 0.5, -998, -998]
 
+        if (actionCtrl == 2):
+            ctrl[actionCtrl] = 0.01  # Doing this because the pedals don't work with the applied degree idea
+
         if(action % 2 != 0):  # check if action should be positive or negative
             ctrl[actionCtrl] = -ctrl[actionCtrl]
 

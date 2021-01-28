@@ -94,9 +94,8 @@ def step(i_step, done, reward, oldObservation):
         else:
             break
     else:  # if all 10 attempts fail
-        newObservation, actions_binary, control = oldObservation,
         # set values to dummy values - do nothing
-        [0, 0, 0, 0, 0, 0, 1], [0, 0, 0, -998, -998, -998]
+        newObservation, actions_binary, control = oldObservation, [0, 0, 0, 0, 0, 0, 1], [0, 0, 0, -998, -998, -998]
 
     # Check if connections can be established 10x
     for attempt in range(10):

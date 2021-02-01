@@ -4,6 +4,9 @@ import numpy as np
 from QLearn import QLearn
 from QPlaneEnv import QPlaneEnv
 
+# TODO: FORCED EXPLORATION??? ALL INPUTS ARE SET BY ME, NOT predicted
+# SO ONE RUN IS ALL RIGHT, NEXT IS ALL DOWN, NEXT IS ALL LEFT AND SO ON??
+
 experimentName = "TestingAndDebugging" + str(time.time())
 
 timeStart = time.time()

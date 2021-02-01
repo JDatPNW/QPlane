@@ -4,7 +4,7 @@ import imp
 
 class QPlaneEnv():
 
-    def __init__(self, orig, dest, n_acts, endParam, dictObservation, dictAction, speed):
+    def __init__(self, orig, dest, n_acts, endParam, dictObservation, dictAction, dictRotation, speed):
         self.startingPosition = orig
         self.destinationPosition = dest
         self.previousPosition = orig
@@ -13,11 +13,12 @@ class QPlaneEnv():
         self.xpc = imp.load_source('xpc', 'xpc.py')
         self.dictObservation = dictObservation
         self.dictAction = dictAction
+        self.dictRotation = dictRotation
         self.startingVelocity = speed
 
     def send_posi(self, posi, rotation):
-        posi[self.dictObservation["pitch"]] = rotation[1]
-        posi[self.dictObservation["roll"]] = rotation[0]
+        posi[self.dictObservation["pitch"]] = rotation[self.dictRotation["pitch"]]
+        posi[self.dictObservation["roll"]] = rotation[self.dictRotation["roll"]]
         client = self.xpc.XPlaneConnect()
         client.sendPOSI(posi)
         client.close()
@@ -26,7 +27,7 @@ class QPlaneEnv():
         client = self.xpc.XPlaneConnect()
 
         client.sendDREF("sim/flightmodel/position/local_vx", 0)  # The velocity in local OGL coordinates +vx=E -vx=W
-        client.sendDREF("sim/flightmodel/position/local_vy", rotation[2])  # The velocity in local OGL coordinates +=Vertical (up)
+        client.sendDREF("sim/flightmodel/position/local_vy", rotation[self.dictRotation["velocityY"]])  # The velocity in local OGL coordinates +=Vertical (up)
         client.sendDREF("sim/flightmodel/position/local_vz", self.startingVelocity)  # The velocity in local OGL coordinates -vz=S +vz=N
 
         client.sendDREF("sim/flightmodel/position/local_ax", 0)  # The acceleration in local OGL coordinates +ax=E -ax=W

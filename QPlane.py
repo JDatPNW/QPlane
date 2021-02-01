@@ -44,21 +44,36 @@ dictErrors = {
     "reset": 0,
     "update": 0,
     "step": 0}
-
+dictRotation = {
+    "pitch": 0,
+    "roll": 1,
+    "velocityY": 2}
 # -998->NO CHANGE
 flightOrigin = [35.126, 126.809, 6000, 0, 0, 0, 1]  # Gwangju SK
 flightDestinaion = [33.508, 126.487, 6000, -998, -998, -998, 1]  # Jeju SK
 startingVelocity = -55
 #  Other locations to use: Memmingen: [47.988, 10.240], Chicago: [41.976, -87.902]
 
-flightStartRotation = [[-45, -25, -20], [-45, 0, 0], [-45, 25, 20],
-                       [0, -25, -20], [0, 0, 0], [0, 25, 20], [45, -25, -20], [45, 0, 0], [45, 25, 20]]  # [roll, pitch,y-vel]
+flightStartPitch = 25  # Will be used as -value / 0 / value
+flightStartRoll = 45  # Will be used as -value / 0 / value
+flightStartVelocityY = 25  # Will be used as -value / 0 / value
+
+flightStartRotation = [[-flightStartPitch, -flightStartRoll, -flightStartVelocityY],
+                       [-flightStartPitch, 0, 0],
+                       [-flightStartPitch, flightStartRoll, flightStartVelocityY],
+                       [0, -flightStartRoll, -flightStartVelocityY],
+                       [0, 0, 0],
+                       [0, flightStartRoll, flightStartVelocityY],
+                       [flightStartPitch, -flightStartRoll, -flightStartVelocityY],
+                       [flightStartPitch, 0, 0],
+                       [flightStartPitch, flightStartRoll, flightStartVelocityY]]
+
 # TODO SWITCH ROLL AND PITCH HERE AND IN ALL FUNCTIONS
 # Dictionary?
 # Make the values variables!
 
 env = QPlaneEnv(flightOrigin, flightDestinaion, n_actions,
-                end, dictObservation, dictAction, startingVelocity)
+                end, dictObservation, dictAction, dictRotation, startingVelocity)
 Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
            decayRate, epsilonMin, n_epochsBeforeDecay, experimentName)
 

@@ -20,15 +20,15 @@ class QPlaneEnv():
         client.sendPOSI(posi)
         client.close()
 
-    def send_velo(self):
+    def send_velo(self, rotation):
         client = self.xpc.XPlaneConnect()
 
         client.sendDREF("sim/flightmodel/position/local_vx", 0)  # The velocity in local OGL coordinates +vx=E -vx=W
         client.sendDREF("sim/flightmodel/position/local_vy", 0)  # The velocity in local OGL coordinates +=Vertical (up)
         client.sendDREF("sim/flightmodel/position/local_vz", self.startingVelocity)  # The velocity in local OGL coordinates -vz=S +vz=N
 
-        client.sendDREF("sim/flightmodel/position/theta", 0)  # The pitch of the aircraft relative to the earth precisely below the aircraft
-        client.sendDREF("sim/flightmodel/position/phi", 0)  # The roll of the aircraft in degrees – OpenGL coordinates
+        client.sendDREF("sim/flightmodel/position/theta", rotation[1])  # The pitch of the aircraft relative to the earth precisely below the aircraft
+        client.sendDREF("sim/flightmodel/position/phi", rotation[0])  # The roll of the aircraft in degrees – OpenGL coordinates
         client.sendDREF("sim/flightmodel/position/psi", 0)  # The true heading of the aircraft in degrees from the Z axis – OpenGL coordinates
 
         client.sendDREF("sim/flightmodel/position/local_ax", 0)  # The acceleration in local OGL coordinates +ax=E -ax=W
@@ -44,7 +44,8 @@ class QPlaneEnv():
         client.sendDREF("sim/flightmodel/position/true_psi", 0)  # The heading of the aircraft relative to the earth precisely below the aircraft – true degrees north, always
 
         client.close()
-        '''
+
+    def send_envParam(self):
         client = self.xpc.XPlaneConnect()
 
         # Wind speed
@@ -52,17 +53,11 @@ class QPlaneEnv():
         client.sendDREF("sim/weather/wind_speed_kt[1]", 0)  # >= 0 The wind speed in knots.
         client.sendDREF("sim/weather/wind_speed_kt[2]", 0)  # >= 0 The wind speed in knots.
 
-        client.close()
-        client = self.xpc.XPlaneConnect()
-
         client.sendDREF("sim/weather/wind_turbulence_percent", 0)  # [0.0 – 1.0] The percentage of wind turbulence present.
 
         client.sendDREF("sim/weather/wind_direction_degt[0]", 0)  # [0 – 360) The direction the wind is blowing from in degrees from true north c lockwise.
         client.sendDREF("sim/weather/wind_direction_degt[1]", 0)  # [0 – 360) The direction the wind is blowing from in degrees from true north c lockwise.
         client.sendDREF("sim/weather/wind_direction_degt[2]", 0)  # [0 – 360) The direction the wind is blowing from in degrees from true north c lockwise.
-
-        client.close()
-        client = self.xpc.XPlaneConnect()
 
         client.sendDREF("sim/operation/failures/rel_g_fuel", 0)  # fuel quantity failure_enum
 
@@ -70,7 +65,6 @@ class QPlaneEnv():
         client.sendDREF("sim/operation/failures/rel_cop_dgy", 0)  # Directional Gyro (CoPilot) failure_enum
 
         client.close()
-        '''
 
     def send_ctrl(self, ctrl):
         client = self.xpc.XPlaneConnect()
@@ -88,14 +82,6 @@ class QPlaneEnv():
         r = client.getCTRL(0)
         client.close()
         return r
-
-    def reset(self, posi):
-        self.send_posi(posi)
-        self.send_velo()
-        # this means it will not control the stick during the reset
-        self.send_ctrl([0, 0, 0, 0, 0, 0, 1])
-        new_posi = self.get_posi()
-        return new_posi
 
     def getControl(self, ctrl, action, reward, observation):
         # translate the action to the controll space value
@@ -272,3 +258,12 @@ class QPlaneEnv():
         self.send_ctrl(newCtrl)
         posi = self.get_posi()
         return posi, actions_binary, newCtrl
+
+    def reset(self, posi, rotation):
+        self.send_posi(posi)
+        self.send_velo(rotation)
+        # self.send_envParam()
+        # this means it will not control the stick during the reset
+        self.send_ctrl([0, 0, 0, 0, 0, 0, 1])
+        new_posi = self.get_posi()
+        return new_posi

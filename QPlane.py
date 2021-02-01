@@ -21,8 +21,8 @@ gamma = 0.95  # The discount rate - between 0 an 1!  if = 0 then no learning, ! 
 lr = 0.1  # Learning Rate. If LR is 0 then the Q value would not update. The higher the value the quicker the agent will adopt the NEW Q value. If lr = 1, the updated value would be exactly be the newly calculated q value, completely ignoring the previous one
 epsilon = 1.0  # Starting Epsilon Rate, affects the exploration probability. Will decay
 decayRate = 0.0001  # Rate at which epsilon will decay per step
-epsilonMin = 0.01  # Minimum value at which epsilon will stop decaying
-n_epochsBeforeDecay = 31  # number of games to be played before epsilon starts to decay
+epsilonMin = 0.1  # Minimum value at which epsilon will stop decaying
+n_epochsBeforeDecay = 90  # number of games to be played before epsilon starts to decay
 
 dictObservation = {
     "lat": 0,
@@ -67,10 +67,6 @@ flightStartRotation = [[-flightStartPitch, -flightStartRoll, -flightStartVelocit
                        [flightStartPitch, -flightStartRoll, -flightStartVelocityY],
                        [flightStartPitch, 0, 0],
                        [flightStartPitch, flightStartRoll, flightStartVelocityY]]
-
-# TODO SWITCH ROLL AND PITCH HERE AND IN ALL FUNCTIONS
-# Dictionary?
-# Make the values variables!
 
 env = QPlaneEnv(flightOrigin, flightDestinaion, n_actions,
                 end, dictObservation, dictAction, dictRotation, startingVelocity)

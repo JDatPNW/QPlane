@@ -33,19 +33,6 @@ class QPlaneEnv():
         client.sendDREF("sim/flightmodel/position/local_ax", 0)  # The acceleration in local OGL coordinates +ax=E -ax=W
         client.sendDREF("sim/flightmodel/position/local_ay", 0)  # The acceleration in local OGL coordinates +=Vertical (up)
         client.sendDREF("sim/flightmodel/position/local_az", 0)  # The acceleration in local OGL coordinates -az=S +az=N
-        '''
-        client.sendDREF("sim/flightmodel/position/theta", 0)  # The pitch of the aircraft relative to the earth precisely below the aircraft
-        client.sendDREF("sim/flightmodel/position/phi", 0)  # The roll of the aircraft in degrees – OpenGL coordinates
-        client.sendDREF("sim/flightmodel/position/psi", 0)  # The true heading of the aircraft in degrees from the Z axis – OpenGL coordinates
-
-        client.sendDREF("sim/flightmodel/position/P", 0)  # The roll rotation rates (relative to the flight)
-        client.sendDREF("sim/flightmodel/position/Q", 0)  # The pitch rotation rates (relative to the flight)
-        client.sendDREF("sim/flightmodel/position/R", 0)  # The yaw rotation rates (relative to the flight)
-
-        client.sendDREF("sim/flightmodel/position/true_theta", 0)  # The pitch of the aircraft relative to the earth precisely below the aircraft
-        client.sendDREF("sim/flightmodel/position/true_phi", 0)  # The roll of the aircraft relative to the earth precisely below the aircraft
-        client.sendDREF("sim/flightmodel/position/true_psi", 0)  # The heading of the aircraft relative to the earth precisely below the aircraft – true degrees north, always
-        '''
 
         client.close()
 
@@ -200,48 +187,33 @@ class QPlaneEnv():
             abs(newObservation[self.dictObservation["pitch"]] / 180) * 2)
         reward = float((5 - (roll + pitch)) / 5)
 
-        if(abs(newObservation[self.dictObservation["roll"]]) > 50):
-            reward = reward * 0.01
-        elif(abs(newObservation[self.dictObservation["roll"]]) > 25):
-            reward = reward * 0.05
+        if(abs(newObservation[self.dictObservation["roll"]]) > 40):
+            reward = reward * 0
+        elif(abs(newObservation[self.dictObservation["roll"]]) > 20):
+            reward = reward * 0.1
         elif(abs(newObservation[self.dictObservation["roll"]]) > 10):
-            reward = reward * 0.125
-        elif(abs(newObservation[self.dictObservation["roll"]]) > 5):
-            reward = reward * 0.25
-        elif(abs(newObservation[self.dictObservation["roll"]]) > 2):
-            reward = reward * 0.5
+            reward = reward * 0.2
         elif(abs(newObservation[self.dictObservation["roll"]]) > 1):
-            reward = reward * 0.75
+            reward = reward * 0.5
 
         if(abs(newObservation[self.dictObservation["pitch"]]) > 40):
-            reward = reward * 0.01
-        elif(abs(newObservation[self.dictObservation["pitch"]]) > 25):
-            reward = reward * 0.05
+            reward = reward * 0
+        elif(abs(newObservation[self.dictObservation["pitch"]]) > 20):
+            reward = reward * 0.1
         elif(abs(newObservation[self.dictObservation["pitch"]]) > 10):
-            reward = reward * 0.125
-        elif(abs(newObservation[self.dictObservation["pitch"]]) > 5):
-            reward = reward * 0.25
-        elif(abs(newObservation[self.dictObservation["pitch"]]) > 2):
-            reward = reward * 0.5
+            reward = reward * 0.2
         elif(abs(newObservation[self.dictObservation["pitch"]]) > 1):
-            reward = reward * 0.75
-        '''
-        if (action == self.dictAction["pi+"]):
-            if (newObservation[self.dictObservation["pitch"]] > 2.0):
-                reward = reward * 0.25
+            reward = reward * 0.5
 
-        if (action == self.dictAction["pi-"]):
-            if (newObservation[self.dictObservation["pitch"]] < -2.0):
-                reward = reward * 0.25
+        if(90 > abs(newObservation[self.dictObservation["yaw"]]) > 90):
+            reward = reward * 0
+        elif(300 > abs(newObservation[self.dictObservation["yaw"]]) > 60):
+            reward = reward * 0.2
+        elif(330 > abs(newObservation[self.dictObservation["yaw"]]) > 30):
+            reward = reward * 0.5
+        elif(355 > abs(newObservation[self.dictObservation["yaw"]]) > 5):
+            reward = reward * 0.8
 
-        if (action == self.dictAction["ro+"]):
-            if (newObservation[self.dictObservation["roll"]] > 2.0):
-                reward = reward * 0.25
-
-        if (action == self.dictAction["ro-"]):
-            if (newObservation[self.dictObservation["roll"]] < -2.0):
-                reward = reward * 0.25
-        '''
         done = False
         if False:  # Would be used for end parameter - for example, if plane crahsed done, or if plane reached end done
             done = True
@@ -267,7 +239,6 @@ class QPlaneEnv():
         self.send_posi(posi, rotation)
         self.send_velo(rotation)
         # self.send_envParam()
-        # this means it will not control the stick during the reset
-        self.send_ctrl([0, 0, 0, 0, 0, 0, 1])
+        self.send_ctrl([0, 0, 0, 0, 0, 0, 1])  # this means it will not control the stick during the reset
         new_posi = self.get_posi()
         return new_posi

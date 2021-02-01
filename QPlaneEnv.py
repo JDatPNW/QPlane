@@ -15,7 +15,9 @@ class QPlaneEnv():
         self.dictAction = dictAction
         self.startingVelocity = speed
 
-    def send_posi(self, posi):
+    def send_posi(self, posi, rotation):
+        posi[self.dictObservation["pitch"]] = rotation[1]
+        posi[self.dictObservation["roll"]] = rotation[0]
         client = self.xpc.XPlaneConnect()
         client.sendPOSI(posi)
         client.close()
@@ -24,16 +26,16 @@ class QPlaneEnv():
         client = self.xpc.XPlaneConnect()
 
         client.sendDREF("sim/flightmodel/position/local_vx", 0)  # The velocity in local OGL coordinates +vx=E -vx=W
-        client.sendDREF("sim/flightmodel/position/local_vy", 0)  # The velocity in local OGL coordinates +=Vertical (up)
+        client.sendDREF("sim/flightmodel/position/local_vy", rotation[2])  # The velocity in local OGL coordinates +=Vertical (up)
         client.sendDREF("sim/flightmodel/position/local_vz", self.startingVelocity)  # The velocity in local OGL coordinates -vz=S +vz=N
-
-        client.sendDREF("sim/flightmodel/position/theta", rotation[1])  # The pitch of the aircraft relative to the earth precisely below the aircraft
-        client.sendDREF("sim/flightmodel/position/phi", rotation[0])  # The roll of the aircraft in degrees – OpenGL coordinates
-        client.sendDREF("sim/flightmodel/position/psi", 0)  # The true heading of the aircraft in degrees from the Z axis – OpenGL coordinates
 
         client.sendDREF("sim/flightmodel/position/local_ax", 0)  # The acceleration in local OGL coordinates +ax=E -ax=W
         client.sendDREF("sim/flightmodel/position/local_ay", 0)  # The acceleration in local OGL coordinates +=Vertical (up)
         client.sendDREF("sim/flightmodel/position/local_az", 0)  # The acceleration in local OGL coordinates -az=S +az=N
+        '''
+        client.sendDREF("sim/flightmodel/position/theta", 0)  # The pitch of the aircraft relative to the earth precisely below the aircraft
+        client.sendDREF("sim/flightmodel/position/phi", 0)  # The roll of the aircraft in degrees – OpenGL coordinates
+        client.sendDREF("sim/flightmodel/position/psi", 0)  # The true heading of the aircraft in degrees from the Z axis – OpenGL coordinates
 
         client.sendDREF("sim/flightmodel/position/P", 0)  # The roll rotation rates (relative to the flight)
         client.sendDREF("sim/flightmodel/position/Q", 0)  # The pitch rotation rates (relative to the flight)
@@ -42,6 +44,7 @@ class QPlaneEnv():
         client.sendDREF("sim/flightmodel/position/true_theta", 0)  # The pitch of the aircraft relative to the earth precisely below the aircraft
         client.sendDREF("sim/flightmodel/position/true_phi", 0)  # The roll of the aircraft relative to the earth precisely below the aircraft
         client.sendDREF("sim/flightmodel/position/true_psi", 0)  # The heading of the aircraft relative to the earth precisely below the aircraft – true degrees north, always
+        '''
 
         client.close()
 
@@ -260,7 +263,7 @@ class QPlaneEnv():
         return posi, actions_binary, newCtrl
 
     def reset(self, posi, rotation):
-        self.send_posi(posi)
+        self.send_posi(posi, rotation)
         self.send_velo(rotation)
         # self.send_envParam()
         # this means it will not control the stick during the reset

@@ -12,7 +12,7 @@ logPeriod = 10
 savePeriod = 25
 
 n_epochs = 500  # Number of generations
-n_steps = 10  # Number of inputs per generation
+n_steps = 500  # Number of inputs per generation
 n_actions = 7  # Number of possible inputs to choose from
 end = 50  # End parameter
 
@@ -46,13 +46,16 @@ dictErrors = {
     "step": 0}
 
 # -998->NO CHANGE
-flightOrigin = [35.126, 126.809, 6000, 0.5, 0, 0, 1]  # Gwangju SK
+flightOrigin = [35.126, 126.809, 6000, 0, 0, 0, 1]  # Gwangju SK
 flightDestinaion = [33.508, 126.487, 6000, -998, -998, -998, 1]  # Jeju SK
 startingVelocity = -55
 #  Other locations to use: Memmingen: [47.988, 10.240], Chicago: [41.976, -87.902]
 
-flightStartRotation = [[-45, -15], [-45, 0], [-45, 15],
-                       [0, -15], [0, 0], [0, 15], [45, -15], [45, 0], [45, 15]]
+flightStartRotation = [[-45, -25, -20], [-45, 0, 0], [-45, 25, 20],
+                       [0, -25, -20], [0, 0, 0], [0, 25, 20], [45, -25, -20], [45, 0, 0], [45, 25, 20]]  # [roll, pitch,y-vel]
+# TODO SWITCH ROLL AND PITCH HERE AND IN ALL FUNCTIONS
+# Dictionary?
+# Make the values variables!
 
 env = QPlaneEnv(flightOrigin, flightDestinaion, n_actions,
                 end, dictObservation, dictAction, startingVelocity)

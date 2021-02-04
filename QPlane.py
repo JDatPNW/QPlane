@@ -11,8 +11,8 @@ experimentName = "TestingAndDebugging" + str(time.time())
 
 timeStart = time.time()
 timeEnd = time.time()
-logPeriod = 10
-savePeriod = 25
+logPeriod = 10  # every so many epochs the metrics will be printed into the console
+savePeriod = 25  # every so many epochs the table/model will be saved to a file
 
 n_epochs = 500  # Number of generations
 n_steps = 500  # Number of inputs per generation
@@ -70,6 +70,14 @@ flightStartRotation = [[-flightStartPitch, -flightStartRoll, -flightStartVelocit
                        [flightStartPitch, -flightStartRoll, -flightStartVelocityY],
                        [flightStartPitch, 0, 0],
                        [flightStartPitch, flightStartRoll, flightStartVelocityY]]
+
+epochRewards = []
+movingRate = 3 * len(flightStartRotation)  # Number given in number * len(flightStartRotation)
+movingEpRewards = {
+    "epoch": [],
+    "average": [],
+    "minimum": [],
+    "maximum": []}
 
 env = QPlaneEnv(flightOrigin, flightDestinaion, n_actions,
                 end, dictObservation, dictAction, dictRotation, startingVelocity)
@@ -134,11 +142,12 @@ def step(i_step, done, reward, oldObservation):
     newState = env.getState(newObservation)
     Q.learn(oldState, action, reward, newState)
     oldObservation = newObservation
-    return done, oldState, newState, action, actions_binary, oldObservation, newObservation, control, reward, explore, currentEpsilon
+    return done, oldState, newState, action, actions_binary, oldObservation, newObservation, control, reward, explore, currentEpsilon,
 
 
 # A epoch is one full run, from respawn/reset to the final step.
 def epoch(i_epoch):
+    epochReward = 0
     for attempt in range(25):
         try:
             oldObservation = env.reset(
@@ -160,7 +169,7 @@ def epoch(i_epoch):
     for i_step in range(n_steps):
         done, oldState, newState, action, actions_binary, oldObservation, newObservation, control, reward, explore, currentEpsilon = step(
             i_step, done, reward, oldObservation)
-
+        epochReward += reward
         if(i_step % logPeriod == 0):  # log every logPeriod steps
             log(i_epoch, i_step, reward, oldState,
                 actions_binary, oldObservation, control, explore, currentEpsilon)
@@ -170,8 +179,18 @@ def epoch(i_epoch):
         if done:
             break
 
+    epochRewards.append(epochReward)
+    if(i_epoch % movingRate == 0):
+        movingEpRewards["epoch"].append(i_epoch)
+        averageReward = sum(epochRewards[-movingRate:]) / len(epochRewards[-movingRate:])
+        movingEpRewards["average"].append(averageReward)
+        movingEpRewards["minimum"].append(min(epochRewards[-movingRate:]))
+        movingEpRewards["maximum"].append(max(epochRewards[-movingRate:]))
+
 
 for i_epoch in range(n_epochs):
     epoch(i_epoch)
+
+np.save("./Experiments/" + str(experimentName) + "/results.npy", movingEpRewards)
 
 print("<<<<<<<<<<<<<<<<<<<<DONE>>>>>>>>>>>>>>>>>>>>>")

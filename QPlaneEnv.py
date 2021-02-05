@@ -181,38 +181,17 @@ class QPlaneEnv():
         return int(state)
 
     def rewardFunction(self, action, oldObservation, newObservation):
-        roll = float(
-            abs(newObservation[self.dictObservation["roll"]] / 180) * 3)
-        pitch = float(
-            abs(newObservation[self.dictObservation["pitch"]] / 180) * 2)
-        reward = float((5 - (roll + pitch)) / 5)
 
-        if(abs(newObservation[self.dictObservation["roll"]]) > 40):
-            reward = reward * 0
-        elif(abs(newObservation[self.dictObservation["roll"]]) > 20):
-            reward = reward * 0.1
-        elif(abs(newObservation[self.dictObservation["roll"]]) > 10):
-            reward = reward * 0.2
-        elif(abs(newObservation[self.dictObservation["roll"]]) > 1):
-            reward = reward * 0.5
-
-        if(abs(newObservation[self.dictObservation["pitch"]]) > 40):
-            reward = reward * 0
-        elif(abs(newObservation[self.dictObservation["pitch"]]) > 20):
-            reward = reward * 0.1
-        elif(abs(newObservation[self.dictObservation["pitch"]]) > 10):
-            reward = reward * 0.2
-        elif(abs(newObservation[self.dictObservation["pitch"]]) > 1):
-            reward = reward * 0.5
-
-        if(90 > abs(newObservation[self.dictObservation["yaw"]]) > 90):
-            reward = reward * 0
-        elif(300 > abs(newObservation[self.dictObservation["yaw"]]) > 60):
-            reward = reward * 0.2
-        elif(330 > abs(newObservation[self.dictObservation["yaw"]]) > 30):
-            reward = reward * 0.5
-        elif(355 > abs(newObservation[self.dictObservation["yaw"]]) > 5):
-            reward = reward * 0.8
+        if(abs(newObservation[self.dictObservation["roll"]]) > 40 or abs(newObservation[self.dictObservation["pitch"]]) > 40):
+            reward = -5
+        elif(abs(newObservation[self.dictObservation["roll"]]) > 20 or abs(newObservation[self.dictObservation["pitch"]]) > 20):
+            reward = -3
+        elif(abs(newObservation[self.dictObservation["roll"]]) > 10 or abs(newObservation[self.dictObservation["pitch"]]) > 10):
+            reward = 1
+        elif(abs(newObservation[self.dictObservation["roll"]]) > 1 or abs(newObservation[self.dictObservation["pitch"]]) > 1):
+            reward = 2
+        else:
+            reward = 10
 
         done = False
         if False:  # Would be used for end parameter - for example, if plane crahsed done, or if plane reached end done

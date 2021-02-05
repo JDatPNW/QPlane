@@ -1,7 +1,7 @@
 import socket
 import time
 import numpy as np
-from QLearn import QLearn
+from QDeepLearn import QLearn  # can be QLearn or QDeepLearn
 from QPlaneEnv import QPlaneEnv
 
 # TODO: FORCED EXPLORATION??? ALL INPUTS ARE SET BY ME, NOT predicted
@@ -14,8 +14,8 @@ timeEnd = time.time()
 logPeriod = 10  # every so many epochs the metrics will be printed into the console
 savePeriod = 25  # every so many epochs the table/model will be saved to a file
 
-n_epochs = 500  # Number of generations
-n_steps = 500  # Number of inputs per generation
+n_epochs = 10  # Number of generations
+n_steps = 10  # Number of inputs per generation
 n_actions = 7  # Number of possible inputs to choose from
 end = 50  # End parameter
 
@@ -26,6 +26,12 @@ epsilon = 1.0  # Starting Epsilon Rate, affects the exploration probability. Wil
 decayRate = 0.0001  # Rate at which epsilon will decay per step
 epsilonMin = 0.1  # Minimum value at which epsilon will stop decaying
 n_epochsBeforeDecay = 90  # number of games to be played before epsilon starts to decay
+
+numOfInputs = 7  # Number of inputs fed to the model
+minReplayMemSize = 1_000  # min size determines when the replay will start being used
+replayMemSize = 50_000  # Max size for the replay buffer
+batchSize = 64  # Batch size for the model
+updateRate = 5  # update target model every so many steps
 
 dictObservation = {
     "lat": 0,
@@ -51,6 +57,7 @@ dictRotation = {
     "pitch": 0,
     "roll": 1,
     "velocityY": 2}
+
 # -998->NO CHANGE
 flightOrigin = [35.126, 126.809, 6000, 0, 0, 0, 1]  # Gwangju SK
 flightDestinaion = [33.508, 126.487, 6000, -998, -998, -998, 1]  # Jeju SK
@@ -82,7 +89,7 @@ movingEpRewards = {
 env = QPlaneEnv(flightOrigin, flightDestinaion, n_actions,
                 end, dictObservation, dictAction, dictRotation, startingVelocity)
 Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
-           decayRate, epsilonMin, n_epochsBeforeDecay, experimentName)
+           decayRate, epsilonMin, n_epochsBeforeDecay, experimentName, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate)
 
 
 # prints out all metrics
@@ -110,7 +117,11 @@ def log(i_epoch, i_step, reward, state, actions_binary, observation, control, ex
 
 # A single step(input), this will repeat n_steps times throughout a epoch
 def step(i_step, done, reward, oldObservation):
-    oldState = env.getState(oldObservation)
+    if(Q.id == "regular"):
+        oldState = env.getState(oldObservation)
+    elif(Q.id == "deep"):
+        oldState = oldObservation
+
     action, explore, currentEpsilon = Q.selectAction(
         oldState, i_epoch, n_epochs)
 
@@ -139,8 +150,12 @@ def step(i_step, done, reward, oldObservation):
     else:  # if all 10 attempts fail
         pass  # Error was in second loop
 
-    newState = env.getState(newObservation)
-    Q.learn(oldState, action, reward, newState)
+    if(Q.id == "regular"):
+        newState = env.getState(newObservation)
+    elif(Q.id == "deep"):
+        newState = newObservation
+
+    Q.learn(oldState, action, reward, newState, done)
     oldObservation = newObservation
     return done, oldState, newState, action, actions_binary, oldObservation, newObservation, control, reward, explore, currentEpsilon,
 
@@ -167,8 +182,7 @@ def epoch(i_epoch):
     reward = 0
 
     for i_step in range(n_steps):
-        done, oldState, newState, action, actions_binary, oldObservation, newObservation, control, reward, explore, currentEpsilon = step(
-            i_step, done, reward, oldObservation)
+        done, oldState, newState, action, actions_binary, oldObservation, newObservation, control, reward, explore, currentEpsilon = step(i_step, done, reward, oldObservation)
         epochReward += reward
         if(i_step % logPeriod == 0):  # log every logPeriod steps
             log(i_epoch, i_step, reward, oldState,

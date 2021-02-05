@@ -5,7 +5,7 @@ import os
 
 class QLearn():
 
-    def __init__(self, n_stat, n_acts, gamm, lr, eps, dec, min, epsDecay, expName):
+    def __init__(self, n_stat, n_acts, gamm, lr, eps, dec, min, epsDecay, expName, *args, **kwargs):
         self.n_states = n_stat
         self.n_actions = n_acts
         self.gamma = gamm
@@ -16,6 +16,7 @@ class QLearn():
         self.qTable = np.zeros([self.n_states, self.n_actions])
         self.n_epochsBeforeDecay = epsDecay
         self.experimentName = expName
+        self.id = "regular"
 
     # get action for current state
     def selectAction(self, state, episode, n_epochs):
@@ -40,7 +41,7 @@ class QLearn():
         return action, explore, self.epsilon
 
     # update q table
-    def learn(self, state, action, reward, new_state):
+    def learn(self, state, action, reward, new_state, done):
         self.qTable[state, action] = (1 - self.learningRate) * self.qTable[state, action] + \
             self.learningRate * (reward + self.gamma * np.max(self.qTable[new_state, :]))  # Bellman
 

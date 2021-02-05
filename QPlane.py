@@ -188,7 +188,7 @@ def epoch(i_epoch):
         movingEpRewards["maximum"].append(max(epochRewards[-movingRate:]))
 
 
-for i_epoch in range(n_epochs):
+for i_epoch in range(n_epochs + 1):
     epoch(i_epoch)
 
 np.save("./Experiments/" + str(experimentName) + "/results.npy", movingEpRewards)

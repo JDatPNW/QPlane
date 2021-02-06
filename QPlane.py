@@ -1,7 +1,7 @@
 import socket
 import time
 import numpy as np
-from QDeepLearn import QLearn  # can be QLearn or QDeepLearn
+from QLearn import QLearn  # can be QLearn or QDeepLearn
 from QPlaneEnv import QPlaneEnv
 
 # TODO: FORCED EXPLORATION??? ALL INPUTS ARE SET BY ME, NOT predicted
@@ -14,8 +14,8 @@ timeEnd = time.time()
 logPeriod = 10  # every so many epochs the metrics will be printed into the console
 savePeriod = 25  # every so many epochs the table/model will be saved to a file
 
-n_epochs = 10  # Number of generations
-n_steps = 10  # Number of inputs per generation
+n_epochs = 500  # Number of generations
+n_steps = 500  # Number of inputs per generation
 n_actions = 7  # Number of possible inputs to choose from
 end = 50  # End parameter
 

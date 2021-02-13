@@ -14,8 +14,8 @@ timeEnd = time.time()
 logPeriod = 10  # every so many epochs the metrics will be printed into the console
 savePeriod = 25  # every so many epochs the table/model will be saved to a file
 
-n_epochs = 500  # Number of generations
-n_steps = 500  # Number of inputs per generation
+n_epochs = 1000  # Number of generations
+n_steps = 1000  # Number of inputs per generation
 n_actions = 7  # Number of possible inputs to choose from
 end = 50  # End parameter
 
@@ -23,7 +23,7 @@ n_states = 240  # Number of states
 gamma = 0.95  # The discount rate - between 0 an 1!  if = 0 then no learning, ! The higher it is the more the new q will factor into the update of the q value
 lr = 0.1  # Learning Rate. If LR is 0 then the Q value would not update. The higher the value the quicker the agent will adopt the NEW Q value. If lr = 1, the updated value would be exactly be the newly calculated q value, completely ignoring the previous one
 epsilon = 1.0  # Starting Epsilon Rate, affects the exploration probability. Will decay
-decayRate = 0.0001  # Rate at which epsilon will decay per step
+decayRate = 0.00001  # Rate at which epsilon will decay per step
 epsilonMin = 0.1  # Minimum value at which epsilon will stop decaying
 n_epochsBeforeDecay = 90  # number of games to be played before epsilon starts to decay
 
@@ -91,6 +91,8 @@ env = QPlaneEnv(flightOrigin, flightDestinaion, n_actions,
 Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
            decayRate, epsilonMin, n_epochsBeforeDecay, experimentName, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate)
 
+np.set_printoptions(precision=5)  # sets decimals for np.arrays to X for printing
+
 
 # prints out all metrics
 def log(i_epoch, i_step, reward, state, actions_binary, observation, control, explore, currentEpsilon):
@@ -105,6 +107,7 @@ def log(i_epoch, i_step, reward, state, actions_binary, observation, control, ex
           "\n\t\t\t\t[p+,p-,ro+,ro-,ru+,ru-,n]",
           "\n\t\t\tactions_binary = ", actions_binary,
           "\n\t\t\tCurrent Control:", control,
+          "\n\t\t\tCurrent Qs:", Q.qTable[state],
           "\n\t\t\tCurrent Orientation: ",
           observation[dictObservation["pitch"]:dictObservation["gear"]],
           "\n\t\t\tCurrent AVE of QTable: ", np.average(Q.qTable),

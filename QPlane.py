@@ -14,8 +14,8 @@ timeEnd = time.time()
 logPeriod = 10  # every so many epochs the metrics will be printed into the console
 savePeriod = 25  # every so many epochs the table/model will be saved to a file
 
-n_epochs = 1000  # Number of generations
-n_steps = 1000  # Number of inputs per generation
+n_epochs = 5000  # Number of generations
+n_steps = 2000  # Number of inputs per generation
 n_actions = 7  # Number of possible inputs to choose from
 end = 50  # End parameter
 
@@ -207,7 +207,9 @@ def epoch(i_epoch):
 
 for i_epoch in range(n_epochs + 1):
     epoch(i_epoch)
+    if(i_epoch % savePeriod == 0):
+        np.save("./Experiments/" + str(experimentName) + "/results" + str(i_epoch) + ".npy", movingEpRewards)
 
-np.save("./Experiments/" + str(experimentName) + "/results.npy", movingEpRewards)
+np.save("./Experiments/" + str(experimentName) + "/results_final.npy", movingEpRewards)
 
 print("<<<<<<<<<<<<<<<<<<<<DONE>>>>>>>>>>>>>>>>>>>>>")

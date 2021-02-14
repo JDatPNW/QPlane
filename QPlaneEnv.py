@@ -34,6 +34,9 @@ class QPlaneEnv():
         client.sendDREF("sim/flightmodel/position/local_ay", 0)  # The acceleration in local OGL coordinates +=Vertical (up)
         client.sendDREF("sim/flightmodel/position/local_az", 0)  # The acceleration in local OGL coordinates -az=S +az=N
 
+        client.sendDREF("sim/flightmodel/weight/m_fuel1", 65.0)  # fuel quantity failure_enum
+        client.sendDREF("sim/flightmodel/weight/m_fuel2", 65.0)  # fuel quantity failure_enum
+
         client.close()
 
     def send_envParam(self):
@@ -219,7 +222,7 @@ class QPlaneEnv():
     def reset(self, posi, rotation):
         self.send_posi(posi, rotation)
         self.send_velo(rotation)
-        # self.send_envParam()
+        #  self.send_envParam()
         self.send_ctrl([0, 0, 0, 0, 0, 0, 1])  # this means it will not control the stick during the reset
         new_posi = self.get_posi()
         return new_posi

@@ -63,6 +63,17 @@ class QPlaneEnv():
 
         client.close()
 
+    def getVelo(self):
+        client = self.xpc.XPlaneConnect()
+
+        drefs = ["sim/flightmodel/position/local_vx", "sim/flightmodel/position/local_vy", "sim/flightmodel/position/local_vz", "sim/flightmodel/position/local_ax", "sim/flightmodel/position/local_ay", "sim/flightmodel/position/local_az", "sim/flightmodel/position/groundspeed", "sim/flightmodel/position/P", "sim/flightmodel/position/Q", "sim/flightmodel/position/R", "sim/flightmodel/position/P_dot", "sim/flightmodel/position/Q_dot", "sim/flightmodel/position/R_dot"]
+
+        values = client.getDREFs(drefs)
+
+        client.close()
+
+        return values
+
     def send_ctrl(self, ctrl):
         client = self.xpc.XPlaneConnect()
         client.sendCTRL(ctrl)
@@ -166,6 +177,14 @@ class QPlaneEnv():
         yawEnc = self.encodeRotation(yaw)
         return pitchEnc, rollEnc, yawEnc
 
+    def getDeepState(self, observation):
+        velocities = self.getVelo()
+        positions = observation[:-1]
+        vel = []
+        for i in range(len(velocities)):
+            vel.append(velocities[i][0])
+        state = positions + tuple(vel)
+        return state
 
     def getState(self, observation):
         pitch = observation[self.dictObservation["pitch"]]
@@ -193,22 +212,22 @@ class QPlaneEnv():
 
         if (action == self.dictAction["pi+"]):
             if (newObservation[self.dictObservation["pitch"]] > 0.0):
-                reward = reward -1
+                reward = reward -10
         if (action == self.dictAction["pi-"]):
             if (newObservation[self.dictObservation["pitch"]] < -0.0):
-                reward = reward -1
+                reward = reward -10
         if (action == self.dictAction["ro+"]):
             if (newObservation[self.dictObservation["roll"]] > 0.0):
-                reward = reward -1
+                reward = reward -10
         if (action == self.dictAction["ro-"]):
             if (newObservation[self.dictObservation["roll"]] < -0.0):
-                reward = reward -1
+                reward = reward -10
         if (action == self.dictAction["ru+"]):
             if (newObservation[self.dictObservation["yaw"]] <= 360.0 and newObservation [self.dictObservation["yaw"]] >= 180.0):
-                reward = reward -1
+                reward = reward -10
         if (action == self.dictAction["ru-"]):
             if (newObservation[self.dictObservation["yaw"]] >= 0.0 and newObservation[self.dictObservation["yaw"]] < 180.0):
-                reward = reward -1
+                reward = reward -10
 
         done = False
         if False:  # Would be used for end parameter - for example, if plane crahsed done, or if plane reached end done

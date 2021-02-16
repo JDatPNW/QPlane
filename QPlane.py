@@ -1,13 +1,13 @@
 import socket
 import time
 import numpy as np
-from QLearn import QLearn  # can be QLearn or QDeepLearn
+from QDeepLearn import QLearn  # can be QLearn or QDeepLearn
 from QPlaneEnv import QPlaneEnv
 
 # TODO: FORCED EXPLORATION??? ALL INPUTS ARE SET BY ME, NOT predicted
 # SO ONE RUN IS ALL RIGHT, NEXT IS ALL DOWN, NEXT IS ALL LEFT AND SO ON??
 
-experimentName = "NewFit" + str(time.time())
+experimentName = "NewFitDeep" + str(time.time())
 
 timeStart = time.time()
 timeEnd = time.time()
@@ -25,9 +25,9 @@ lr = 0.1  # Learning Rate. If LR is 0 then the Q value would not update. The hig
 epsilon = 1.0  # Starting Epsilon Rate, affects the exploration probability. Will decay
 decayRate = 0.00001  # Rate at which epsilon will decay per step
 epsilonMin = 0.1  # Minimum value at which epsilon will stop decaying
-n_epochsBeforeDecay = 90  # number of games to be played before epsilon starts to decay
+n_epochsBeforeDecay = 10  # number of games to be played before epsilon starts to decay
 
-numOfInputs = 7  # Number of inputs fed to the model
+numOfInputs = 19  # Number of inputs fed to the model
 minReplayMemSize = 1_000  # min size determines when the replay will start being used
 replayMemSize = 50_000  # Max size for the replay buffer
 batchSize = 64  # Batch size for the model
@@ -123,7 +123,7 @@ def step(i_step, done, reward, oldObservation):
     if(Q.id == "regular"):
         oldState = env.getState(oldObservation)
     elif(Q.id == "deep"):
-        oldState = oldObservation
+        oldState = env.getDeepState(oldObservation)
 
     action, explore, currentEpsilon = Q.selectAction(
         oldState, i_epoch, n_epochs)
@@ -156,7 +156,7 @@ def step(i_step, done, reward, oldObservation):
     if(Q.id == "regular"):
         newState = env.getState(newObservation)
     elif(Q.id == "deep"):
-        newState = newObservation
+        newState = env.getDeepState(newObservation)
 
     Q.learn(oldState, action, reward, newState, done)
     oldObservation = newObservation

@@ -45,8 +45,7 @@ class QLearn():
 
     # update q table
     def learn(self, state, action, reward, new_state, done):
-        self.qTable[state, action] = (1 - self.learningRate) * self.qTable[state, action] + \
-            self.learningRate * (reward + self.gamma * np.max(self.qTable[new_state, :]))  # Bellman
+        self.qTable[state, action] = (1 - self.learningRate) * self.qTable[state, action] + self.learningRate * (reward + self.gamma * np.max(self.qTable[new_state, :]))  # Bellman
 
     def archive(self, epoch):
         if not os.path.exists("./Experiments/" + self.experimentName):

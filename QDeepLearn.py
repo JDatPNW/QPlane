@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import os
+from tensorflow.keras import Input
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
@@ -88,9 +89,16 @@ class DQNAgent:
     def createModel(self):
         modelShape = (self.numOfInputs, )
         model = Sequential()
-        model.add(Dense(4, input_shape=modelShape, activation='relu'))
+        model.add(Input(shape=modelShape))
+        model.add(Dense(int(modelShape[0]), activation='relu'))
+        model.add(Dense(int(modelShape[0]*0.66), activation='relu'))
+        model.add(Dense(int(modelShape[0]*0.5), activation='relu'))
+        model.add(Dense(int(modelShape[0]*0.33), activation='relu'))
+        model.add(Dense(int(self.numOfOutputs*1.66), activation='relu'))
+        model.add(Dense(int(self.numOfOutputs*1.33), activation='relu'))
         model.add(Dense(self.numOfOutputs, activation='linear'))
         model.compile(loss="mse", optimizer=Adam(lr=self.learningRate), metrics=['accuracy'])
+        model.summary()
         return model
 
     # Adds the current data to the replayMemoryList - (observation space, action, reward, new observation space, done)

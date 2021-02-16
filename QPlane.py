@@ -7,7 +7,7 @@ from QPlaneEnv import QPlaneEnv
 # TODO: FORCED EXPLORATION??? ALL INPUTS ARE SET BY ME, NOT predicted
 # SO ONE RUN IS ALL RIGHT, NEXT IS ALL DOWN, NEXT IS ALL LEFT AND SO ON??
 
-experimentName = "TestingAndDebugging" + str(time.time())
+experimentName = "NewFit" + str(time.time())
 
 timeStart = time.time()
 timeEnd = time.time()
@@ -19,7 +19,7 @@ n_steps = 2000  # Number of inputs per generation
 n_actions = 7  # Number of possible inputs to choose from
 end = 50  # End parameter
 
-n_states = 240  # Number of states
+n_states = 728  # Number of states
 gamma = 0.95  # The discount rate - between 0 an 1!  if = 0 then no learning, ! The higher it is the more the new q will factor into the update of the q value
 lr = 0.1  # Learning Rate. If LR is 0 then the Q value would not update. The higher the value the quicker the agent will adopt the NEW Q value. If lr = 1, the updated value would be exactly be the newly calculated q value, completely ignoring the previous one
 epsilon = 1.0  # Starting Epsilon Rate, affects the exploration probability. Will decay
@@ -107,7 +107,7 @@ def log(i_epoch, i_step, reward, state, actions_binary, observation, control, ex
           "\n\t\t\t\t[p+,p-,ro+,ro-,ru+,ru-,n]",
           "\n\t\t\tactions_binary = ", actions_binary,
           "\n\t\t\tCurrent Control:", control,
-          "\n\t\t\tCurrent Qs:", Q.qTable[state],
+          "\n\t\t\tCurrent Qs:", Q.currentTable,
           "\n\t\t\tCurrent Orientation: ",
           observation[dictObservation["pitch"]:dictObservation["gear"]],
           "\n\t\t\tCurrent AVE of QTable: ", np.average(Q.qTable),

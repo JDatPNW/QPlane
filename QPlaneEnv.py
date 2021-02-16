@@ -132,50 +132,40 @@ class QPlaneEnv():
 
     def encodeState(self, pitch, roll, yaw):
         i = pitch
-        i = i * 15
+        i = i * 9
         i = i + roll
+        i  = i * 9
+        i = i + yaw
         return i
 
     def encodeRotation(self, i):
-
-        if -180 <= i < -50:
-            return 0
-        elif -50 <= i < -25:
-            return 1
+        if -180 <= i < -35:
+           return 0
+        elif -35 <= i < -25:
+           return 1
         elif -25 <= i < -15:
-            return 2
-        elif -15 <= i < -10:
-            return 3
-        elif -10 <= i < -5:
-            return 4
-        elif -5 <= i < -2:
-            return 5
-        elif -2 <= i < -1:
-            return 6
-        elif -1 <= i < 1:
-            return 7
-        elif 1 <= i < 2:
-            return 8
-        elif 2 <= i < 5:
-            return 9
-        elif 5 <= i < 10:
-            return 10
-        elif 10 <= i < 15:
-            return 11
+           return 2
+        elif -15 <= i < -5:
+           return 3
+        elif -5 <= i < 5:
+           return 4
+        elif 5 <= i < 15:
+           return 5
         elif 15 <= i < 25:
-            return 12
-        elif 25 <= i < 50:
-            return 13
-        elif 50 <= i < 180:
-            return 14
+           return 6
+        elif 25 <= i < 35:
+           return 7
+        elif 35 <= i < 180:
+           return 8
         else:
-            return 0
+           return 0
 
     def encodeRotations(self, pitch, roll, yaw):
         pitchEnc = self.encodeRotation(pitch)
         rollEnc = self.encodeRotation(roll)
         yawEnc = self.encodeRotation(yaw)
         return pitchEnc, rollEnc, yawEnc
+
 
     def getState(self, observation):
         pitch = observation[self.dictObservation["pitch"]]
@@ -200,6 +190,25 @@ class QPlaneEnv():
             reward = 4
         else:
             reward = 10
+
+        if (action == self.dictAction["pi+"]):
+            if (newObservation[self.dictObservation["pitch"]] > 0.0):
+                reward = reward -1
+        if (action == self.dictAction["pi-"]):
+            if (newObservation[self.dictObservation["pitch"]] < -0.0):
+                reward = reward -1
+        if (action == self.dictAction["ro+"]):
+            if (newObservation[self.dictObservation["roll"]] > 0.0):
+                reward = reward -1
+        if (action == self.dictAction["ro-"]):
+            if (newObservation[self.dictObservation["roll"]] < -0.0):
+                reward = reward -1
+        if (action == self.dictAction["ru+"]):
+            if (newObservation[self.dictObservation["yaw"]] <= 360.0 and newObservation [self.dictObservation["yaw"]] >= 180.0):
+                reward = reward -1
+        if (action == self.dictAction["ru-"]):
+            if (newObservation[self.dictObservation["yaw"]] >= 0.0 and newObservation[self.dictObservation["yaw"]] < 180.0):
+                reward = reward -1
 
         done = False
         if False:  # Would be used for end parameter - for example, if plane crahsed done, or if plane reached end done

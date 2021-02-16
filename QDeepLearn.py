@@ -22,6 +22,7 @@ class QLearn():
         self.experimentName = expName
         self.model = DQNAgent(inputs, self.n_actions, self.learningRate, minReplay, replay, batch, self.gamma, update)
         self.id = "deep"
+        self.currentTable = []
 
     # get action for current state
     def selectAction(self, state, episode, n_epochs):
@@ -35,6 +36,9 @@ class QLearn():
             # Explore, which means random action
             action = int(random.uniform(0, self.n_actions))
             explore = True
+
+        self.currentTable = self.model.getQs(state)
+
 
         # decay epsilon
         if(episode >= self.n_epochsBeforeDecay):

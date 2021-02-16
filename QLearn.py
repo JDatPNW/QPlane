@@ -17,6 +17,7 @@ class QLearn():
         self.n_epochsBeforeDecay = epsDecay
         self.experimentName = expName
         self.id = "regular"
+        self.currentTable = []
 
     # get action for current state
     def selectAction(self, state, episode, n_epochs):
@@ -30,6 +31,8 @@ class QLearn():
             # Explore, which means random action
             action = int(random.uniform(0, self.n_actions))
             explore = True
+
+        self.currentTable = self.qTable[state, :]
 
         # decay epsilon
         if(episode >= self.n_epochsBeforeDecay):

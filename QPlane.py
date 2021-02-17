@@ -7,7 +7,7 @@ from QPlaneEnv import QPlaneEnv
 # TODO: FORCED EXPLORATION??? ALL INPUTS ARE SET BY ME, NOT predicted
 # SO ONE RUN IS ALL RIGHT, NEXT IS ALL DOWN, NEXT IS ALL LEFT AND SO ON??
 
-experimentName = "NewFitDeep" + str(time.time())
+experimentName = "NewFitDeepWithTry" + str(time.time())
 
 timeStart = time.time()
 timeEnd = time.time()
@@ -15,7 +15,7 @@ logPeriod = 10  # every so many epochs the metrics will be printed into the cons
 savePeriod = 25  # every so many epochs the table/model will be saved to a file
 
 n_epochs = 5000  # Number of generations
-n_steps = 2000  # Number of inputs per generation
+n_steps = 750  # Number of inputs per generation
 n_actions = 7  # Number of possible inputs to choose from
 end = 50  # End parameter
 
@@ -123,7 +123,16 @@ def step(i_step, done, reward, oldObservation):
     if(Q.id == "regular"):
         oldState = env.getState(oldObservation)
     elif(Q.id == "deep"):
-        oldState = env.getDeepState(oldObservation)
+        for attempt in range(10):
+            try:
+                oldState = env.getDeepState(oldObservation)
+            except socket.error as socketError:  # the specific error for connections used by xpc
+                dictErrors["update"] = socketError
+                continue
+            else:
+                break
+        else:  # if all 10 attempts fail
+            oldState = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
     action, explore, currentEpsilon = Q.selectAction(
         oldState, i_epoch, n_epochs)
@@ -156,7 +165,16 @@ def step(i_step, done, reward, oldObservation):
     if(Q.id == "regular"):
         newState = env.getState(newObservation)
     elif(Q.id == "deep"):
-        newState = env.getDeepState(newObservation)
+        for attempt in range(10):
+            try:
+                newState = env.getDeepState(newObservation)
+            except socket.error as socketError:  # the specific error for connections used by xpc
+                dictErrors["update"] = socketError
+                continue
+            else:
+                break
+        else:  # if all 10 attempts fail
+            newState = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
     Q.learn(oldState, action, reward, newState, done)
     oldObservation = newObservation

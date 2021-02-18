@@ -7,7 +7,9 @@ from QPlaneEnv import QPlaneEnv
 # TODO: FORCED EXPLORATION??? ALL INPUTS ARE SET BY ME, NOT predicted
 # SO ONE RUN IS ALL RIGHT, NEXT IS ALL DOWN, NEXT IS ALL LEFT AND SO ON??
 
-experimentName = "NewFitDeepWithTry" + str(time.time())
+experimentName = "NewFitDeep" + str(time.time())
+
+errors = 0.0
 
 timeStart = time.time()
 timeEnd = time.time()
@@ -114,6 +116,7 @@ def log(i_epoch, i_step, reward, state, actions_binary, observation, control, ex
           "\n\t\t\tExplored (Random): ", explore,
           "\n\t\t\tCurrent Epsilon: ", currentEpsilon,
           "\n\t\t\tCurrent Reward: ", reward,
+          "\n\t\t\tError Percentage: ", float(errors / (i_epoch*n_steps + i_step + 1)),
           "\n\t\t\tError Code: ", dictErrors)
     timeStart = time.time()  # Start timer here
 
@@ -133,6 +136,7 @@ def step(i_step, done, reward, oldObservation):
                 break
         else:  # if all 10 attempts fail
             oldState = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            errors += 1
 
     action, explore, currentEpsilon = Q.selectAction(
         oldState, i_epoch, n_epochs)
@@ -149,6 +153,7 @@ def step(i_step, done, reward, oldObservation):
             break
     else:  # if all 10 attempts fail
         newObservation, actions_binary, control = oldObservation, [0, 0, 0, 0, 0, 0, 1], [0, 0, 0, -998, -998, -998]  # set values to dummy values - do nothing
+        errors += 1
 
     # Check if connections can be established 10x
     for attempt in range(10):
@@ -160,6 +165,7 @@ def step(i_step, done, reward, oldObservation):
         else:
             break
     else:  # if all 10 attempts fail
+        errors += 1
         pass  # Error was in second loop
 
     if(Q.id == "regular"):
@@ -175,6 +181,7 @@ def step(i_step, done, reward, oldObservation):
                 break
         else:  # if all 10 attempts fail
             newState = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            errors += 1
 
     Q.learn(oldState, action, reward, newState, done)
     oldObservation = newObservation
@@ -195,6 +202,7 @@ def epoch(i_epoch):
             break
     else:  # if all 25 attempts fail
         oldObservation = env.startingPosition  # Error was during reset
+        errors += 1
 
     if(i_epoch % savePeriod == 0):
         Q.archive(i_epoch)

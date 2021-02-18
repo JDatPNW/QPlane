@@ -123,6 +123,7 @@ def log(i_epoch, i_step, reward, state, actions_binary, observation, control, ex
 
 # A single step(input), this will repeat n_steps times throughout a epoch
 def step(i_step, done, reward, oldObservation):
+    global errors
     if(Q.id == "regular"):
         oldState = env.getState(oldObservation)
     elif(Q.id == "deep"):
@@ -190,6 +191,7 @@ def step(i_step, done, reward, oldObservation):
 
 # A epoch is one full run, from respawn/reset to the final step.
 def epoch(i_epoch):
+    global errors
     epochReward = 0
     for attempt in range(25):
         try:

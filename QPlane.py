@@ -18,7 +18,7 @@ savePeriod = 25  # every so many epochs the table/model will be saved to a file
 
 n_epochs = 5000  # Number of generations
 n_steps = 750  # Number of inputs per generation
-n_actions = 7  # Number of possible inputs to choose from
+n_actions = 6  # Number of possible inputs to choose from
 end = 50  # End parameter
 
 n_states = 728  # Number of states

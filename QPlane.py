@@ -15,6 +15,7 @@ timeStart = time.time()
 timeEnd = time.time()
 logPeriod = 10  # every so many epochs the metrics will be printed into the console
 savePeriod = 25  # every so many epochs the table/model will be saved to a file
+pauseDelay = 0.01
 
 n_epochs = 5000  # Number of generations
 n_steps = 750  # Number of inputs per generation
@@ -89,7 +90,7 @@ movingEpRewards = {
     "maximum": []}
 
 env = QPlaneEnv(flightOrigin, flightDestinaion, n_actions,
-                end, dictObservation, dictAction, dictRotation, startingVelocity)
+                end, dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay)
 Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
            decayRate, epsilonMin, n_epochsBeforeDecay, experimentName, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate)
 

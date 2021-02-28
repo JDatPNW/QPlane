@@ -5,7 +5,7 @@ import time
 
 class QPlaneEnv():
 
-    def __init__(self, orig, dest, n_acts, endParam, dictObservation, dictAction, dictRotation, speed):
+    def __init__(self, orig, dest, n_acts, endParam, dictObservation, dictAction, dictRotation, speed, pause):
         self.startingPosition = orig
         self.destinationPosition = dest
         self.previousPosition = orig
@@ -16,6 +16,7 @@ class QPlaneEnv():
         self.dictAction = dictAction
         self.dictRotation = dictRotation
         self.startingVelocity = speed
+        self.pauseDelay = pause
 
     def send_posi(self, posi, rotation):
         posi[self.dictObservation["pitch"]] = rotation[self.dictRotation["pitch"]]
@@ -239,7 +240,7 @@ class QPlaneEnv():
 
         self.send_Pause(False)
         self.send_Ctrl(newCtrl)
-        time.sleep(0.01)
+        time.sleep(self.pauseDelay)
         self.send_Pause(True)
 
         posi = self.get_Posi()

@@ -19,7 +19,7 @@ pauseDelay = 0.01
 
 n_epochs = 5000  # Number of generations
 n_steps = 750  # Number of inputs per generation
-n_actions = 6  # Number of possible inputs to choose from
+n_actions = 4  # Number of possible inputs to choose from
 end = 50  # End parameter
 
 n_states = 728  # Number of states
@@ -32,8 +32,8 @@ n_epochsBeforeDecay = 10  # number of games to be played before epsilon starts t
 
 numOfInputs = 19  # Number of inputs fed to the model
 minReplayMemSize = 1_000  # min size determines when the replay will start being used
-replayMemSize = 50_000  # Max size for the replay buffer
-batchSize = 64  # Batch size for the model
+replayMemSize = 100_000  # Max size for the replay buffer
+batchSize = 256  # Batch size for the model
 updateRate = 5  # update target model every so many steps
 
 dictObservation = {

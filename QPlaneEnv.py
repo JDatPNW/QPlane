@@ -1,5 +1,6 @@
 import numpy as np
 import imp
+import time
 
 
 class QPlaneEnv():
@@ -74,18 +75,23 @@ class QPlaneEnv():
 
         return values
 
-    def send_ctrl(self, ctrl):
+    def send_Pause(self, pause):
+        client = self.xpc.XPlaneConnect()
+        client.pauseSim(pause)
+        client.close()
+
+    def send_Ctrl(self, ctrl):
         client = self.xpc.XPlaneConnect()
         client.sendCTRL(ctrl)
         client.close()
 
-    def get_posi(self):
+    def get_Posi(self):
         client = self.xpc.XPlaneConnect()
         r = client.getPOSI(0)
         client.close()
         return r
 
-    def get_ctrl(self):
+    def get_Ctrl(self):
         client = self.xpc.XPlaneConnect()
         r = client.getCTRL(0)
         client.close()
@@ -145,31 +151,31 @@ class QPlaneEnv():
         i = pitch
         i = i * 9
         i = i + roll
-        i  = i * 9
+        i = i * 9
         i = i + yaw
         return i
 
     def encodeRotation(self, i):
         if -180 <= i < -35:
-           return 0
+            return 0
         elif -35 <= i < -25:
-           return 1
+            return 1
         elif -25 <= i < -15:
-           return 2
+            return 2
         elif -15 <= i < -5:
-           return 3
+            return 3
         elif -5 <= i < 5:
-           return 4
+            return 4
         elif 5 <= i < 15:
-           return 5
+            return 5
         elif 15 <= i < 25:
-           return 6
+            return 6
         elif 25 <= i < 35:
-           return 7
+            return 7
         elif 35 <= i < 180:
-           return 8
+            return 8
         else:
-           return 0
+            return 0
 
     def encodeRotations(self, pitch, roll, yaw):
         pitchEnc = self.encodeRotation(pitch)
@@ -196,9 +202,6 @@ class QPlaneEnv():
         return int(state)
 
     def rewardFunction(self, action, oldObservation, newObservation):
-
-
-
         roll = float(abs(newObservation[self.dictObservation["roll"]] / 180) * 3)
         pitch = float(abs(newObservation[self.dictObservation["pitch"]] / 180) * 2)
         reward = float((5 - (roll + pitch)) / 5)
@@ -230,17 +233,22 @@ class QPlaneEnv():
         return reward, done
 
     def update(self, action, reward, position):
-        oldCtrl = self.get_ctrl()
+        oldCtrl = self.get_Ctrl()
         newCtrl, actions_binary = self.getControl(
             oldCtrl, action, reward, position)
-        self.send_ctrl(newCtrl)
-        posi = self.get_posi()
+
+        self.send_Pause(False)
+        self.send_Ctrl(newCtrl)
+        time.sleep(0.01)
+        self.send_Pause(True)
+
+        posi = self.get_Posi()
         return posi, actions_binary, newCtrl
 
     def reset(self, posi, rotation):
         self.send_posi(posi, rotation)
         self.send_velo(rotation)
         #  self.send_envParam()
-        self.send_ctrl([0, 0, 0, 0, 0, 0, 1])  # this means it will not control the stick during the reset
-        new_posi = self.get_posi()
+        self.send_Ctrl([0, 0, 0, 0, 0, 0, 1])  # this means it will not control the stick during the reset
+        new_posi = self.get_Posi()
         return new_posi

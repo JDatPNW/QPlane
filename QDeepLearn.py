@@ -21,7 +21,8 @@ class QLearn():
         self.qTable = np.zeros([self.n_states, self.n_actions])
         self.n_epochsBeforeDecay = epsDecay
         self.experimentName = expName
-        self.model = DQNAgent(inputs, self.n_actions, self.learningRate, minReplay, replay, batch, self.gamma, update)
+        self.model = DQNAgent(inputs, self.n_actions, self.learningRate,
+                              minReplay, replay, batch, self.gamma, update)
         self.id = "deep"
         self.currentTable = []
 
@@ -40,7 +41,6 @@ class QLearn():
 
         self.currentTable = self.model.getQs(state)
 
-
         # decay epsilon
         if(episode >= self.n_epochsBeforeDecay):
             if(self.epsilon > self.epsMin):  # decay the value
@@ -58,7 +58,8 @@ class QLearn():
     def archive(self, epoch):
         if not os.path.exists("./Experiments/" + self.experimentName):
             os.makedirs("./Experiments/" + self.experimentName)
-        self.model.targetModel.save("./Experiments/" + str(self.experimentName) + "/" + str(epoch) + ".h5")
+        self.model.targetModel.save(
+            "./Experiments/" + str(self.experimentName) + "/" + str(epoch) + ".h5")
 
 
 # Agent class
@@ -91,13 +92,14 @@ class DQNAgent:
         model = Sequential()
         model.add(Input(shape=modelShape))
         model.add(Dense(int(modelShape[0]), activation='relu'))
-        model.add(Dense(int(modelShape[0]*0.66), activation='relu'))
-        model.add(Dense(int(modelShape[0]*0.5), activation='relu'))
-        model.add(Dense(int(modelShape[0]*0.33), activation='relu'))
-        model.add(Dense(int(self.numOfOutputs*1.66), activation='relu'))
-        model.add(Dense(int(self.numOfOutputs*1.33), activation='relu'))
+        model.add(Dense(int(modelShape[0] * 0.66), activation='relu'))
+        model.add(Dense(int(modelShape[0] * 0.5), activation='relu'))
+        model.add(Dense(int(modelShape[0] * 0.33), activation='relu'))
+        model.add(Dense(int(self.numOfOutputs * 1.66), activation='relu'))
+        model.add(Dense(int(self.numOfOutputs * 1.33), activation='relu'))
         model.add(Dense(self.numOfOutputs, activation='linear'))
-        model.compile(loss="mse", optimizer=Adam(lr=self.learningRate), metrics=['accuracy'])
+        model.compile(loss="mse", optimizer=Adam(
+            lr=self.learningRate), metrics=['accuracy'])
         model.summary()
         return model
 
@@ -120,7 +122,8 @@ class DQNAgent:
 
         # Get future states from miniBatch, then query NN model for Q values
         # When using target network, query it, otherwise main network should be queried
-        newCurrentStates = np.array([transition[3] for transition in miniBatch])
+        newCurrentStates = np.array([transition[3]
+                                     for transition in miniBatch])
         futureQsList = self.targetModel.predict(newCurrentStates)
 
         statesInput = []

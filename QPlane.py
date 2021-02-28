@@ -116,7 +116,7 @@ def log(i_epoch, i_step, reward, state, actions_binary, observation, control, ex
           "\n\t\t\tExplored (Random): ", explore,
           "\n\t\t\tCurrent Epsilon: ", currentEpsilon,
           "\n\t\t\tCurrent Reward: ", reward,
-          "\n\t\t\tError Percentage: ", float(errors / (i_epoch*n_steps + i_step + 1)),
+          "\n\t\t\tError Percentage: ", float(errors / (i_epoch * n_steps + i_step + 1)),
           "\n\t\t\tError Code: ", dictErrors)
     timeStart = time.time()  # Start timer here
 
@@ -136,7 +136,7 @@ def step(i_step, done, reward, oldObservation):
             else:
                 break
         else:  # if all 10 attempts fail
-            oldState = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            oldState = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             errors += 1
 
     action, explore, currentEpsilon = Q.selectAction(
@@ -181,7 +181,7 @@ def step(i_step, done, reward, oldObservation):
             else:
                 break
         else:  # if all 10 attempts fail
-            newState = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            newState = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             errors += 1
 
     Q.learn(oldState, action, reward, newState, done)

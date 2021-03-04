@@ -15,7 +15,7 @@ timeStart = time.time()
 timeEnd = time.time()
 logPeriod = 10  # every so many epochs the metrics will be printed into the console
 savePeriod = 25  # every so many epochs the table/model will be saved to a file
-pauseDelay = 0.01
+pauseDelay = 0.1
 
 n_epochs = 5000  # Number of generations
 n_steps = 750  # Number of inputs per generation
@@ -82,12 +82,14 @@ flightStartRotation = [[-flightStartPitch, -flightStartRoll, -flightStartVelocit
                        [flightStartPitch, flightStartRoll, flightStartVelocityY]]
 
 epochRewards = []
+epochQs = []
 movingRate = 3 * len(flightStartRotation)  # Number given in number * len(flightStartRotation)
 movingEpRewards = {
     "epoch": [],
     "average": [],
     "minimum": [],
-    "maximum": []}
+    "maximum": [],
+    "averageQ": []}
 
 env = QPlaneEnv(flightOrigin, flightDestinaion, n_actions,
                 end, dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay)
@@ -194,6 +196,7 @@ def step(i_step, done, reward, oldObservation):
 def epoch(i_epoch):
     global errors
     epochReward = 0
+    epochQ = 0
     for attempt in range(25):
         try:
             oldObservation = env.reset(
@@ -216,6 +219,7 @@ def epoch(i_epoch):
     for i_step in range(n_steps):
         done, oldState, newState, action, actions_binary, oldObservation, newObservation, control, reward, explore, currentEpsilon = step(i_step, done, reward, oldObservation)
         epochReward += reward
+        epochQ += np.argmax(Q.currentTable)
         if(i_step % logPeriod == 0):  # log every logPeriod steps
             log(i_epoch, i_step, reward, oldState,
                 actions_binary, oldObservation, control, explore, currentEpsilon)
@@ -226,12 +230,15 @@ def epoch(i_epoch):
             break
 
     epochRewards.append(epochReward)
+    epochQs.append(epochReward)
     if(i_epoch % movingRate == 0):
         movingEpRewards["epoch"].append(i_epoch)
         averageReward = sum(epochRewards[-movingRate:]) / len(epochRewards[-movingRate:])
         movingEpRewards["average"].append(averageReward)
         movingEpRewards["minimum"].append(min(epochRewards[-movingRate:]))
         movingEpRewards["maximum"].append(max(epochRewards[-movingRate:]))
+        averageQ = sum(epochQs[-movingRate:]) / len(epochQs[-movingRate:])
+        movingEpRewards["averageQ"].append(averageQ)
 
 
 for i_epoch in range(n_epochs + 1):

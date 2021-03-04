@@ -207,6 +207,17 @@ class QPlaneEnv():
         pitch = float(abs(newObservation[self.dictObservation["pitch"]] / 180))
         reward = pow(float((2 - (roll + pitch)) / 2), 2)
 
+        if(abs(newObservation[self.dictObservation["roll"]]) > 40 or abs(newObservation[self.dictObservation["pitch"]]) > 40):
+            reward = reward * 0.1
+        elif(abs(newObservation[self.dictObservation["roll"]]) > 20 or abs(newObservation[self.dictObservation["pitch"]]) > 20):
+            reward = reward * 0.25
+        elif(abs(newObservation[self.dictObservation["roll"]]) > 10 or abs(newObservation[self.dictObservation["pitch"]]) > 10):
+            reward = reward * 0.5
+        elif(abs(newObservation[self.dictObservation["roll"]]) > 5 or abs(newObservation[self.dictObservation["pitch"]]) > 5):
+            reward = reward * 0.75
+        elif(abs(newObservation[self.dictObservation["roll"]]) > 1 or abs(newObservation[self.dictObservation["pitch"]]) > 1):
+            reward = reward * 0.9
+
         done = False
         if False:  # Would be used for end parameter - for example, if plane crahsed done, or if plane reached end done
             done = True

@@ -18,7 +18,7 @@ savePeriod = 25  # every so many epochs the table/model will be saved to a file
 pauseDelay = 0.1
 
 n_epochs = 5000  # Number of generations
-n_steps = 750  # Number of inputs per generation
+n_steps = 250  # Number of inputs per generation
 n_actions = 4  # Number of possible inputs to choose from
 end = 50  # End parameter
 

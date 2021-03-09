@@ -76,6 +76,11 @@ class QPlaneEnv():
 
         return values
 
+    def getCrashed(self):
+        client = self.xpc.XPlaneConnect()
+        client.getDREF("sim/flightmodel2/misc/has_crashed")
+        client.close()
+
     def send_Pause(self, pause):
         client = self.xpc.XPlaneConnect()
         client.pauseSim(pause)
@@ -218,9 +223,13 @@ class QPlaneEnv():
         elif(abs(newObservation[self.dictObservation["roll"]]) > 1 or abs(newObservation[self.dictObservation["pitch"]]) > 1):
             reward = reward * 0.9
 
+        if(newObservation[self.dictObservation["alt"]] <= 1000):
+            reward = reward * 0.1
+
         done = False
-        if False:  # Would be used for end parameter - for example, if plane crahsed done, or if plane reached end done
+        if(self.getCrashed()):  # Would be used for end parameter - for example, if plane crahsed done, or if plane reached end done
             done = True
+            reward = -1
 
         return reward, done
 

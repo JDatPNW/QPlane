@@ -126,7 +126,7 @@ def log(i_epoch, i_step, reward, logList):
           "\n\t\t\tExplored (Random): ", explore,
           "\n\t\t\tCurrent Epsilon: ", currentEpsilon,
           "\n\t\t\tCurrent Reward: ", reward,
-          "\n\t\t\tError Percentage: ", float(errors / (i_epoch * n_steps + i_step + 1)),
+          "\n\t\t\tError Percentage & Count: ", float(errors / (i_epoch * n_steps + i_step + 1)), ",", errors,
           "\n\t\t\tError Code: ", dictErrors)
     timeStart = time.time()  # Start timer here
 
@@ -135,8 +135,7 @@ def log(i_epoch, i_step, reward, logList):
 def step(i_step, done, reward, oldState):
     global errors
 
-    action, explore, currentEpsilon = Q.selectAction(
-        oldState, i_epoch, n_epochs)
+    action, explore, currentEpsilon = Q.selectAction(oldState, i_epoch, n_epochs)
 
     # Check if connections can be established 10x
     for attempt in range(10):

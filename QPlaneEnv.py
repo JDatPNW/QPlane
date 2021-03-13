@@ -104,7 +104,7 @@ class QPlaneEnv():
         client.close()
         return r
 
-    def getControl(self, ctrl, action, observation):
+    def getControl(self, action, observation):
         # translate the action to the controll space value
         actionCtrl = 0
         if(action <= self.dictAction["pi-"]):
@@ -234,50 +234,29 @@ class QPlaneEnv():
 
         return reward, done
 
-    def newStep(self, action, observation, position):
-        oldCtrl = self.get_Ctrl()
-        newCtrl, actions_binary = self.getControl(
-            oldCtrl, action, position)
+    def step(self, action):
+        position = self.get_Posi()
+
+        newCtrl, actions_binary = self.getControl(action, position)
 
         self.send_Pause(False)
         self.send_Ctrl(newCtrl)
         time.sleep(self.pauseDelay)
         self.send_Pause(True)
 
-        posi = self.get_Posi()
+        position = self.get_Posi()
 
         if self.qID == "deep":
-            state = self.getDeepState(posi)
+            state = self.getDeepState(position)
         else:
-            state = self.getState(posi)
+            state = self.getState(position)
 
         done = False
         reward = 0
-        reward, done = self.rewardFunction(
-            action, state)
+        reward, done = self.rewardFunction(action, state)
 
-        info = []
+        info = [position, actions_binary, newCtrl]
         return state, reward, done, info
-
-    def step(self, action, oldObservation, newObservation):
-        done = False
-        reward = 0
-        reward, done = self.rewardFunction(
-            action, oldObservation, newObservation)
-        return reward, done
-
-    def update(self, action, reward, position):
-        oldCtrl = self.get_Ctrl()
-        newCtrl, actions_binary = self.getControl(
-            oldCtrl, action, reward, position)
-
-        self.send_Pause(False)
-        self.send_Ctrl(newCtrl)
-        time.sleep(self.pauseDelay)
-        self.send_Pause(True)
-
-        posi = self.get_Posi()
-        return posi, actions_binary, newCtrl
 
     def reset(self, posi, rotation):
         self.send_posi(posi, rotation)
@@ -285,4 +264,8 @@ class QPlaneEnv():
         #  self.send_envParam()
         self.send_Ctrl([0, 0, 0, 0, 0, 0, 1])  # this means it will not control the stick during the reset
         new_posi = self.get_Posi()
-        return new_posi
+        if self.qID == "deep":
+            state = self.getDeepState(new_posi)
+        else:
+            state = self.getState(new_posi)
+        return state

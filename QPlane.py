@@ -96,7 +96,7 @@ Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
 env = QPlaneEnv(flightOrigin, flightDestinaion, n_actions,
                 end, dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id)
 
-np.set_printoptions(precision=5)  # sets decimals for np.arrays to X for printing
+np.set_printoptions(precision=1)  # sets decimals for np.arrays to X for printing
 
 
 # prints out all metrics
@@ -106,17 +106,17 @@ def log(i_epoch, i_step, reward, logList):
 
     state = logList[1]
     actions_binary = logList[3]
-    observation = logList[5]
-    control = logList[6]
-    explore = logList[7]
-    currentEpsilon = logList[8]
+    observation = logList[4]
+    control = logList[5]
+    explore = logList[6]
+    currentEpsilon = logList[7]
 
     timeEnd = time.time()  # End timer here
     print("\t\tGame ", i_epoch,
           "\n\t\t\tMove ", i_step,
           "\n\t\t\tTime taken ", timeEnd - timeStart,
-          "\n\t\t\tState ", state,
-          "\n\t\t\t\t[p+,p-,ro+,ro-,ru+,ru-,n]",
+          "\n\t\t\tState ", np.array(state),
+          "\n\t\t\t\t[p+,p-,ro+,ro-]",
           "\n\t\t\tactions_binary = ", actions_binary,
           "\n\t\t\tCurrent Control:", control,
           "\n\t\t\tCurrent Qs:", Q.currentTable,
@@ -132,22 +132,8 @@ def log(i_epoch, i_step, reward, logList):
 
 
 # A single step(input), this will repeat n_steps times throughout a epoch
-def step(i_step, done, reward, oldObservation):
+def step(i_step, done, reward, oldState):
     global errors
-    if(Q.id == "regular"):
-        oldState = env.getState(oldObservation)
-    elif(Q.id == "deep"):
-        for attempt in range(10):
-            try:
-                oldState = env.getDeepState(oldObservation)
-            except socket.error as socketError:  # the specific error for connections used by xpc
-                dictErrors["update"] = socketError
-                continue
-            else:
-                break
-        else:  # if all 10 attempts fail
-            oldState = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            errors += 1
 
     action, explore, currentEpsilon = Q.selectAction(
         oldState, i_epoch, n_epochs)
@@ -155,21 +141,7 @@ def step(i_step, done, reward, oldObservation):
     # Check if connections can be established 10x
     for attempt in range(10):
         try:
-            newObservation, actions_binary, control = env.update(
-                action, reward, oldObservation)  # Part that gets checked
-        except socket.error as socketError:  # the specific error for connections used by xpc
-            dictErrors["update"] = socketError
-            continue
-        else:
-            break
-    else:  # if all 10 attempts fail
-        newObservation, actions_binary, control = oldObservation, [0, 0, 0, 0, 0, 0, 1], [0, 0, 0, -998, -998, -998]  # set values to dummy values - do nothing
-        errors += 1
-
-    # Check if connections can be established 10x
-    for attempt in range(10):
-        try:
-            reward, done = env.step(action, oldObservation, newObservation)
+            newState, reward, done, info = env.step(action)
         except socket.error as socketError:  # the specific error for connections used by xpc
             dictErrors["step"] = socketError
             continue
@@ -177,26 +149,19 @@ def step(i_step, done, reward, oldObservation):
             break
     else:  # if all 10 attempts fail
         errors += 1
+        newState = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        reward = 0
+        done = False
+        info = [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], 0]
         pass  # Error was in second loop
 
-    if(Q.id == "regular"):
-        newState = env.getState(newObservation)
-    elif(Q.id == "deep"):
-        for attempt in range(10):
-            try:
-                newState = env.getDeepState(newObservation)
-            except socket.error as socketError:  # the specific error for connections used by xpc
-                dictErrors["update"] = socketError
-                continue
-            else:
-                break
-        else:  # if all 10 attempts fail
-            newState = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            errors += 1
+    newPosition = info[0]
+    actions_binary = info[1]
+    control = info[2]
 
     Q.learn(oldState, action, reward, newState, done)
-    oldObservation = newObservation
-    logList = [oldState, newState, action, actions_binary, oldObservation, newObservation, control, explore, currentEpsilon]
+    oldState = newState
+    logList = [oldState, newState, action, actions_binary, newPosition, control, explore, currentEpsilon]
     return done, reward, logList
 
 
@@ -207,7 +172,7 @@ def epoch(i_epoch):
     epochQ = 0
     for attempt in range(25):
         try:
-            oldObservation = env.reset(
+            oldState = env.reset(
                 env.startingPosition, flightStartRotation[i_epoch % len(flightStartRotation)])
         except socket.error as socketError:  # the specific error for connections used by xpc
             dictErrors["reset"] = socketError
@@ -215,7 +180,7 @@ def epoch(i_epoch):
         else:
             break
     else:  # if all 25 attempts fail
-        oldObservation = env.startingPosition  # Error was during reset
+        oldState = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # Error was during reset
         errors += 1
 
     if(i_epoch % savePeriod == 0):
@@ -225,7 +190,7 @@ def epoch(i_epoch):
     reward = 0
 
     for i_step in range(n_steps):
-        done, reward, logList = step(i_step, done, reward, oldObservation)
+        done, reward, logList = step(i_step, done, reward, oldState)
         epochReward += reward
         epochQ += np.argmax(Q.currentTable)
         if(i_step % logPeriod == 0):  # log every logPeriod steps

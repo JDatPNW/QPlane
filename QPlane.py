@@ -90,10 +90,11 @@ movingEpRewards = {
     "maximum": [],
     "averageQ": []}
 
-env = QPlaneEnv(flightOrigin, flightDestinaion, n_actions,
-                end, dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay)
 Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
            decayRate, epsilonMin, n_epochsBeforeDecay, experimentName, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate, loadModel)
+
+env = QPlaneEnv(flightOrigin, flightDestinaion, n_actions,
+                end, dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id)
 
 np.set_printoptions(precision=5)  # sets decimals for np.arrays to X for printing
 

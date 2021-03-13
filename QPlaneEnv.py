@@ -5,7 +5,7 @@ import time
 
 class QPlaneEnv():
 
-    def __init__(self, orig, dest, n_acts, endParam, dictObservation, dictAction, dictRotation, speed, pause):
+    def __init__(self, orig, dest, n_acts, endParam, dictObservation, dictAction, dictRotation, speed, pause, qID):
         self.startingPosition = orig
         self.destinationPosition = dest
         self.previousPosition = orig
@@ -17,6 +17,7 @@ class QPlaneEnv():
         self.dictRotation = dictRotation
         self.startingVelocity = speed
         self.pauseDelay = pause
+        self.qID = qID
 
     def send_posi(self, posi, rotation):
         posi[self.dictObservation["pitch"]] = rotation[self.dictRotation["pitch"]]
@@ -103,7 +104,7 @@ class QPlaneEnv():
         client.close()
         return r
 
-    def getControl(self, ctrl, action, reward, observation):
+    def getControl(self, ctrl, action, observation):
         # translate the action to the controll space value
         actionCtrl = 0
         if(action <= self.dictAction["pi-"]):
@@ -207,7 +208,7 @@ class QPlaneEnv():
         state = self.encodeState(pitchEnc, rollEnc, yawEnc)
         return int(state)
 
-    def rewardFunction(self, action, oldObservation, newObservation):
+    def rewardFunction(self, action, newObservation):
         roll = float(abs(newObservation[self.dictObservation["roll"]] / 180))
         pitch = float(abs(newObservation[self.dictObservation["pitch"]] / 180))
         reward = pow(float((2 - (roll + pitch)) / 2), 2)
@@ -232,6 +233,31 @@ class QPlaneEnv():
             reward = -1
 
         return reward, done
+
+    def newStep(self, action, observation, position):
+        oldCtrl = self.get_Ctrl()
+        newCtrl, actions_binary = self.getControl(
+            oldCtrl, action, position)
+
+        self.send_Pause(False)
+        self.send_Ctrl(newCtrl)
+        time.sleep(self.pauseDelay)
+        self.send_Pause(True)
+
+        posi = self.get_Posi()
+
+        if self.qID == "deep":
+            state = self.getDeepState(posi)
+        else:
+            state = self.getState(posi)
+
+        done = False
+        reward = 0
+        reward, done = self.rewardFunction(
+            action, state)
+
+        info = []
+        return state, reward, done, info
 
     def step(self, action, oldObservation, newObservation):
         done = False

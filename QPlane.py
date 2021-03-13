@@ -99,9 +99,16 @@ np.set_printoptions(precision=5)  # sets decimals for np.arrays to X for printin
 
 
 # prints out all metrics
-def log(i_epoch, i_step, reward, state, actions_binary, observation, control, explore, currentEpsilon):
+def log(i_epoch, i_step, reward, logList):
     global timeStart  # Used to print time ellapsed between log calls
     global timeEnd  # Used to print time ellapsed between log calls
+
+    state = logList[1]
+    actions_binary = logList[3]
+    observation = logList[5]
+    control = logList[6]
+    explore = logList[7]
+    currentEpsilon = logList[8]
 
     timeEnd = time.time()  # End timer here
     print("\t\tGame ", i_epoch,
@@ -188,7 +195,8 @@ def step(i_step, done, reward, oldObservation):
 
     Q.learn(oldState, action, reward, newState, done)
     oldObservation = newObservation
-    return done, oldState, newState, action, actions_binary, oldObservation, newObservation, control, reward, explore, currentEpsilon
+    logList = [oldState, newState, action, actions_binary, oldObservation, newObservation, control, explore, currentEpsilon]
+    return done, reward, logList
 
 
 # A epoch is one full run, from respawn/reset to the final step.
@@ -216,12 +224,11 @@ def epoch(i_epoch):
     reward = 0
 
     for i_step in range(n_steps):
-        done, oldState, newState, action, actions_binary, oldObservation, newObservation, control, reward, explore, currentEpsilon = step(i_step, done, reward, oldObservation)
+        done, reward, logList = step(i_step, done, reward, oldObservation)
         epochReward += reward
         epochQ += np.argmax(Q.currentTable)
         if(i_step % logPeriod == 0):  # log every logPeriod steps
-            log(i_epoch, i_step, reward, oldState,
-                actions_binary, oldObservation, control, explore, currentEpsilon)
+            log(i_epoch, i_step, reward, logList)
 
         dictErrors["reset"], dictErrors["update"], dictErrors["step"] = [0, 0, 0]
 

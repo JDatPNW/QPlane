@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import os
+import tensorflow as tf
 from tensorflow.keras import Input
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
@@ -10,7 +11,7 @@ from collections import deque
 
 class QLearn():
 
-    def __init__(self, n_stat, n_acts, gamm, lr, eps, dec, min, epsDecay, expName, inputs, minReplay, replay, batch, update):
+    def __init__(self, n_stat, n_acts, gamm, lr, eps, dec, min, epsDecay, expName, inputs, minReplay, replay, batch, update, loadModel):
         self.n_states = n_stat
         self.n_actions = n_acts
         self.gamma = gamm
@@ -22,7 +23,7 @@ class QLearn():
         self.n_epochsBeforeDecay = epsDecay
         self.experimentName = expName
         self.model = DQNAgent(inputs, self.n_actions, self.learningRate,
-                              minReplay, replay, batch, self.gamma, update)
+                              minReplay, replay, batch, self.gamma, update, loadModel)
         self.id = "deep"
         self.currentTable = []
 
@@ -64,7 +65,7 @@ class QLearn():
 
 # Agent class
 class DQNAgent:
-    def __init__(self, inputs, outputs, learningRate, minReplay, replay, batch, gamma, update):
+    def __init__(self, inputs, outputs, learningRate, minReplay, replay, batch, gamma, update, loadModel):
         self.numOfInputs = inputs
         self.numOfOutputs = outputs
         self.learningRate = learningRate
@@ -73,10 +74,13 @@ class DQNAgent:
         self.batchSize = batch
         self.gamma = gamma
         self.updateRate = update
+        self.loadModel = loadModel
 
         # The model used for training at every step
         self.model = self.createModel()
 
+        if(self.loadModel):
+            self.model = tf.keras.models.load_model("model.h5")
         # Target network uesed for predicting, not updated every step
         self.targetModel = self.createModel()
         self.targetModel.set_weights(self.model.get_weights())

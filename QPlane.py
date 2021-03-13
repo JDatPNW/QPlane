@@ -4,18 +4,15 @@ import numpy as np
 from QDeepLearn import QLearn  # can be QLearn or QDeepLearn
 from QPlaneEnv import QPlaneEnv
 
-# TODO: FORCED EXPLORATION??? ALL INPUTS ARE SET BY ME, NOT predicted
-# SO ONE RUN IS ALL RIGHT, NEXT IS ALL DOWN, NEXT IS ALL LEFT AND SO ON??
-
 experimentName = "NewFitDeep" + str(time.time())
 
-errors = 0.0
+errors = 0.0  # counts everytime the UDP packages are lost on all retries
 
-timeStart = time.time()
-timeEnd = time.time()
+timeStart = time.time()  # used to measure time
+timeEnd = time.time()  # used to measure time
 logPeriod = 10  # every so many epochs the metrics will be printed into the console
 savePeriod = 25  # every so many epochs the table/model will be saved to a file
-pauseDelay = 0.1
+pauseDelay = 0.5  # time an action is being applied to the environment
 
 n_epochs = 5000  # Number of generations
 n_steps = 250  # Number of inputs per generation
@@ -35,6 +32,8 @@ minReplayMemSize = 1_000  # min size determines when the replay will start being
 replayMemSize = 100_000  # Max size for the replay buffer
 batchSize = 256  # Batch size for the model
 updateRate = 5  # update target model every so many steps
+
+loadModel = False  # will load "model.h5" for tf if True
 
 dictObservation = {
     "lat": 0,
@@ -94,7 +93,7 @@ movingEpRewards = {
 env = QPlaneEnv(flightOrigin, flightDestinaion, n_actions,
                 end, dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay)
 Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
-           decayRate, epsilonMin, n_epochsBeforeDecay, experimentName, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate)
+           decayRate, epsilonMin, n_epochsBeforeDecay, experimentName, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate, loadModel)
 
 np.set_printoptions(precision=5)  # sets decimals for np.arrays to X for printing
 
@@ -189,7 +188,7 @@ def step(i_step, done, reward, oldObservation):
 
     Q.learn(oldState, action, reward, newState, done)
     oldObservation = newObservation
-    return done, oldState, newState, action, actions_binary, oldObservation, newObservation, control, reward, explore, currentEpsilon,
+    return done, oldState, newState, action, actions_binary, oldObservation, newObservation, control, reward, explore, currentEpsilon
 
 
 # A epoch is one full run, from respawn/reset to the final step.

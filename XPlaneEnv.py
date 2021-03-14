@@ -3,7 +3,7 @@ import imp
 import time
 
 
-class QPlaneEnv():
+class XPlaneEnv():
 
     def __init__(self, orig, dest, n_acts, endParam, dictObservation, dictAction, dictRotation, speed, pause, qID):
         self.startingPosition = orig

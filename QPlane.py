@@ -2,7 +2,7 @@ import socket
 import time
 import numpy as np
 from QDeepLearn import QLearn  # can be QLearn or QDeepLearn
-from QPlaneEnv import QPlaneEnv
+from XPlaneEnv import XPlaneEnv
 
 experimentName = "NewFitDeep" + str(time.time())
 

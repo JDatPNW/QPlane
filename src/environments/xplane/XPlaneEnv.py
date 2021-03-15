@@ -11,7 +11,7 @@ class XPlaneEnv():
         self.previousPosition = orig
         self.n_actions = n_acts
         self.endThreshold = endParam
-        self.xpc = imp.load_source('xpc', 'xpc.py')
+        self.xpc = imp.load_source('xpc', './src/environments/xplane/xpc.py')  # path is relative to the location of the QPlane.py file
         self.dictObservation = dictObservation
         self.dictAction = dictAction
         self.dictRotation = dictRotation
@@ -69,7 +69,27 @@ class XPlaneEnv():
     def getVelo(self):
         client = self.xpc.XPlaneConnect()
 
-        drefs = ["sim/flightmodel/position/local_vx", "sim/flightmodel/position/local_vy", "sim/flightmodel/position/local_vz", "sim/flightmodel/position/local_ax", "sim/flightmodel/position/local_ay", "sim/flightmodel/position/local_az", "sim/flightmodel/position/groundspeed", "sim/flightmodel/position/P", "sim/flightmodel/position/Q", "sim/flightmodel/position/R", "sim/flightmodel/position/P_dot", "sim/flightmodel/position/Q_dot", "sim/flightmodel/position/R_dot"]
+        '''
+        local_vx:   The velocity in local OGL coordinates
+        local_vy:   The velocity in local OGL coordinates
+        local_vz:   The velocity in local OGL coordinates
+        local_ax:   The acceleration in local OGL coordinates
+        local_ay:   The acceleration in local OGL coordinates
+        local_az:   The acceleration in local OGL coordinates
+        groundspeed:The ground speed of the aircraft
+        P:          The roll rotation rates (relative to the flight)
+        Q:          The pitch rotation rates (relative to the flight)
+        R:          The yaw rotation rates (relative to the flight)
+        P_dot:      The roll angular acceleration (relative to the flight)
+        Q_dot:      The pitch angular acceleration (relative to the flight)
+        R_dot:      The yaw angular acceleration rates (relative to the flight)
+        '''
+
+        drefs = ["sim/flightmodel/position/local_vx", "sim/flightmodel/position/local_vy", "sim/flightmodel/position/local_vz",
+                 "sim/flightmodel/position/local_ax", "sim/flightmodel/position/local_ay", "sim/flightmodel/position/local_az",
+                 "sim/flightmodel/position/groundspeed",
+                 "sim/flightmodel/position/P", "sim/flightmodel/position/Q", "sim/flightmodel/position/R",
+                 "sim/flightmodel/position/P_dot", "sim/flightmodel/position/Q_dot", "sim/flightmodel/position/R_dot"]
 
         values = client.getDREFs(drefs)
 

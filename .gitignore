@@ -3,6 +3,8 @@ X-Plane.lnk
 Experiments/*
 utils/*.npy
 *.h5
+src/algorithms/__pycache__/
+src/environments/__pycache__/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

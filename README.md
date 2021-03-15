@@ -1,7 +1,7 @@
 # QPlane
 
 XPlane flight simulation controlled by a QLearning / Deep QLearning Algorithm
-![Logo](https://github.com/JDatPNW/QPlane/blob/main/QPlaneLogo.svg)
+![Logo](https://github.com/JDatPNW/QPlane/blob/main/misc/QPlaneLogo.svg)
 
 Software and Version:
 

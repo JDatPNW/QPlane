@@ -134,4 +134,4 @@ Github Pages: [JDatPNW](https://github.com/JDatPNW/JDatPNW.github.io)
 
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
-* [GitHub Emoji Cheat Sheet](https://github.com/othneildrew/Best-README-Template)
+* [Readme Template](https://github.com/othneildrew/Best-README-Template)

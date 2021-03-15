@@ -57,7 +57,7 @@ This repository is being written as part of my masters thesis. I am trying to de
 This section should list any major frameworks that you built your project using. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
 * [tensorflow](https://www.tensorflow.org/)
 * [XPlaneConnect](https://github.com/nasa/XPlaneConnect)
-* [Laravel](https://www.x-plane.com/)
+* [XPlane 11](https://www.x-plane.com/)
 
 
 
@@ -89,7 +89,7 @@ Guaranteed to work with:
    ```sh
    git clone https://github.com/your_username_/Project-Name.git
    ```
-2. Install the above listen software (other versions might work)
+2. Install the above listed software (other versions might work)
 
 
 <!-- USAGE EXAMPLES -->

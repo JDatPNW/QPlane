@@ -24,6 +24,9 @@ class Env():
         os.environ["JSBSIM_DEBUG"] = str(0)  # set this before creating fdm to stop debug print outs
         self.fdm = jsbsim.FGFDMExec('./src/environments/jsbsim/', None)  # declaring the sim and setting the path
         self.fdm.load_model('c172r')  # loading cassna 172
+        if True:  # create var
+            self.fdm.set_output_directive('data_output/flightgear.xml')
+            # open in second console: D:\Program Files\FlightGear 2020.3.6\bin\fgfs.exe --fdm=null --native-fdm=socket,in,60,localhost,5550,udp --aircraft=c172r --airport=RKJJ
         self.fdm.run_ic()  # init the sim
 
     def send_posi(self, posi, rotation):
@@ -46,9 +49,9 @@ class Env():
 
         self.fdm.set_property_value("ic/ve-fps", 0 * self.fsToMs)  # Local frame y-axis (east) velocity initial condition in feet/second
         self.fdm.set_property_value("ic/vd-fps", -rotation[self.dictRotation["velocityY"]] * self.fsToMs)  # Local frame z-axis (down) velocity initial condition in feet/second
-        self.fdm.set_property_value("ic/vn-fps", 0 * self.fsToMs)  # Local frame x-axis (north) velocity initial condition in feet/second
+        self.fdm.set_property_value("ic/vn-fps", self.startingVelocity * self.fsToMs)  # Local frame x-axis (north) velocity initial condition in feet/second
         self.fdm.set_property_value("propulsion/refuel", True)  # refules the plane?
-
+        self.fdm.set_property_value("propulsion/active_engine", True)  # starts the engine?
         # client.sendDREF("sim/flightmodel/position/local_ax", 0)  # The acceleration in local OGL coordinates +ax=E -ax=W
         # client.sendDREF("sim/flightmodel/position/local_ay", 0)  # The acceleration in local OGL coordinates +=Vertical (up)
         # client.sendDREF("sim/flightmodel/position/local_az", 0)  # The acceleration in local OGL coordinates -az=S +az=N
@@ -84,10 +87,10 @@ class Env():
         return crash
 
     def send_Ctrl(self, ctrl):
-        self.fdm.set_property_value("fcs/elevator-control", ctrl[0])  # Elevator control (stick in/out)?
-        self.fdm.set_property_value("fcs/left-aileron-control", ctrl[1])  # Aileron control (stick left/right)? might need to switch
-        self.fdm.set_property_value("fcs/right-aileron-control", -ctrl[1])  # Aileron control (stick left/right)? might need to switch
-        self.fdm.set_property_value("fcs/rudder-control", ctrl[2])  # Rudder control (peddals)
+        self.fdm.set_property_value("fcs/elevator-pos-norm", ctrl[0])  # Elevator control (stick in/out)?
+        self.fdm.set_property_value("fcs/left-aileron-pos-norm", ctrl[1])  # Aileron control (stick left/right)? might need to switch
+        self.fdm.set_property_value("fcs/right-aileron-pos-norm", -ctrl[1])  # Aileron control (stick left/right)? might need to switch
+        self.fdm.set_property_value("fcs/rudder-pos-norm", ctrl[2])  # Rudder control (peddals)
         self.fdm.set_property_value("fcs/throttle-pos-norm", ctrl[3])  # throttle
 
     def get_Posi(self):
@@ -240,6 +243,7 @@ class Env():
 
         self.send_Ctrl(newCtrl)
         for i in range(int(self.pauseDelay * self.physicsPerSec)):
+            self.send_Ctrl(newCtrl)
             self.fdm.run()
 
         position = self.get_Posi()

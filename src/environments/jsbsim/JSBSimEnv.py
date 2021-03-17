@@ -30,13 +30,13 @@ class Env():
         posi[self.dictObservation["pitch"]] = rotation[self.dictRotation["pitch"]]
         posi[self.dictObservation["roll"]] = rotation[self.dictRotation["roll"]]
 
-        self.fdm.set_property_value("ic/lat-gc-deg", posi[self.dictObservation["lat"]])  # Might need to convert TRHIS IS RAG
-        self.fdm.set_property_value("ic/long-gc-deg", posi[self.dictObservation["long"]])  # Might need to convert THIS IS DEG
-        self.fdm.set_property_value("ic/h-sl-ft", posi[self.dictObservation["alt"]])  # Might need to convert TRHIS IS sea
+        self.fdm.set_property_value("ic/lat-gc-deg", posi[self.dictObservation["lat"]])  # Latitude initial condition in degrees
+        self.fdm.set_property_value("ic/long-gc-deg", posi[self.dictObservation["long"]])  # Longitude initial condition in degrees
+        self.fdm.set_property_value("ic/h-sl-ft", posi[self.dictObservation["alt"]])  # Height above sea level initial condition in feet
 
-        self.fdm.set_property_value("ic/theta-deg", posi[self.dictObservation["pitch"]])  # Might need to convert TRHIS IS sea
-        self.fdm.set_property_value("ic/phi-deg", posi[self.dictObservation["roll"]])  # Might need to convert TRHIS IS sea
-        self.fdm.set_property_value("ic/psi-true-deg", posi[self.dictObservation["yaw"]])  # Might need to convert TRHIS IS sea
+        self.fdm.set_property_value("ic/theta-deg", posi[self.dictObservation["pitch"]])  # Pitch angle initial condition in degrees
+        self.fdm.set_property_value("ic/phi-deg", posi[self.dictObservation["roll"]])  # Roll angle initial condition in degrees
+        self.fdm.set_property_value("ic/psi-true-deg", posi[self.dictObservation["yaw"]])  # Heading angle initial condition in degrees
 
     def send_velo(self, rotation):
 
@@ -44,10 +44,10 @@ class Env():
         # ic/q-rad_sec (read/write) Pitch rate initial condition in radians/second
         # ic/r-rad_sec (read/write) Yaw rate initial condition in radians/second
 
-        self.fdm.set_property_value("ic/ve-fps", 0 * 0.3048)
-        self.fdm.set_property_value("ic/vd-fps", -rotation[self.dictRotation["velocityY"]] * 0.3048)
-        self.fdm.set_property_value("ic/vn-fps", 0 * 0.3048)
-        self.fdm.set_property_value("propulsion/refuel", True)
+        self.fdm.set_property_value("ic/ve-fps", 0 * self.fsToMs)  # Local frame y-axis (east) velocity initial condition in feet/second
+        self.fdm.set_property_value("ic/vd-fps", -rotation[self.dictRotation["velocityY"]] * self.fsToMs)  # Local frame z-axis (down) velocity initial condition in feet/second
+        self.fdm.set_property_value("ic/vn-fps", 0 * self.fsToMs)  # Local frame x-axis (north) velocity initial condition in feet/second
+        self.fdm.set_property_value("propulsion/refuel", True)  # refules the plane?
 
         # client.sendDREF("sim/flightmodel/position/local_ax", 0)  # The acceleration in local OGL coordinates +ax=E -ax=W
         # client.sendDREF("sim/flightmodel/position/local_ay", 0)  # The acceleration in local OGL coordinates +=Vertical (up)
@@ -55,21 +55,21 @@ class Env():
 
     def getVelo(self):
 
-        local_vx = self.fdm.get_property_value("velocities/v-east-fps") * self.fsToMs
-        local_vy = -self.fdm.get_property_value("velocities/v-down-fps") * self.fsToMs
-        local_vz = self.fdm.get_property_value("velocities/v-north-fps") * self.fsToMs
+        local_vx = self.fdm.get_property_value("velocities/v-east-fps") * self.fsToMs  # Velocity East (local)
+        local_vy = -self.fdm.get_property_value("velocities/v-down-fps") * self.fsToMs  # Velocity Down (local)
+        local_vz = self.fdm.get_property_value("velocities/v-north-fps") * self.fsToMs  # Velocity North (local)
 
-        local_ax = self.fdm.get_property_value("accelerations/Nx") * self.fsToMs
-        local_ay = self.fdm.get_property_value("accelerations/Ny") * self.fsToMs
-        local_az = self.fdm.get_property_value("accelerations/Nz") * self.fsToMs
+        local_ax = self.fdm.get_property_value("accelerations/Nx") * self.fsToMs   # The acceleration in local coordinates +ax=E -ax=W?
+        local_ay = -self.fdm.get_property_value("accelerations/Ny") * self.fsToMs  # The acceleration in local coordinates +=Vertical (down)?
+        local_az = self.fdm.get_property_value("accelerations/Nz") * self.fsToMs  # The acceleration in local coordinates -az=S +az=N?
 
-        groundspeed = self.fdm.get_property_value("velocities/vg-fps") * self.fsToMs
-        P = self.fdm.get_property_value("velocities/p-rad_sec") * self.radToDeg
-        Q = self.fdm.get_property_value("velocities/q-rad_sec") * self.radToDeg
-        R = self.fdm.get_property_value("velocities/r-rad_sec") * self.radToDeg
-        P_dot = self.fdm.get_property_value("accelerations/pdot-rad_sec2") * self.radToDeg
-        Q_dot = self.fdm.get_property_value("accelerations/qdot-rad_sec2") * self.radToDeg
-        R_dot = self.fdm.get_property_value("accelerations/rdot-rad_sec2") * self.radToDeg
+        groundspeed = self.fdm.get_property_value("velocities/vg-fps") * self.fsToMs  # The ground speed of the aircraft
+        P = self.fdm.get_property_value("velocities/p-rad_sec") * self.radToDeg  # The roll rotation rates
+        Q = self.fdm.get_property_value("velocities/q-rad_sec") * self.radToDeg  # The pitch rotation rates
+        R = self.fdm.get_property_value("velocities/r-rad_sec") * self.radToDeg  # The yaw rotation rates
+        P_dot = self.fdm.get_property_value("accelerations/pdot-rad_sec2") * self.radToDeg  # The roll angular acceleration
+        Q_dot = self.fdm.get_property_value("accelerations/qdot-rad_sec2") * self.radToDeg  # The pitch angular acceleration
+        R_dot = self.fdm.get_property_value("accelerations/rdot-rad_sec2") * self.radToDeg  # The yaw angular acceleration
 
         values = [local_vx, local_vy, local_vz, local_ax, local_ay, local_az, groundspeed, P, Q, R, P_dot, Q_dot, R_dot]
 
@@ -77,27 +77,27 @@ class Env():
 
     def getCrashed(self):
 
-        if (self.fdm.get_property_value("ic/h-agl-ft") < 50):
+        if (self.fdm.get_property_value("position/h-agl-ft") < 50):  # checks if plane is less than x feet off the ground, if not it will count as a crash
             crash = True
         else:
             crash = False
         return crash
 
     def send_Ctrl(self, ctrl):
-        self.fdm.set_property_value("fcs/elevator-control", ctrl[0])
-        self.fdm.set_property_value("fcs/left-aileron-control", ctrl[1])  # might need to switch
-        self.fdm.set_property_value("fcs/right-aileron-control", -ctrl[1])  # might need to switch
-        self.fdm.set_property_value("fcs/rudder-control", ctrl[2])
-        self.fdm.set_property_value("fcs/throttle-pos-norm", ctrl[3])
+        self.fdm.set_property_value("fcs/elevator-control", ctrl[0])  # Elevator control (stick in/out)?
+        self.fdm.set_property_value("fcs/left-aileron-control", ctrl[1])  # Aileron control (stick left/right)? might need to switch
+        self.fdm.set_property_value("fcs/right-aileron-control", -ctrl[1])  # Aileron control (stick left/right)? might need to switch
+        self.fdm.set_property_value("fcs/rudder-control", ctrl[2])  # Rudder control (peddals)
+        self.fdm.set_property_value("fcs/throttle-pos-norm", ctrl[3])  # throttle
 
     def get_Posi(self):
-        lat = self.fdm.get_property_value("position/lat-gc-deg")
-        long = self.fdm.get_property_value("position/long-gc-deg")
-        alt = self.fdm.get_property_value("position/h-sl-ft")
+        lat = self.fdm.get_property_value("position/lat-gc-deg")  # Latitude
+        long = self.fdm.get_property_value("position/long-gc-deg")  # Longitude
+        alt = self.fdm.get_property_value("position/h-sl-ft")  # altitude
 
-        pitch = self.fdm.get_property_value("attitude/theta-deg")
-        roll = self.fdm.get_property_value("attitude/phi-deg")
-        heading = self.fdm.get_property_value("attitude/psi-deg")
+        pitch = self.fdm.get_property_value("attitude/theta-deg")  # pitch
+        roll = self.fdm.get_property_value("attitude/phi-deg")  # roll
+        heading = self.fdm.get_property_value("attitude/psi-deg")  # yaw
 
         r = [lat, long, alt, pitch, roll, heading]
 

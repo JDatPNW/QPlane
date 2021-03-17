@@ -58,6 +58,8 @@ This section should list any major frameworks that you built your project using.
 * [tensorflow](https://www.tensorflow.org/)
 * [XPlaneConnect](https://github.com/nasa/XPlaneConnect)
 * [XPlane 11](https://www.x-plane.com/)
+* [JSBSim](https://github.com/JSBSim-Team/jsbsim)
+* [Flightgear](https://www.flightgear.org/)
 
 
 
@@ -77,6 +79,7 @@ Guaranteed to work with:
 |-----|-----|
 |XPlane11 Version: | 11.50r3 (build 115033 64-bit, OpenGL)|
 |JSBSim Version: | 1.1.5 (GitHub build 277)|
+|Flightgear Version: | 2020.3.6|
 |XPlaneConnect Version: | 1.3-rc.2|
 |Python Version: | 3.8.2|
 |numpy Version: | 1.19.4|
@@ -91,19 +94,22 @@ Guaranteed to work with:
    git clone https://github.com/your_username_/Project-Name.git
    ```
 2. Install the above listed software (other versions might work)
-
+  * For JSBSim clone the JSBsim repo into `src/environments/jsbsim`
+  * For visualizing JSBSim download the c172r plane model in the Flightgear Menu
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
 Once downloaded and installed, simply execute the `QPlane.py` file to run and test the code.
+* For the XPlane Environment, XPlane (the game) needs to run.
+* For JSBSim with rendering, Flightgear needs to run with the following flags `--fdm=null --native-fdm=socket,in,60,localhost,5550,udp --aircraft=c172r --airport=RKJJ`
 
 <!-- ROADMAP -->
 ## Roadmap
 
 Planned future features are:
 * PPO implementation
-* JSBSim implementation (optional)
+* JSBSim implementation (currently working on)
 
 
 <!-- CONTRIBUTING -->
@@ -136,3 +142,8 @@ Github Pages: [JDatPNW](https://github.com/JDatPNW/JDatPNW.github.io)
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
 * [Readme Template](https://github.com/othneildrew/Best-README-Template)
+* [Python Programming DeepRL](https://pythonprogramming.net/q-learning-reinforcement-learning-python-tutorial/)
+* [Deeplizard DeepRL](https://deeplizard.com/learn/playlist/PLZbbT5o_s2xoWNVdDudn51XM8lOuZ_Njv)
+* [adderbyte](https://github.com/adderbyte/GYM_XPLANE_ML)
+* [XPlane Forum](https://forums.x-plane.org/index.php?/forums/topic/236878-xplane11-xplaneconnect-question-about-resettingspawning-the-plane/&tab=comments#comment-2118006)
+* [JSBSim](https://github.com/JSBSim-Team/jsbsim)

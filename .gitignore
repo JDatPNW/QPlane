@@ -5,6 +5,7 @@ utils/*.npy
 *.h5
 src/algorithms/__pycache__/
 src/environments/__pycache__/
+src/environments/jsbsim/*/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

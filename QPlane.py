@@ -2,7 +2,7 @@ import socket
 import time
 import numpy as np
 from src.algorithms.QDeepLearn import QLearn  # can be QLearn or QDeepLearn
-from src.environments.xplane.XPlaneEnv import XPlaneEnv
+from src.environments.jsbsim.JSBSimEnv import Env
 
 experimentName = "NewFitDeep" + str(time.time())
 
@@ -93,8 +93,8 @@ movingEpRewards = {
 Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
            decayRate, epsilonMin, n_epochsBeforeDecay, experimentName, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate, loadModel)
 
-env = XPlaneEnv(flightOrigin, flightDestinaion, n_actions,
-                end, dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id)
+env = Env(flightOrigin, flightDestinaion, n_actions,
+          end, dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id)
 
 np.set_printoptions(precision=1)  # sets decimals for np.arrays to X for printing
 

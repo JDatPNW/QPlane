@@ -1,6 +1,6 @@
 import numpy as np
-import imp
-import time
+import jsbsim
+import os
 
 
 class Env():
@@ -11,118 +11,96 @@ class Env():
         self.previousPosition = orig
         self.n_actions = n_acts
         self.endThreshold = endParam
-        self.xpc = imp.load_source('xpc', './src/environments/xplane/xpc.py')  # path is relative to the location of the QPlane.py file
         self.dictObservation = dictObservation
         self.dictAction = dictAction
         self.dictRotation = dictRotation
         self.startingVelocity = speed
         self.pauseDelay = pause
         self.qID = qID
+        self.fsToMs = 0.3048
+        self.radToDeg = 57.2957795
+        self.physicsPerSec = 120
+
+        os.environ["JSBSIM_DEBUG"] = str(0)  # set this before creating fdm to stop debug print outs
+        self.fdm = jsbsim.FGFDMExec('./src/environments/jsbsim/', None)
+        self.fdm.load_model('c172r')
+        self.fdm.run_ic()
 
     def send_posi(self, posi, rotation):
         posi[self.dictObservation["pitch"]] = rotation[self.dictRotation["pitch"]]
         posi[self.dictObservation["roll"]] = rotation[self.dictRotation["roll"]]
-        client = self.xpc.XPlaneConnect()
-        client.sendPOSI(posi)
-        client.close()
+
+        self.fdm.set_property_value("ic/lat-gc-deg", posi[self.dictObservation["lat"]])  # Might need to convert TRHIS IS RAG
+        self.fdm.set_property_value("ic/long-gc-deg", posi[self.dictObservation["long"]])  # Might need to convert THIS IS DEG
+        self.fdm.set_property_value("ic/h-sl-ft", posi[self.dictObservation["alt"]])  # Might need to convert TRHIS IS sea
+
+        self.fdm.set_property_value("ic/theta-deg", posi[self.dictObservation["pitch"]])  # Might need to convert TRHIS IS sea
+        self.fdm.set_property_value("ic/phi-deg", posi[self.dictObservation["roll"]])  # Might need to convert TRHIS IS sea
+        self.fdm.set_property_value("ic/psi-true-deg", posi[self.dictObservation["yaw"]])  # Might need to convert TRHIS IS sea
 
     def send_velo(self, rotation):
-        client = self.xpc.XPlaneConnect()
 
-        client.sendDREF("sim/flightmodel/position/local_vx", 0)  # The velocity in local OGL coordinates +vx=E -vx=W
-        client.sendDREF("sim/flightmodel/position/local_vy", rotation[self.dictRotation["velocityY"]])  # The velocity in local OGL coordinates +=Vertical (up)
-        client.sendDREF("sim/flightmodel/position/local_vz", self.startingVelocity)  # The velocity in local OGL coordinates -vz=S +vz=N
+        # ic/p-rad_sec (read/write) Roll rate initial condition in radians/second
+        # ic/q-rad_sec (read/write) Pitch rate initial condition in radians/second
+        # ic/r-rad_sec (read/write) Yaw rate initial condition in radians/second
 
-        client.sendDREF("sim/flightmodel/position/local_ax", 0)  # The acceleration in local OGL coordinates +ax=E -ax=W
-        client.sendDREF("sim/flightmodel/position/local_ay", 0)  # The acceleration in local OGL coordinates +=Vertical (up)
-        client.sendDREF("sim/flightmodel/position/local_az", 0)  # The acceleration in local OGL coordinates -az=S +az=N
+        self.fdm.set_property_value("ic/ve-fps", 0 * 0.3048)
+        self.fdm.set_property_value("ic/vd-fps", -rotation[self.dictRotation["velocityY"]] * 0.3048)
+        self.fdm.set_property_value("ic/vn-fps", 0 * 0.3048)
+        self.fdm.set_property_value("propulsion/refuel", True)
 
-        client.sendDREF("sim/flightmodel/weight/m_fuel1", 65.0)  # fuel quantity failure_enum
-        client.sendDREF("sim/flightmodel/weight/m_fuel2", 65.0)  # fuel quantity failure_enum
-
-        client.sendDREF("sim/operation/failures/rel_ss_dgy", 0)  # Directional Gyro (Pilot) failure_enum
-        client.sendDREF("sim/operation/failures/rel_cop_dgy", 0)  # Directional Gyro (CoPilot) failure_enum
-
-        client.close()
-
-    def send_envParam(self):
-        client = self.xpc.XPlaneConnect()
-
-        # Wind speed
-        client.sendDREF("sim/weather/wind_speed_kt[0]", 0)  # >= 0 The wind speed in knots.
-        client.sendDREF("sim/weather/wind_speed_kt[1]", 0)  # >= 0 The wind speed in knots.
-        client.sendDREF("sim/weather/wind_speed_kt[2]", 0)  # >= 0 The wind speed in knots.
-
-        client.sendDREF("sim/weather/wind_turbulence_percent", 0)  # [0.0 – 1.0] The percentage of wind turbulence present.
-
-        client.sendDREF("sim/weather/wind_direction_degt[0]", 0)  # [0 – 360) The direction the wind is blowing from in degrees from true north c lockwise.
-        client.sendDREF("sim/weather/wind_direction_degt[1]", 0)  # [0 – 360) The direction the wind is blowing from in degrees from true north c lockwise.
-        client.sendDREF("sim/weather/wind_direction_degt[2]", 0)  # [0 – 360) The direction the wind is blowing from in degrees from true north c lockwise.
-
-        client.sendDREF("sim/operation/failures/rel_g_fuel", 0)  # fuel quantity failure_enum
-
-        client.sendDREF("sim/operation/failures/rel_ss_dgy", 0)  # Directional Gyro (Pilot) failure_enum
-        client.sendDREF("sim/operation/failures/rel_cop_dgy", 0)  # Directional Gyro (CoPilot) failure_enum
-
-        client.close()
+        # client.sendDREF("sim/flightmodel/position/local_ax", 0)  # The acceleration in local OGL coordinates +ax=E -ax=W
+        # client.sendDREF("sim/flightmodel/position/local_ay", 0)  # The acceleration in local OGL coordinates +=Vertical (up)
+        # client.sendDREF("sim/flightmodel/position/local_az", 0)  # The acceleration in local OGL coordinates -az=S +az=N
 
     def getVelo(self):
-        client = self.xpc.XPlaneConnect()
 
-        '''
-        local_vx:   The velocity in local OGL coordinates
-        local_vy:   The velocity in local OGL coordinates
-        local_vz:   The velocity in local OGL coordinates
-        local_ax:   The acceleration in local OGL coordinates
-        local_ay:   The acceleration in local OGL coordinates
-        local_az:   The acceleration in local OGL coordinates
-        groundspeed:The ground speed of the aircraft
-        P:          The roll rotation rates (relative to the flight)
-        Q:          The pitch rotation rates (relative to the flight)
-        R:          The yaw rotation rates (relative to the flight)
-        P_dot:      The roll angular acceleration (relative to the flight)
-        Q_dot:      The pitch angular acceleration (relative to the flight)
-        R_dot:      The yaw angular acceleration rates (relative to the flight)
-        '''
+        local_vx = self.fdm.get_property_value("velocities/v-east-fps") * self.fsToMs
+        local_vy = -self.fdm.get_property_value("velocities/v-down-fps") * self.fsToMs
+        local_vz = self.fdm.get_property_value("velocities/v-north-fps") * self.fsToMs
 
-        drefs = ["sim/flightmodel/position/local_vx", "sim/flightmodel/position/local_vy", "sim/flightmodel/position/local_vz",
-                 "sim/flightmodel/position/local_ax", "sim/flightmodel/position/local_ay", "sim/flightmodel/position/local_az",
-                 "sim/flightmodel/position/groundspeed",
-                 "sim/flightmodel/position/P", "sim/flightmodel/position/Q", "sim/flightmodel/position/R",
-                 "sim/flightmodel/position/P_dot", "sim/flightmodel/position/Q_dot", "sim/flightmodel/position/R_dot"]
+        local_ax = self.fdm.get_property_value("accelerations/Nx") * self.fsToMs
+        local_ay = self.fdm.get_property_value("accelerations/Ny") * self.fsToMs
+        local_az = self.fdm.get_property_value("accelerations/Nz") * self.fsToMs
 
-        values = client.getDREFs(drefs)
+        groundspeed = self.fdm.get_property_value("velocities/vg-fps") * self.fsToMs
+        P = self.fdm.get_property_value("velocities/p-rad_sec") * self.radToDeg
+        Q = self.fdm.get_property_value("velocities/q-rad_sec") * self.radToDeg
+        R = self.fdm.get_property_value("velocities/r-rad_sec") * self.radToDeg
+        P_dot = self.fdm.get_property_value("accelerations/pdot-rad_sec2") * self.radToDeg
+        Q_dot = self.fdm.get_property_value("accelerations/qdot-rad_sec2") * self.radToDeg
+        R_dot = self.fdm.get_property_value("accelerations/rdot-rad_sec2") * self.radToDeg
 
-        client.close()
+        values = [local_vx, local_vy, local_vz, local_ax, local_ay, local_az, groundspeed, P, Q, R, P_dot, Q_dot, R_dot]
 
         return values
 
     def getCrashed(self):
-        client = self.xpc.XPlaneConnect()
-        crash = client.getDREF("sim/flightmodel2/misc/has_crashed")
-        client.close()
+
+        if (self.fdm.get_property_value("ic/h-agl-ft") < 50):
+            crash = True
+        else:
+            crash = False
         return crash
 
-    def send_Pause(self, pause):
-        client = self.xpc.XPlaneConnect()
-        client.pauseSim(pause)
-        client.close()
-
     def send_Ctrl(self, ctrl):
-        client = self.xpc.XPlaneConnect()
-        client.sendCTRL(ctrl)
-        client.close()
+        self.fdm.set_property_value("fcs/elevator-control", ctrl[0])
+        self.fdm.set_property_value("fcs/left-aileron-control", ctrl[1])  # might need to switch
+        self.fdm.set_property_value("fcs/right-aileron-control", -ctrl[1])  # might need to switch
+        self.fdm.set_property_value("fcs/rudder-control", ctrl[2])
+        self.fdm.set_property_value("fcs/throttle-pos-norm", ctrl[3])
 
     def get_Posi(self):
-        client = self.xpc.XPlaneConnect()
-        r = client.getPOSI(0)
-        client.close()
-        return r
+        lat = self.fdm.get_property_value("position/lat-gc-deg")
+        long = self.fdm.get_property_value("position/long-gc-deg")
+        alt = self.fdm.get_property_value("position/h-sl-ft")
 
-    def get_Ctrl(self):
-        client = self.xpc.XPlaneConnect()
-        r = client.getCTRL(0)
-        client.close()
+        pitch = self.fdm.get_property_value("attitude/theta-deg")
+        roll = self.fdm.get_property_value("attitude/phi-deg")
+        heading = self.fdm.get_property_value("attitude/psi-deg")
+
+        r = [lat, long, alt, pitch, roll, heading]
+
         return r
 
     def getControl(self, action, observation):
@@ -213,11 +191,11 @@ class Env():
 
     def getDeepState(self, observation):
         velocities = self.getVelo()
-        positions = observation[:-1]
+        positions = observation
         vel = []
         for i in range(len(velocities)):
-            vel.append(velocities[i][0])
-        state = positions + tuple(vel)
+            vel.append(velocities[i])
+        state = tuple(positions) + tuple(vel)
         return state
 
     def getState(self, observation):
@@ -260,10 +238,9 @@ class Env():
 
         newCtrl, actions_binary = self.getControl(action, position)
 
-        self.send_Pause(False)
         self.send_Ctrl(newCtrl)
-        time.sleep(self.pauseDelay)
-        self.send_Pause(True)
+        for i in range(int(self.pauseDelay * self.physicsPerSec)):
+            self.fdm.run()
 
         position = self.get_Posi()
 
@@ -282,7 +259,9 @@ class Env():
     def reset(self, posi, rotation):
         self.send_posi(posi, rotation)
         self.send_velo(rotation)
-        #  self.send_envParam()
+
+        self.fdm.run_ic()
+
         self.send_Ctrl([0, 0, 0, 0, 0, 0, 1])  # this means it will not control the stick during the reset
         new_posi = self.get_Posi()
         if self.qID == "deep":

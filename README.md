@@ -68,7 +68,7 @@ This section should list any major frameworks that you built your project using.
 
 Simple clone this repository to your local filesystem:
 ```sh
-git clone https://github.com/your_username_/Project-Name.git
+git clone https://github.com/JDatPNW/QPlane
 ```
 
 ### Prerequisites

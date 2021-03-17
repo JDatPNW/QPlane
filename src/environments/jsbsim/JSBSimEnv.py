@@ -18,9 +18,9 @@ class Env():
         self.pauseDelay = pause
         self.qID = qID
         self.fsToMs = 0.3048  # convertion from feet per sec to meter per sec
-        self.msToFs = 3.28084
+        self.msToFs = 3.28084  # convertion from meter per sec to feet per sec
         self.radToDeg = 57.2957795  # convertion from radiants to degree
-        self.degToRad = 0.0174533
+        self.degToRad = 0.0174533  # convertion from deg to rad
         self.physicsPerSec = 120  # default by jsb. Each physics step is a 120th of 1 sec
 
         os.environ["JSBSIM_DEBUG"] = str(0)  # set this before creating fdm to stop debug print outs

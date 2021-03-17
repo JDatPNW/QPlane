@@ -18,7 +18,9 @@ class Env():
         self.pauseDelay = pause
         self.qID = qID
         self.fsToMs = 0.3048  # convertion from feet per sec to meter per sec
+        self.msToFs = 3.28084
         self.radToDeg = 57.2957795  # convertion from radiants to degree
+        self.degToRad = 0.0174533
         self.physicsPerSec = 120  # default by jsb. Each physics step is a 120th of 1 sec
 
         os.environ["JSBSIM_DEBUG"] = str(0)  # set this before creating fdm to stop debug print outs
@@ -47,11 +49,13 @@ class Env():
         # ic/q-rad_sec (read/write) Pitch rate initial condition in radians/second
         # ic/r-rad_sec (read/write) Yaw rate initial condition in radians/second
 
-        self.fdm.set_property_value("ic/ve-fps", 0 * self.fsToMs)  # Local frame y-axis (east) velocity initial condition in feet/second
-        self.fdm.set_property_value("ic/vd-fps", -rotation[self.dictRotation["velocityY"]] * self.fsToMs)  # Local frame z-axis (down) velocity initial condition in feet/second
-        self.fdm.set_property_value("ic/vn-fps", self.startingVelocity * self.fsToMs)  # Local frame x-axis (north) velocity initial condition in feet/second
+        self.fdm.set_property_value("ic/ve-fps", 0 * self.msToFs)  # Local frame y-axis (east) velocity initial condition in feet/second
+        self.fdm.set_property_value("ic/vd-fps", -rotation[self.dictRotation["velocityY"]] * self.msToFs)  # Local frame z-axis (down) velocity initial condition in feet/second
+        self.fdm.set_property_value("ic/vn-fps", self.startingVelocity * self.msToFs)  # Local frame x-axis (north) velocity initial condition in feet/second
         self.fdm.set_property_value("propulsion/refuel", True)  # refules the plane?
         self.fdm.set_property_value("propulsion/active_engine", True)  # starts the engine?
+        self.fdm.set_property_value("propulsion/set-running", 0)  # starts the engine?
+
         # client.sendDREF("sim/flightmodel/position/local_ax", 0)  # The acceleration in local OGL coordinates +ax=E -ax=W
         # client.sendDREF("sim/flightmodel/position/local_ay", 0)  # The acceleration in local OGL coordinates +=Vertical (up)
         # client.sendDREF("sim/flightmodel/position/local_az", 0)  # The acceleration in local OGL coordinates -az=S +az=N
@@ -87,11 +91,11 @@ class Env():
         return crash
 
     def send_Ctrl(self, ctrl):
-        self.fdm.set_property_value("fcs/elevator-pos-norm", ctrl[0])  # Elevator control (stick in/out)?
-        self.fdm.set_property_value("fcs/left-aileron-pos-norm", ctrl[1])  # Aileron control (stick left/right)? might need to switch
-        self.fdm.set_property_value("fcs/right-aileron-pos-norm", -ctrl[1])  # Aileron control (stick left/right)? might need to switch
-        self.fdm.set_property_value("fcs/rudder-pos-norm", ctrl[2])  # Rudder control (peddals)
-        self.fdm.set_property_value("fcs/throttle-pos-norm", ctrl[3])  # throttle
+        self.fdm.set_property_value("fcs/elevator-cmd-norm", ctrl[0])  # Elevator control (stick in/out)?
+        self.fdm.set_property_value("fcs/left-aileron-cmd-norm", ctrl[1])  # Aileron control (stick left/right)? might need to switch
+        self.fdm.set_property_value("fcs/right-aileron-cmd-norm", -ctrl[1])  # Aileron control (stick left/right)? might need to switch
+        self.fdm.set_property_value("fcs/rudder-cmd-norm", ctrl[2])  # Rudder control (peddals)
+        self.fdm.set_property_value("fcs/throttle-cmd-norm", ctrl[3])  # throttle
 
     def get_Posi(self):
         lat = self.fdm.get_property_value("position/lat-gc-deg")  # Latitude

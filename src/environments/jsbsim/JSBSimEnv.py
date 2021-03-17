@@ -17,14 +17,14 @@ class Env():
         self.startingVelocity = speed
         self.pauseDelay = pause
         self.qID = qID
-        self.fsToMs = 0.3048
-        self.radToDeg = 57.2957795
-        self.physicsPerSec = 120
+        self.fsToMs = 0.3048  # convertion from feet per sec to meter per sec
+        self.radToDeg = 57.2957795  # convertion from radiants to degree
+        self.physicsPerSec = 120  # default by jsb. Each physics step is a 120th of 1 sec
 
         os.environ["JSBSIM_DEBUG"] = str(0)  # set this before creating fdm to stop debug print outs
-        self.fdm = jsbsim.FGFDMExec('./src/environments/jsbsim/', None)
-        self.fdm.load_model('c172r')
-        self.fdm.run_ic()
+        self.fdm = jsbsim.FGFDMExec('./src/environments/jsbsim/', None)  # declaring the sim and setting the path
+        self.fdm.load_model('c172r')  # loading cassna 172
+        self.fdm.run_ic()  # init the sim
 
     def send_posi(self, posi, rotation):
         posi[self.dictObservation["pitch"]] = rotation[self.dictRotation["pitch"]]

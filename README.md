@@ -73,7 +73,7 @@ git clone https://github.com/JDatPNW/QPlane
 
 ### Prerequisites
 
-Guaranteed to work with:
+Tested and running with:
 
 |Software | Version|
 |-----|-----|

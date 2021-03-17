@@ -5,7 +5,7 @@ import time
 
 class Env():
 
-    def __init__(self, orig, dest, n_acts, endParam, dictObservation, dictAction, dictRotation, speed, pause, qID):
+    def __init__(self, orig, dest, n_acts, endParam, dictObservation, dictAction, dictRotation, speed, pause, qID, _jsb):
         self.startingPosition = orig
         self.destinationPosition = dest
         self.previousPosition = orig

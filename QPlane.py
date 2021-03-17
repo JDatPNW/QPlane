@@ -34,6 +34,8 @@ batchSize = 256  # Batch size for the model
 updateRate = 5  # update target model every so many steps
 
 loadModel = False  # will load "model.h5" for tf if True
+jsbRender = False  # will send UDP data to flight gear for rendering if True
+
 
 dictObservation = {
     "lat": 0,
@@ -94,7 +96,7 @@ Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
            decayRate, epsilonMin, n_epochsBeforeDecay, experimentName, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate, loadModel)
 
 env = Env(flightOrigin, flightDestinaion, n_actions,
-          end, dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id)
+          end, dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender)
 
 np.set_printoptions(precision=1)  # sets decimals for np.arrays to X for printing
 

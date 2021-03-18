@@ -94,8 +94,8 @@ Tested and running with:
    git clone https://github.com/your_username_/Project-Name.git
    ```
 2. Install the above listed software (other versions might work)
-  * For JSBSim clone the JSBsim repo into `src/environments/jsbsim`
-  * For visualizing JSBSim download the c172r plane model in the Flightgear Menu
+    * For JSBSim clone the JSBsim repo into `src/environments/jsbsim`
+    * For visualizing JSBSim download the c172r plane model in the Flightgear Menu
 
 <!-- USAGE EXAMPLES -->
 ## Usage

@@ -142,8 +142,9 @@ Github Pages: [JDatPNW](https://github.com/JDatPNW/JDatPNW.github.io)
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
 * [Readme Template](https://github.com/othneildrew/Best-README-Template)
-* [Python Programming DeepRL](https://pythonprogramming.net/q-learning-reinforcement-learning-python-tutorial/)
-* [Deeplizard DeepRL](https://deeplizard.com/learn/playlist/PLZbbT5o_s2xoWNVdDudn51XM8lOuZ_Njv)
+* [Python Programming DeepRL DQN](https://pythonprogramming.net/q-learning-reinforcement-learning-python-tutorial/)
+* [Deeplizard DeepRL DQN](https://deeplizard.com/learn/playlist/PLZbbT5o_s2xoWNVdDudn51XM8lOuZ_Njv)
+* [Python Lessons DeepRL PPO](https://pylessons.com/CartPole-reinforcement-learning/)
 * [adderbyte](https://github.com/adderbyte/GYM_XPLANE_ML)
 * [XPlane Forum](https://forums.x-plane.org/index.php?/forums/topic/236878-xplane11-xplaneconnect-question-about-resettingspawning-the-plane/&tab=comments#comment-2118006)
 * [JSBSim](https://github.com/JSBSim-Team/jsbsim)

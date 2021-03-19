@@ -1,5 +1,6 @@
 #Project Specific
 X-Plane.lnk
+FlightGear.lnk
 Experiments/*
 utils/*.npy
 *.h5

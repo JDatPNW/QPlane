@@ -101,7 +101,7 @@ class Env():
         client = self.xpc.XPlaneConnect()
         crash = client.getDREF("sim/flightmodel2/misc/has_crashed")
         client.close()
-        return crash
+        return crash[0]
 
     def send_Pause(self, pause):
         client = self.xpc.XPlaneConnect()

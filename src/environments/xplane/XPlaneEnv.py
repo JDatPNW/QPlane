@@ -28,7 +28,7 @@ class Env():
 
     def send_velo(self, rotation):
         client = self.xpc.XPlaneConnect()
-
+        #  I could try the q DREF https://developer.x-plane.com/article/movingtheplane/
         client.sendDREF("sim/flightmodel/position/local_vx", 0)  # The velocity in local OGL coordinates +vx=E -vx=W
         client.sendDREF("sim/flightmodel/position/local_vy", rotation[self.dictRotation["velocityY"]])  # The velocity in local OGL coordinates +=Vertical (up)
         client.sendDREF("sim/flightmodel/position/local_vz", self.startingVelocity)  # The velocity in local OGL coordinates +vz=S -vz=N

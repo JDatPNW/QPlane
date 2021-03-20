@@ -45,16 +45,16 @@ class Env():
 
     def send_velo(self, rotation):
 
-        # ic/p-rad_sec (read/write) Roll rate initial condition in radians/second
-        # ic/q-rad_sec (read/write) Pitch rate initial condition in radians/second
-        # ic/r-rad_sec (read/write) Yaw rate initial condition in radians/second
-
         self.fdm.set_property_value("ic/ve-fps", 0 * self.msToFs)  # Local frame y-axis (east) velocity initial condition in feet/second
         self.fdm.set_property_value("ic/vd-fps", -rotation[self.dictRotation["velocityY"]] * self.msToFs)  # Local frame z-axis (down) velocity initial condition in feet/second
         self.fdm.set_property_value("ic/vn-fps", -self.startingVelocity * self.msToFs)  # Local frame x-axis (north) velocity initial condition in feet/second
         self.fdm.set_property_value("propulsion/refuel", True)  # refules the plane?
         self.fdm.set_property_value("propulsion/active_engine", True)  # starts the engine?
         self.fdm.set_property_value("propulsion/set-running", 0)  # starts the engine?
+
+        self.fdm.set_property_value("ic/q-rad_sec", 0)  # Pitch rate initial condition in radians/second
+        self.fdm.set_property_value("ic/p-rad_sec", 0)  # Roll rate initial condition in radians/second
+        self.fdm.set_property_value("ic/r-rad_sec", 0)  # Yaw rate initial condition in radians/second
 
         # client.sendDREF("sim/flightmodel/position/local_ax", 0)  # The acceleration in local OGL coordinates +ax=E -ax=W
         # client.sendDREF("sim/flightmodel/position/local_ay", 0)  # The acceleration in local OGL coordinates +=Vertical (up)

@@ -2,7 +2,7 @@ import socket
 import time
 import numpy as np
 from src.algorithms.QDeepLearn import QLearn  # can be QLearn or QDeepLearn
-from src.environments.jsbsim.JSBSimEnv import Env
+from src.environments.jsbsim.JSBSimEnv import Env  # can be jsbsim.JSBSimEnv or xplane.XPlaneEnv
 
 experimentName = "NewFitDeep" + str(time.time())
 

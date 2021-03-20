@@ -71,8 +71,8 @@ class Env():
 
         '''
         local_vx:   The velocity in local OGL coordinates - The +X axis points east from the reference point.
-        local_vy:   The velocity in local OGL coordinates - The +Z axis points south from the reference point.
-        local_vz:   The velocity in local OGL coordinates - The +Y axis points straight up away from the center of the earth at the reference point.
+        local_vy:   The velocity in local OGL coordinates - The +Y axis points straight up away from the center of the earth at the reference point.
+        local_vz:   The velocity in local OGL coordinates - The +Z axis points south from the reference point.
         local_ax:   The acceleration in local OGL coordinates
         local_ay:   The acceleration in local OGL coordinates
         local_az:   The acceleration in local OGL coordinates

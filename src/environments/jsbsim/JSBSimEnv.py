@@ -22,6 +22,7 @@ class Env():
         self.radToDeg = 57.2957795  # convertion from radiants to degree
         self.degToRad = 0.0174533  # convertion from deg to rad
         self.physicsPerSec = 120  # default by jsb. Each physics step is a 120th of 1 sec
+        self.velocities = [0, 0, 0]  # used to calulate accelerations
 
         os.environ["JSBSIM_DEBUG"] = str(0)  # set this before creating fdm to stop debug print outs
         self.fdm = jsbsim.FGFDMExec('./src/environments/jsbsim/', None)  # declaring the sim and setting the path
@@ -66,9 +67,13 @@ class Env():
         local_vy = -self.fdm.get_property_value("velocities/v-down-fps") * self.fsToMs  # Velocity Down (local)
         local_vz = -self.fdm.get_property_value("velocities/v-north-fps") * self.fsToMs  # Velocity North (local)
 
-        local_ax = self.fdm.get_property_value("accelerations/Nx") * self.fsToMs   # The acceleration in local coordinates +ax=E -ax=W?
-        local_ay = -self.fdm.get_property_value("accelerations/Ny") * self.fsToMs  # The acceleration in local coordinates +=Vertical (down)?
-        local_az = -self.fdm.get_property_value("accelerations/Nz") * self.fsToMs  # The acceleration in local coordinates -az=S +az=N?
+        local_ax = (local_vx - self.velocities[0]) / self.pauseDelay   # The acceleration in local coordinates +ax=E -ax=W?
+        local_ay = -(local_vy - self.velocities[1]) / self.pauseDelay  # The acceleration in local coordinates +=Vertical (down)?
+        local_az = -(local_vz - self.velocities[2]) / self.pauseDelay  # The acceleration in local coordinates -az=S +az=N?
+
+        self.velocities[0] = local_vx
+        self.velocities[1] = local_vy
+        self.velocities[2] = local_vz
 
         groundspeed = self.fdm.get_property_value("velocities/vg-fps") * self.fsToMs  # The ground speed of the aircraft
         P = self.fdm.get_property_value("velocities/p-rad_sec") * self.radToDeg  # The roll rotation rates
@@ -273,6 +278,10 @@ class Env():
         self.send_velo(rotation)
 
         self.fdm.run_ic()
+
+        self.velocities[0] = self.fdm.get_property_value("ic/ve-fps") * self.fsToMs  # Local frame y-axis (east) velocity initial condition in feet/second
+        self.velocities[1] = self.fdm.get_property_value("ic/vd-fps") * self.fsToMs  # Local frame z-axis (down) velocity initial condition in feet/second
+        self.velocities[2] = self.fdm.get_property_value("ic/vn-fps") * self.fsToMs  # Local frame x-axis (north) velocity initial condition in feet/second
 
         self.send_Ctrl([0, 0, 0, 0, 0, 0, 1])  # this means it will not control the stick during the reset
         new_posi = self.get_Posi()

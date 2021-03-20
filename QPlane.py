@@ -2,7 +2,7 @@ import socket
 import time
 import numpy as np
 from src.algorithms.QDeepLearn import QLearn  # can be QLearn or QDeepLearn
-from src.environments.jsbsim.JSBSimEnv import Env  # can be jsbsim.JSBSimEnv or xplane.XPlaneEnv
+from src.environments.xplane.XPlaneEnv import Env  # can be jsbsim.JSBSimEnv or xplane.XPlaneEnv
 
 experimentName = "NewFitDeep" + str(time.time())
 
@@ -34,7 +34,7 @@ batchSize = 256  # Batch size for the model
 updateRate = 5  # update target model every so many steps
 
 loadModel = False  # will load "model.h5" for tf if True
-jsbRender = False  # will send UDP data to flight gear for rendering if True
+jsbRender = True  # will send UDP data to flight gear for rendering if True
 
 
 dictObservation = {

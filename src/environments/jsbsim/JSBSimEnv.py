@@ -51,7 +51,7 @@ class Env():
 
         self.fdm.set_property_value("ic/ve-fps", 0 * self.msToFs)  # Local frame y-axis (east) velocity initial condition in feet/second
         self.fdm.set_property_value("ic/vd-fps", -rotation[self.dictRotation["velocityY"]] * self.msToFs)  # Local frame z-axis (down) velocity initial condition in feet/second
-        self.fdm.set_property_value("ic/vn-fps", self.startingVelocity * self.msToFs)  # Local frame x-axis (north) velocity initial condition in feet/second
+        self.fdm.set_property_value("ic/vn-fps", -self.startingVelocity * self.msToFs)  # Local frame x-axis (north) velocity initial condition in feet/second
         self.fdm.set_property_value("propulsion/refuel", True)  # refules the plane?
         self.fdm.set_property_value("propulsion/active_engine", True)  # starts the engine?
         self.fdm.set_property_value("propulsion/set-running", 0)  # starts the engine?
@@ -64,11 +64,11 @@ class Env():
 
         local_vx = self.fdm.get_property_value("velocities/v-east-fps") * self.fsToMs  # Velocity East (local)
         local_vy = -self.fdm.get_property_value("velocities/v-down-fps") * self.fsToMs  # Velocity Down (local)
-        local_vz = self.fdm.get_property_value("velocities/v-north-fps") * self.fsToMs  # Velocity North (local)
+        local_vz = -self.fdm.get_property_value("velocities/v-north-fps") * self.fsToMs  # Velocity North (local)
 
         local_ax = self.fdm.get_property_value("accelerations/Nx") * self.fsToMs   # The acceleration in local coordinates +ax=E -ax=W?
         local_ay = -self.fdm.get_property_value("accelerations/Ny") * self.fsToMs  # The acceleration in local coordinates +=Vertical (down)?
-        local_az = self.fdm.get_property_value("accelerations/Nz") * self.fsToMs  # The acceleration in local coordinates -az=S +az=N?
+        local_az = -self.fdm.get_property_value("accelerations/Nz") * self.fsToMs  # The acceleration in local coordinates -az=S +az=N?
 
         groundspeed = self.fdm.get_property_value("velocities/vg-fps") * self.fsToMs  # The ground speed of the aircraft
         P = self.fdm.get_property_value("velocities/p-rad_sec") * self.radToDeg  # The roll rotation rates
@@ -91,9 +91,14 @@ class Env():
         return crash
 
     def send_Ctrl(self, ctrl):
-        self.fdm.set_property_value("fcs/elevator-cmd-norm", ctrl[0])  # Elevator control (stick in/out)?
+        '''
+        ctrl[0]: + Stick in (elevator pointing down) / - Stick back (elevator pointing up)
+        ctrl[1]: + Stick right (right aileron up) / - Stick left (left aileron up)
+        ctrl[2]: + Peddal (Rudder) left / - Peddal (Rudder) right
+        '''
+        self.fdm.set_property_value("fcs/elevator-cmd-norm", -ctrl[0])  # Elevator control (stick in/out)?
         self.fdm.set_property_value("fcs/aileron-cmd-norm", ctrl[1])  # Aileron control (stick left/right)? might need to switch
-        self.fdm.set_property_value("fcs/rudder-cmd-norm", ctrl[2])  # Rudder control (peddals)
+        self.fdm.set_property_value("fcs/rudder-cmd-norm", -ctrl[2])  # Rudder control (peddals)
         self.fdm.set_property_value("fcs/throttle-cmd-norm", ctrl[3])  # throttle
 
     def get_Posi(self):

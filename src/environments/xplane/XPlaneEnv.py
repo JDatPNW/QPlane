@@ -31,11 +31,11 @@ class Env():
 
         client.sendDREF("sim/flightmodel/position/local_vx", 0)  # The velocity in local OGL coordinates +vx=E -vx=W
         client.sendDREF("sim/flightmodel/position/local_vy", rotation[self.dictRotation["velocityY"]])  # The velocity in local OGL coordinates +=Vertical (up)
-        client.sendDREF("sim/flightmodel/position/local_vz", self.startingVelocity)  # The velocity in local OGL coordinates -vz=S +vz=N
+        client.sendDREF("sim/flightmodel/position/local_vz", self.startingVelocity)  # The velocity in local OGL coordinates +vz=S -vz=N
 
         client.sendDREF("sim/flightmodel/position/local_ax", 0)  # The acceleration in local OGL coordinates +ax=E -ax=W
         client.sendDREF("sim/flightmodel/position/local_ay", 0)  # The acceleration in local OGL coordinates +=Vertical (up)
-        client.sendDREF("sim/flightmodel/position/local_az", 0)  # The acceleration in local OGL coordinates -az=S +az=N
+        client.sendDREF("sim/flightmodel/position/local_az", 0)  # The acceleration in local OGL coordinates +az=S -az=N
 
         client.sendDREF("sim/flightmodel/weight/m_fuel1", 65.0)  # fuel quantity failure_enum
         client.sendDREF("sim/flightmodel/weight/m_fuel2", 65.0)  # fuel quantity failure_enum
@@ -70,9 +70,9 @@ class Env():
         client = self.xpc.XPlaneConnect()
 
         '''
-        local_vx:   The velocity in local OGL coordinates
-        local_vy:   The velocity in local OGL coordinates
-        local_vz:   The velocity in local OGL coordinates
+        local_vx:   The velocity in local OGL coordinates - The +X axis points east from the reference point.
+        local_vy:   The velocity in local OGL coordinates - The +Z axis points south from the reference point.
+        local_vz:   The velocity in local OGL coordinates - The +Y axis points straight up away from the center of the earth at the reference point.
         local_ax:   The acceleration in local OGL coordinates
         local_ay:   The acceleration in local OGL coordinates
         local_az:   The acceleration in local OGL coordinates
@@ -109,6 +109,11 @@ class Env():
         client.close()
 
     def send_Ctrl(self, ctrl):
+        '''
+        ctrl[0]: + Stick back (elevator pointing up) / - Stick in (elevator pointing down)
+        ctrl[1]: + Stick right (right aileron up) / - Stick left (left aileron up)
+        ctrl[2]: + Peddal (Rudder) right / - Peddal (Rudder) left
+        '''
         client = self.xpc.XPlaneConnect()
         client.sendCTRL(ctrl)
         client.close()

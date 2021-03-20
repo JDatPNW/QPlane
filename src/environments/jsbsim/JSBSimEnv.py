@@ -92,8 +92,7 @@ class Env():
 
     def send_Ctrl(self, ctrl):
         self.fdm.set_property_value("fcs/elevator-cmd-norm", ctrl[0])  # Elevator control (stick in/out)?
-        self.fdm.set_property_value("fcs/left-aileron-cmd-norm", ctrl[1])  # Aileron control (stick left/right)? might need to switch
-        self.fdm.set_property_value("fcs/right-aileron-cmd-norm", -ctrl[1])  # Aileron control (stick left/right)? might need to switch
+        self.fdm.set_property_value("fcs/aileron-cmd-norm", ctrl[1])  # Aileron control (stick left/right)? might need to switch
         self.fdm.set_property_value("fcs/rudder-cmd-norm", ctrl[2])  # Rudder control (peddals)
         self.fdm.set_property_value("fcs/throttle-cmd-norm", ctrl[3])  # throttle
 

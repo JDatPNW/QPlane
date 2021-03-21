@@ -89,7 +89,7 @@ class Env():
 
     def getCrashed(self):
 
-        if (self.fdm.get_property_value("position/h-agl-ft") < 50):  # checks if plane is less than x feet off the ground, if not it will count as a crash
+        if (self.fdm.get_property_value("position/h-agl-ft") < 200):  # checks if plane is less than x feet off the ground, if not it will count as a crash
             crash = True
         else:
             crash = False

@@ -1,0 +1,11 @@
+#!/bin/bash
+# FILENAME:  QPlane.sub
+
+module load cuda
+
+host=`hostname -s`
+
+echo $CUDA_VISIBLE_DEVICES
+
+# Run on the first available GPU
+python QPlane.py

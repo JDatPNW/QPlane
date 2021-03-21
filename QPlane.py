@@ -34,7 +34,7 @@ batchSize = 256  # Batch size for the model
 updateRate = 5  # update target model every so many steps
 
 loadModel = False  # will load "model.h5" for tf if True
-jsbRender = True  # will send UDP data to flight gear for rendering if True
+jsbRender = False  # will send UDP data to flight gear for rendering if True
 
 
 dictObservation = {

@@ -63,27 +63,12 @@ class Env():
 
     def getVelo(self):
 
-        local_vx = self.fdm.get_property_value("velocities/v-east-fps") * self.fsToMs  # Velocity East (local)
-        local_vy = -self.fdm.get_property_value("velocities/v-down-fps") * self.fsToMs  # Velocity Down (local)
-        local_vz = -self.fdm.get_property_value("velocities/v-north-fps") * self.fsToMs  # Velocity North (local)
-
-        local_ax = (local_vx - self.velocities[0]) / self.pauseDelay   # The acceleration in local coordinates +ax=E -ax=W?
-        local_ay = -(local_vy - self.velocities[1]) / self.pauseDelay  # The acceleration in local coordinates +=Vertical (down)?
-        local_az = -(local_vz - self.velocities[2]) / self.pauseDelay  # The acceleration in local coordinates -az=S +az=N?
-
-        self.velocities[0] = local_vx
-        self.velocities[1] = local_vy
-        self.velocities[2] = local_vz
-
-        groundspeed = self.fdm.get_property_value("velocities/vg-fps") * self.fsToMs  # The ground speed of the aircraft
         P = self.fdm.get_property_value("velocities/p-rad_sec") * self.radToDeg  # The roll rotation rates
         Q = self.fdm.get_property_value("velocities/q-rad_sec") * self.radToDeg  # The pitch rotation rates
         R = self.fdm.get_property_value("velocities/r-rad_sec") * self.radToDeg  # The yaw rotation rates
-        P_dot = self.fdm.get_property_value("accelerations/pdot-rad_sec2") * self.radToDeg  # The roll angular acceleration
-        Q_dot = self.fdm.get_property_value("accelerations/qdot-rad_sec2") * self.radToDeg  # The pitch angular acceleration
-        R_dot = self.fdm.get_property_value("accelerations/rdot-rad_sec2") * self.radToDeg  # The yaw angular acceleration
-
-        values = [local_vx, local_vy, local_vz, local_ax, local_ay, local_az, groundspeed, P, Q, R, P_dot, Q_dot, R_dot]
+        AoA = self.fdm.get_property_value("aero/alpha-deg")  # The angle of Attack
+        AoS = self.fdm.get_property_value("aero/beta-deg")
+        values = [P, Q, R, AoA, AoS]
 
         return values
 
@@ -209,7 +194,7 @@ class Env():
 
     def getDeepState(self, observation):
         velocities = self.getVelo()
-        positions = observation
+        positions = observation[3:]
         vel = []
         for i in range(len(velocities)):
             vel.append(velocities[i])

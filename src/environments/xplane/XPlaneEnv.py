@@ -85,11 +85,8 @@ class Env():
         R_dot:      The yaw angular acceleration rates (relative to the flight)
         '''
 
-        drefs = ["sim/flightmodel/position/local_vx", "sim/flightmodel/position/local_vy", "sim/flightmodel/position/local_vz",
-                 "sim/flightmodel/position/local_ax", "sim/flightmodel/position/local_ay", "sim/flightmodel/position/local_az",
-                 "sim/flightmodel/position/groundspeed",
-                 "sim/flightmodel/position/P", "sim/flightmodel/position/Q", "sim/flightmodel/position/R",
-                 "sim/flightmodel/position/P_dot", "sim/flightmodel/position/Q_dot", "sim/flightmodel/position/R_dot"]
+        drefs = ["sim/flightmodel/position/P", "sim/flightmodel/position/Q", "sim/flightmodel/position/R",
+                 "sim/flightmodel/position/alpha", "sim/flightmodel/position/beta"]
 
         values = client.getDREFs(drefs)
 
@@ -223,7 +220,7 @@ class Env():
 
     def getDeepState(self, observation):
         velocities = self.getVelo()
-        positions = observation[:-1]
+        positions = observation[3:-1]
         vel = []
         for i in range(len(velocities)):
             vel.append(velocities[i][0])

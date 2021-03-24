@@ -11,6 +11,7 @@ errors = 0.0  # counts everytime the UDP packages are lost on all retries
 timeStart = time.time()  # used to measure time
 timeEnd = time.time()  # used to measure time
 logPeriod = 10  # every so many epochs the metrics will be printed into the console
+np.set_printoptions(precision=0)  # sets decimals for np.arrays to X for printing
 savePeriod = 25  # every so many epochs the table/model will be saved to a file
 pauseDelay = 0.5  # time an action is being applied to the environment
 
@@ -27,7 +28,7 @@ decayRate = 0.00001  # Rate at which epsilon will decay per step
 epsilonMin = 0.1  # Minimum value at which epsilon will stop decaying
 n_epochsBeforeDecay = 10  # number of games to be played before epsilon starts to decay
 
-numOfInputs = 19  # Number of inputs fed to the model
+numOfInputs = 8  # Number of inputs fed to the model
 minReplayMemSize = 1_000  # min size determines when the replay will start being used
 replayMemSize = 100_000  # Max size for the replay buffer
 batchSize = 256  # Batch size for the model
@@ -97,8 +98,6 @@ Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
 
 env = Env(flightOrigin, flightDestinaion, n_actions,
           end, dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender)
-
-np.set_printoptions(precision=1)  # sets decimals for np.arrays to X for printing
 
 
 # prints out all metrics

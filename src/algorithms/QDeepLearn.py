@@ -96,11 +96,8 @@ class DQNAgent:
         model = Sequential()
         model.add(Input(shape=modelShape))
         model.add(Dense(int(modelShape[0]), activation='relu'))
-        model.add(Dense(int(modelShape[0] * 0.66), activation='relu'))
-        model.add(Dense(int(modelShape[0] * 0.5), activation='relu'))
-        model.add(Dense(int(modelShape[0] * 0.33), activation='relu'))
-        model.add(Dense(int(self.numOfOutputs * 1.66), activation='relu'))
-        model.add(Dense(int(self.numOfOutputs * 1.33), activation='relu'))
+        model.add(Dense(int(modelShape[0] * 0.75), activation='relu'))
+        model.add(Dense(int(self.numOfOutputs * 1.25), activation='relu'))
         model.add(Dense(self.numOfOutputs, activation='linear'))
         model.compile(loss="mse", optimizer=Adam(
             lr=self.learningRate), metrics=['accuracy'])

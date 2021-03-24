@@ -83,6 +83,8 @@ class Env():
         P_dot:      The roll angular acceleration (relative to the flight)
         Q_dot:      The pitch angular acceleration (relative to the flight)
         R_dot:      The yaw angular acceleration rates (relative to the flight)
+        alpha:      The pitch relative to the flown path (angle of attack)
+        beta:       The heading relative to the flown path (yaw)
         '''
 
         drefs = ["sim/flightmodel/position/P", "sim/flightmodel/position/Q", "sim/flightmodel/position/R",

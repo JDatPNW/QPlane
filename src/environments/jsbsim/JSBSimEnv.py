@@ -67,7 +67,7 @@ class Env():
         Q = self.fdm.get_property_value("velocities/q-rad_sec") * self.radToDeg  # The pitch rotation rates
         R = self.fdm.get_property_value("velocities/r-rad_sec") * self.radToDeg  # The yaw rotation rates
         AoA = self.fdm.get_property_value("aero/alpha-deg")  # The angle of Attack
-        AoS = self.fdm.get_property_value("aero/beta-deg")
+        AoS = self.fdm.get_property_value("aero/beta-deg")  # The angle of Slip
         values = [P, Q, R, AoA, AoS]
 
         return values

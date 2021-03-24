@@ -25,11 +25,11 @@ class Env():
         self.velocities = [0, 0, 0]  # used to calulate accelerations
 
         os.environ["JSBSIM_DEBUG"] = str(0)  # set this before creating fdm to stop debug print outs
-        self.fdm = jsbsim.FGFDMExec('./src/environments/jsbsim/', None)  # declaring the sim and setting the path
+        self.fdm = jsbsim.FGFDMExec('./src/environments/jsbsim/jsbsim/', None)  # declaring the sim and setting the path
         self.fdm.load_model('c172r')  # loading cassna 172
         if render:  # only when render is True
             # Open Flight gear and enter: --fdm=null --native-fdm=socket,in,60,localhost,5550,udp --aircraft=c172r --airport=RKJJ
-            self.fdm.set_output_directive('data_output/flightgear.xml')  # loads xml that initates udp transfer
+            self.fdm.set_output_directive('jsbsim/data_output/flightgear.xml')  # loads xml that initates udp transfer
         self.fdm.run_ic()  # init the sim
 
     def send_posi(self, posi, rotation):

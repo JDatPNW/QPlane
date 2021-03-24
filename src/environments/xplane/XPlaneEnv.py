@@ -97,11 +97,16 @@ class Env():
 
         return values
 
-    def getCrashed(self):
+    def getTermination(self):
         client = self.xpc.XPlaneConnect()
         crash = client.getDREF("sim/flightmodel2/misc/has_crashed")
+        aoa = client.getDREF("sim/flightmodel/position/alpha")
         client.close()
-        return crash[0]
+        if(crash[0] or aoa[0] >= 16):
+            terminate = True
+        else:
+            terminate = False
+        return terminate
 
     def send_Pause(self, pause):
         client = self.xpc.XPlaneConnect()
@@ -254,7 +259,7 @@ class Env():
             reward = reward * 0.1
 
         done = False
-        if(self.getCrashed()):  # Would be used for end parameter - for example, if plane crahsed done, or if plane reached end done
+        if(self.getTermination()):  # Would be used for end parameter - for example, if plane crahsed done, or if plane reached end done
             done = True
             reward = -1
 

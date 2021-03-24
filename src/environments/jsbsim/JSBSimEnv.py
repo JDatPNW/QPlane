@@ -87,13 +87,15 @@ class Env():
 
         return values
 
-    def getCrashed(self):
+    def getTermination(self):
 
         if (self.fdm.get_property_value("position/h-agl-ft") < 200):  # checks if plane is less than x feet off the ground, if not it will count as a crash
-            crash = True
+            terminate = True
+        elif(self.fdm.get_property_value("aero/alpha-deg") >= 16):
+            terminate = True
         else:
-            crash = False
-        return crash
+            terminate = False
+        return terminate
 
     def send_Ctrl(self, ctrl):
         '''
@@ -243,7 +245,7 @@ class Env():
             reward = reward * 0.1
 
         done = False
-        if(self.getCrashed()):  # Would be used for end parameter - for example, if plane crahsed done, or if plane reached end done
+        if(self.getTermination()):  # Would be used for end parameter - for example, if plane crahsed done, or if plane reached end done
             done = True
             reward = -1
 

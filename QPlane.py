@@ -11,9 +11,10 @@ errors = 0.0  # counts everytime the UDP packages are lost on all retries
 timeStart = time.time()  # used to measure time
 timeEnd = time.time()  # used to measure time
 logPeriod = 10  # every so many epochs the metrics will be printed into the console
-np.set_printoptions(precision=0)  # sets decimals for np.arrays to X for printing
 savePeriod = 25  # every so many epochs the table/model will be saved to a file
 pauseDelay = 0.5  # time an action is being applied to the environment
+logDecimals = 0  # sets decimals for np.arrays to X for printing
+np.set_printoptions(precision=logDecimals)  # sets decimals for np.arrays to X for printing
 
 n_epochs = 5000  # Number of generations
 n_steps = 250  # Number of inputs per generation
@@ -116,7 +117,7 @@ def log(i_epoch, i_step, reward, logList):
     print("\t\tGame ", i_epoch,
           "\n\t\t\tMove ", i_step,
           "\n\t\t\tTime taken ", timeEnd - timeStart,
-          "\n\t\t\tState ", np.array(state),
+          "\n\t\t\tState ", np.array(state).round(logDecimals),
           "\n\t\t\t\t\t[p+,p-,r+,r-]",
           "\n\t\t\tactions_binary = ", actions_binary,
           "\n\t\t\tCurrent Control:", control,

@@ -117,7 +117,7 @@ def log(i_epoch, i_step, reward, logList):
           "\n\t\t\tMove ", i_step,
           "\n\t\t\tTime taken ", timeEnd - timeStart,
           "\n\t\t\tState ", np.array(state),
-          "\n\t\t\t\t[p+,p-,ro+,ro-]",
+          "\n\t\t\t\t\t[p+,p-,r+,r-]",
           "\n\t\t\tactions_binary = ", actions_binary,
           "\n\t\t\tCurrent Control:", control,
           "\n\t\t\tCurrent Qs:", Q.currentTable,

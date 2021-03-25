@@ -22,7 +22,6 @@ class Env():
         self.radToDeg = 57.2957795  # convertion from radiants to degree
         self.degToRad = 0.0174533  # convertion from deg to rad
         self.physicsPerSec = 120  # default by jsb. Each physics step is a 120th of 1 sec
-        self.velocities = [0, 0, 0]  # used to calulate accelerations
 
         os.environ["JSBSIM_DEBUG"] = str(0)  # set this before creating fdm to stop debug print outs
         self.fdm = jsbsim.FGFDMExec('./src/environments/jsbsim/jsbsim/', None)  # declaring the sim and setting the path
@@ -36,26 +35,26 @@ class Env():
         posi[self.dictObservation["pitch"]] = rotation[self.dictRotation["pitch"]]
         posi[self.dictObservation["roll"]] = rotation[self.dictRotation["roll"]]
 
-        self.fdm.set_property_value("ic/lat-gc-deg", posi[self.dictObservation["lat"]])  # Latitude initial condition in degrees
-        self.fdm.set_property_value("ic/long-gc-deg", posi[self.dictObservation["long"]])  # Longitude initial condition in degrees
-        self.fdm.set_property_value("ic/h-sl-ft", posi[self.dictObservation["alt"]])  # Height above sea level initial condition in feet
+        self.fdm["ic/lat-gc-deg"] = posi[self.dictObservation["lat"]]  # Latitude initial condition in degrees
+        self.fdm["ic/long-gc-deg"] = posi[self.dictObservation["long"]]  # Longitude initial condition in degrees
+        self.fdm["ic/h-sl-ft"] = posi[self.dictObservation["alt"]]  # Height above sea level initial condition in feet
 
-        self.fdm.set_property_value("ic/theta-deg", posi[self.dictObservation["pitch"]])  # Pitch angle initial condition in degrees
-        self.fdm.set_property_value("ic/phi-deg", posi[self.dictObservation["roll"]])  # Roll angle initial condition in degrees
-        self.fdm.set_property_value("ic/psi-true-deg", posi[self.dictObservation["yaw"]])  # Heading angle initial condition in degrees
+        self.fdm["ic/theta-deg"] = posi[self.dictObservation["pitch"]]  # Pitch angle initial condition in degrees
+        self.fdm["ic/phi-deg"] = posi[self.dictObservation["roll"]]  # Roll angle initial condition in degrees
+        self.fdm["ic/psi-true-deg"] = posi[self.dictObservation["yaw"]]  # Heading angle initial condition in degrees
 
     def send_velo(self, rotation):
 
-        self.fdm.set_property_value("ic/ve-fps", 0 * self.msToFs)  # Local frame y-axis (east) velocity initial condition in feet/second
-        self.fdm.set_property_value("ic/vd-fps", -rotation[self.dictRotation["velocityY"]] * self.msToFs)  # Local frame z-axis (down) velocity initial condition in feet/second
-        self.fdm.set_property_value("ic/vn-fps", -self.startingVelocity * self.msToFs)  # Local frame x-axis (north) velocity initial condition in feet/second
-        self.fdm.set_property_value("propulsion/refuel", True)  # refules the plane?
-        self.fdm.set_property_value("propulsion/active_engine", True)  # starts the engine?
-        self.fdm.set_property_value("propulsion/set-running", 0)  # starts the engine?
+        self.fdm["ic/ve-fps"] = 0 * self.msToFs  # Local frame y-axis (east) velocity initial condition in feet/second
+        self.fdm["ic/vd-fps"] = -rotation[self.dictRotation["velocityY"]] * self.msToFs  # Local frame z-axis (down) velocity initial condition in feet/second
+        self.fdm["ic/vn-fps"] = -self.startingVelocity * self.msToFs  # Local frame x-axis (north) velocity initial condition in feet/second
+        self.fdm["propulsion/refuel"] = True  # refules the plane?
+        self.fdm["propulsion/active_engine"] = True  # starts the engine?
+        self.fdm["propulsion/set-running"] = 0  # starts the engine?
 
-        self.fdm.set_property_value("ic/q-rad_sec", 0)  # Pitch rate initial condition in radians/second
-        self.fdm.set_property_value("ic/p-rad_sec", 0)  # Roll rate initial condition in radians/second
-        self.fdm.set_property_value("ic/r-rad_sec", 0)  # Yaw rate initial condition in radians/second
+        self.fdm["ic/q-rad_sec"] = 0  # Pitch rate initial condition in radians/second
+        self.fdm["ic/p-rad_sec"] = 0  # Roll rate initial condition in radians/second
+        self.fdm["ic/r-rad_sec"] = 0  # Yaw rate initial condition in radians/second
 
         # client.sendDREF("sim/flightmodel/position/local_ax", 0)  # The acceleration in local OGL coordinates +ax=E -ax=W
         # client.sendDREF("sim/flightmodel/position/local_ay", 0)  # The acceleration in local OGL coordinates +=Vertical (up)
@@ -63,20 +62,20 @@ class Env():
 
     def getVelo(self):
 
-        P = self.fdm.get_property_value("velocities/p-rad_sec") * self.radToDeg  # The roll rotation rates
-        Q = self.fdm.get_property_value("velocities/q-rad_sec") * self.radToDeg  # The pitch rotation rates
-        R = self.fdm.get_property_value("velocities/r-rad_sec") * self.radToDeg  # The yaw rotation rates
-        AoA = self.fdm.get_property_value("aero/alpha-deg")  # The angle of Attack
-        AoS = self.fdm.get_property_value("aero/beta-deg")  # The angle of Slip
+        P = self.fdm["velocities/p-rad_sec"] * self.radToDeg  # The roll rotation rates
+        Q = self.fdm["velocities/q-rad_sec"] * self.radToDeg  # The pitch rotation rates
+        R = self.fdm["velocities/r-rad_sec"] * self.radToDeg  # The yaw rotation rates
+        AoA = self.fdm["aero/alpha-deg"]  # The angle of Attack
+        AoS = self.fdm["aero/beta-deg"]  # The angle of Slip
         values = [P, Q, R, AoA, AoS]
 
         return values
 
     def getTermination(self):
 
-        if (self.fdm.get_property_value("position/h-agl-ft") < 200):  # checks if plane is less than x feet off the ground, if not it will count as a crash
+        if (self.fdm["position/h-agl-ft"] < 200):  # checks if plane is less than x feet off the ground, if not it will count as a crash
             terminate = True
-        elif(self.fdm.get_property_value("aero/alpha-deg") >= 16):
+        elif(self.fdm["aero/alpha-deg"] >= 16):
             terminate = True
         else:
             terminate = False
@@ -88,19 +87,19 @@ class Env():
         ctrl[1]: + Stick right (right aileron up) / - Stick left (left aileron up)
         ctrl[2]: + Peddal (Rudder) left / - Peddal (Rudder) right
         '''
-        self.fdm.set_property_value("fcs/elevator-cmd-norm", -ctrl[0])  # Elevator control (stick in/out)?
-        self.fdm.set_property_value("fcs/aileron-cmd-norm", ctrl[1])  # Aileron control (stick left/right)? might need to switch
-        self.fdm.set_property_value("fcs/rudder-cmd-norm", -ctrl[2])  # Rudder control (peddals)
-        self.fdm.set_property_value("fcs/throttle-cmd-norm", ctrl[3])  # throttle
+        self.fdm["fcs/elevator-cmd-norm"] = -ctrl[0]  # Elevator control (stick in/out)?
+        self.fdm["fcs/aileron-cmd-norm"] = ctrl[1]  # Aileron control (stick left/right)? might need to switch
+        self.fdm["fcs/rudder-cmd-norm"] = -ctrl[2]  # Rudder control (peddals)
+        self.fdm["fcs/throttle-cmd-norm"] = ctrl[3]  # throttle
 
     def get_Posi(self):
-        lat = self.fdm.get_property_value("position/lat-gc-deg")  # Latitude
-        long = self.fdm.get_property_value("position/long-gc-deg")  # Longitude
-        alt = self.fdm.get_property_value("position/h-sl-ft")  # altitude
+        lat = self.fdm["position/lat-gc-deg"]  # Latitude
+        long = self.fdm["position/long-gc-deg"]  # Longitude
+        alt = self.fdm["position/h-sl-ft"]  # altitude
 
-        pitch = self.fdm.get_property_value("attitude/theta-deg")  # pitch
-        roll = self.fdm.get_property_value("attitude/phi-deg")  # roll
-        heading = self.fdm.get_property_value("attitude/psi-deg")  # yaw
+        pitch = self.fdm["attitude/theta-deg"]  # pitch
+        roll = self.fdm["attitude/phi-deg"]  # roll
+        heading = self.fdm["attitude/psi-deg"]  # yaw
 
         r = [lat, long, alt, pitch, roll, heading]
 
@@ -265,10 +264,6 @@ class Env():
         self.send_velo(rotation)
 
         self.fdm.run_ic()
-
-        self.velocities[0] = self.fdm.get_property_value("ic/ve-fps") * self.fsToMs  # Local frame y-axis (east) velocity initial condition in feet/second
-        self.velocities[1] = self.fdm.get_property_value("ic/vd-fps") * self.fsToMs  # Local frame z-axis (down) velocity initial condition in feet/second
-        self.velocities[2] = self.fdm.get_property_value("ic/vn-fps") * self.fsToMs  # Local frame x-axis (north) velocity initial condition in feet/second
 
         self.send_Ctrl([0, 0, 0, 0, 0, 0, 1])  # this means it will not control the stick during the reset
         new_posi = self.get_Posi()

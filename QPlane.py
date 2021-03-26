@@ -12,7 +12,7 @@ timeStart = time.time()  # used to measure time
 timeEnd = time.time()  # used to measure time
 logPeriod = 10  # every so many epochs the metrics will be printed into the console
 savePeriod = 25  # every so many epochs the table/model will be saved to a file
-pauseDelay = 0.5  # time an action is being applied to the environment
+pauseDelay = 0.01  # time an action is being applied to the environment
 logDecimals = 0  # sets decimals for np.arrays to X for printing
 np.set_printoptions(precision=logDecimals)  # sets decimals for np.arrays to X for printing
 
@@ -70,9 +70,9 @@ flightDestinaion = [33.508, 126.487, 6000, -998, -998, -998, 1]  # Jeju SK
 startingVelocity = -55
 #  Other locations to use: Memmingen: [47.988, 10.240], Chicago: [41.976, -87.902]
 
-flightStartPitch = 10  # Will be used as -value / 0 / value
-flightStartRoll = 15  # Will be used as -value / 0 / value
-flightStartVelocityY = 25  # Will be used as -value / 0 / value
+flightStartPitch = 10  # Will be used as -value / 0 / value  MINUS 10 insta death?
+flightStartRoll = 15  # Will be used as -value / 0 / value   MINUS 15 insta death?
+flightStartVelocityY = 10  # Will be used as -value / 0 / value
 
 flightStartRotation = [[-flightStartPitch, -flightStartRoll, -flightStartVelocityY],
                        [-flightStartPitch, 0, 0],

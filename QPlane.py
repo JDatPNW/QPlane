@@ -191,7 +191,7 @@ def epoch(i_epoch):
     done = False
     reward = 0
 
-    for i_step in range(n_steps):
+    for i_step in range(n_steps + 1):
         done, reward, logList = step(i_step, done, reward, oldState)
         epochReward += reward
         epochQ += np.argmax(Q.currentTable)

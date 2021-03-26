@@ -70,8 +70,8 @@ flightDestinaion = [33.508, 126.487, 6000, -998, -998, -998, 1]  # Jeju SK
 startingVelocity = -55
 #  Other locations to use: Memmingen: [47.988, 10.240], Chicago: [41.976, -87.902]
 
-flightStartPitch = 10  # Will be used as -value / 0 / value  MINUS 10 insta death?
-flightStartRoll = 15  # Will be used as -value / 0 / value   MINUS 15 insta death?
+flightStartPitch = 10  # Will be used as -value / 0 / value
+flightStartRoll = 15  # Will be used as -value / 0 / value
 flightStartVelocityY = 10  # Will be used as -value / 0 / value
 
 flightStartRotation = [[-flightStartPitch, -flightStartRoll, -flightStartVelocityY],

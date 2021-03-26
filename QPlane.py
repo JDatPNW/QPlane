@@ -75,13 +75,13 @@ flightStartRoll = 15  # Will be used as -value / 0 / value   MINUS 15 insta deat
 flightStartVelocityY = 10  # Will be used as -value / 0 / value
 
 flightStartRotation = [[-flightStartPitch, -flightStartRoll, -flightStartVelocityY],
-                       [-flightStartPitch, 0, 0],
-                       [-flightStartPitch, flightStartRoll, flightStartVelocityY],
-                       [0, -flightStartRoll, -flightStartVelocityY],
+                       [-flightStartPitch, 0, -flightStartVelocityY],
+                       [-flightStartPitch, flightStartRoll, -flightStartVelocityY],
+                       [0, -flightStartRoll, -0],
                        [0, 0, 0],
-                       [0, flightStartRoll, flightStartVelocityY],
-                       [flightStartPitch, -flightStartRoll, -flightStartVelocityY],
-                       [flightStartPitch, 0, 0],
+                       [0, flightStartRoll, 0],
+                       [flightStartPitch, -flightStartRoll, flightStartVelocityY],
+                       [flightStartPitch, 0, flightStartVelocityY],
                        [flightStartPitch, flightStartRoll, flightStartVelocityY]]
 
 epochRewards = []
@@ -116,6 +116,7 @@ def log(i_epoch, i_step, reward, logList):
     timeEnd = time.time()  # End timer here
     print("\t\tGame ", i_epoch,
           "\n\t\t\tMove ", i_step,
+          "\n\t\t\tStarting Rotation ", flightStartRotation[i_epoch % len(flightStartRotation)],
           "\n\t\t\tTime taken ", timeEnd - timeStart,
           "\n\t\t\tState ", np.array(state).round(logDecimals),
           "\n\t\t\t\t\t[p+,p-,r+,r-]",
@@ -150,7 +151,7 @@ def step(i_step, done, reward, oldState):
             break
     else:  # if all 10 attempts fail
         errors += 1
-        newState = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        newState = [0, 0, 0, 0, 0, 0, 0, 0]
         reward = 0
         done = False
         info = [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], 0]
@@ -181,7 +182,7 @@ def epoch(i_epoch):
         else:
             break
     else:  # if all 25 attempts fail
-        oldState = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # Error was during reset
+        oldState = [0, 0, 0, 0, 0, 0, 0, 0]  # Error was during reset
         errors += 1
 
     if(i_epoch % savePeriod == 0):

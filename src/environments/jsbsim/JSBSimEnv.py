@@ -254,7 +254,7 @@ class Env():
 
         done = False
         reward = 0
-        reward, done = self.rewardFunction(action, state)
+        reward, done = self.rewardFunction(action, position)
 
         info = [position, actions_binary, newCtrl]
         return state, reward, done, info

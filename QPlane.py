@@ -130,7 +130,7 @@ def log(i_epoch, i_step, reward, logList):
           "\n\t\t\tCurrent Epsilon: ", currentEpsilon,
           "\n\t\t\tCurrent Reward: ", reward,
           "\n\t\t\tError Percentage & Count: ", float(errors / (i_epoch * n_steps + i_step + 1)), ",", errors,
-          "\n\t\t\tError Code: ", dictErrors)
+          "\n\t\t\tError Code: ", dictErrors, "\n")
     timeStart = time.time()  # Start timer here
 
 

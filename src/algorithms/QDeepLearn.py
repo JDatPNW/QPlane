@@ -81,6 +81,7 @@ class DQNAgent:
 
         if(self.loadModel):
             self.model = tf.keras.models.load_model("model.h5")
+            print("\nModel Loaded!\n")
         # Target network uesed for predicting, not updated every step
         self.targetModel = self.createModel()
         self.targetModel.set_weights(self.model.get_weights())

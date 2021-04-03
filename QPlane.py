@@ -21,9 +21,9 @@ n_steps = 250  # Number of inputs per generation
 n_actions = 4  # Number of possible inputs to choose from
 end = 50  # End parameter
 
-n_states = 728  # Number of states
+n_states = 728  # Number of states for non-Deep QLearning
 gamma = 0.95  # The discount rate - between 0 an 1!  if = 0 then no learning, ! The higher it is the more the new q will factor into the update of the q value
-lr = 0.0001  # Learning Rate. If LR is 0 then the Q value would not update. The higher the value the quicker the agent will adopt the NEW Q value. If lr = 1, the updated value would be exactly be the newly calculated q value, completely ignoring the previous one
+lr = 0.0001  # Learning Rate. Deep ~0.0001 / non-Deep ~0.01 - If LR is 0 then the Q value would not update. The higher the value the quicker the agent will adopt the NEW Q value. If lr = 1, the updated value would be exactly be the newly calculated q value, completely ignoring the previous one
 epsilon = 1.0  # Starting Epsilon Rate, affects the exploration probability. Will decay
 decayRate = 0.00001  # Rate at which epsilon will decay per step
 epsilonMin = 0.1  # Minimum value at which epsilon will stop decaying
@@ -33,7 +33,7 @@ numOfInputs = 8  # Number of inputs fed to the model
 minReplayMemSize = 1_000  # min size determines when the replay will start being used
 replayMemSize = 100_000  # Max size for the replay buffer
 batchSize = 256  # Batch size for the model
-updateRate = 5  # update target model every so many steps
+updateRate = 5  # update target model every so many episodes
 
 loadModel = False  # will load "model.h5" for tf if True
 jsbRender = False  # will send UDP data to flight gear for rendering if True

@@ -4,8 +4,6 @@ import numpy as np
 from src.algorithms.QDeepLearn import QLearn  # can be QLearn or QDeepLearn
 from src.environments.jsbsim.JSBSimEnv import Env  # can be jsbsim.JSBSimEnv or xplane.XPlaneEnv
 
-experimentName = "NewFitDeep" + str(time.time())
-
 errors = 0.0  # counts everytime the UDP packages are lost on all retries
 
 timeStart = time.time()  # used to measure time
@@ -84,18 +82,8 @@ flightStartRotation = [[-flightStartPitch, -flightStartRoll, -flightStartVelocit
                        [flightStartPitch, 0, flightStartVelocityY],
                        [flightStartPitch, flightStartRoll, flightStartVelocityY]]
 
-epochRewards = []
-epochQs = []
-movingRate = 3 * len(flightStartRotation)  # Number given in number * len(flightStartRotation)
-movingEpRewards = {
-    "epoch": [],
-    "average": [],
-    "minimum": [],
-    "maximum": [],
-    "averageQ": []}
-
 Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
-           decayRate, epsilonMin, n_epochsBeforeDecay, experimentName, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate, loadModel)
+           decayRate, epsilonMin, n_epochsBeforeDecay, "testing", numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate, loadModel)
 
 env = Env(flightOrigin, flightDestinaion, n_actions,
           end, dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender)

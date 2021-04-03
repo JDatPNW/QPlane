@@ -35,7 +35,7 @@ replayMemSize = 100_000  # Max size for the replay buffer
 batchSize = 256  # Batch size for the model
 updateRate = 5  # update target model every so many episodes
 
-loadModel = False  # will load "model.h5" for tf if True
+loadModel = False  # will load "model.h5" for tf if True (model.npy for non-Deep)
 jsbRender = False  # will send UDP data to flight gear for rendering if True
 
 
@@ -95,7 +95,8 @@ movingEpRewards = {
     "averageQ": []}
 
 Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
-           decayRate, epsilonMin, n_epochsBeforeDecay, experimentName, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate, loadModel)
+           decayRate, epsilonMin, n_epochsBeforeDecay, experimentName,
+           loadModel, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate)
 
 env = Env(flightOrigin, flightDestinaion, n_actions,
           end, dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender)

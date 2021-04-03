@@ -11,7 +11,7 @@ from collections import deque
 
 class QLearn():
 
-    def __init__(self, n_stat, n_acts, gamm, lr, eps, dec, min, epsDecay, expName, inputs, minReplay, replay, batch, update, loadModel):
+    def __init__(self, n_stat, n_acts, gamm, lr, eps, dec, min, epsDecay, expName, loadModel, inputs, minReplay, replay, batch, update):
         self.n_states = n_stat
         self.n_actions = n_acts
         self.gamma = gamm
@@ -63,7 +63,7 @@ class QLearn():
             "./Experiments/" + str(self.experimentName) + "/" + str(epoch) + ".h5")
 
 
-# Agent class
+# Agent class by https://pythonprogramming.net/q-learning-reinforcement-learning-python-tutorial/ with changes and adaptations
 class DQNAgent:
     def __init__(self, inputs, outputs, learningRate, minReplay, replay, batch, gamma, update, loadModel):
         self.numOfInputs = inputs
@@ -116,7 +116,8 @@ class DQNAgent:
             return
 
         # Get a miniBatch of random samples from memory replay table
-        miniBatch = random.sample(self.replayMemory, self.batchSize)
+        miniBatch = random.sample(self.replayMemory, self.batchSize - 1)  # adds all but one samples at random to the minibatch
+        miniBatch.append(self.replayMemory[-1])  # Adds the newest step to the minibatch
 
         # Get current states from miniBatch, then query NN model for Q values
         currentStates = np.array([transition[0] for transition in miniBatch])

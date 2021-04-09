@@ -21,7 +21,7 @@ n_steps = 250  # Number of inputs per generation
 n_actions = 4  # Number of possible inputs to choose from
 end = 50  # End parameter
 
-n_states = 728  # Number of states for non-Deep QLearning
+n_states = 729  # Number of states for non-Deep QLearning
 gamma = 0.95  # The discount rate - between 0 an 1!  if = 0 then no learning, ! The higher it is the more the new q will factor into the update of the q value
 lr = 0.0001  # Learning Rate. Deep ~0.0001 / non-Deep ~0.01 - If LR is 0 then the Q value would not update. The higher the value the quicker the agent will adopt the NEW Q value. If lr = 1, the updated value would be exactly be the newly calculated q value, completely ignoring the previous one
 epsilon = 1.0  # Starting Epsilon Rate, affects the exploration probability. Will decay

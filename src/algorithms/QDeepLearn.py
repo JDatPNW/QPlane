@@ -60,7 +60,7 @@ class QLearn():
         if not os.path.exists("./Experiments/" + self.experimentName):
             os.makedirs("./Experiments/" + self.experimentName)
         self.model.targetModel.save(
-            "./Experiments/" + str(self.experimentName) + "/" + str(epoch) + ".h5")
+            "./Experiments/" + str(self.experimentName) + "/model" + str(epoch) + ".h5")
 
 
 # Agent class by https://pythonprogramming.net/q-learning-reinforcement-learning-python-tutorial/ with changes and adaptations

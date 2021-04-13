@@ -54,4 +54,4 @@ class QLearn():
     def archive(self, epoch):
         if not os.path.exists("./Experiments/" + self.experimentName):
             os.makedirs("./Experiments/" + self.experimentName)
-        np.save("./Experiments/" + str(self.experimentName) + "/" + str(epoch) + ".npy", self.qTable)
+        np.save("./Experiments/" + str(self.experimentName) + "/model" + str(epoch) + ".npy", self.qTable)

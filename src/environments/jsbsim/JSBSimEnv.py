@@ -1,11 +1,12 @@
 import numpy as np
 import jsbsim
 import os
+import time
 
 
 class Env():
 
-    def __init__(self, orig, dest, n_acts, endParam, dictObservation, dictAction, dictRotation, speed, pause, qID, render):
+    def __init__(self, orig, dest, n_acts, endParam, dictObservation, dictAction, dictRotation, speed, pause, qID, render, realTime):
         self.startingPosition = orig
         self.destinationPosition = dest
         self.previousPosition = orig
@@ -21,15 +22,18 @@ class Env():
         self.msToFs = 3.28084  # convertion from meter per sec to feet per sec
         self.radToDeg = 57.2957795  # convertion from radiants to degree
         self.degToRad = 0.0174533  # convertion from deg to rad
-        self.physicsPerSec = 120  # default by jsb. Each physics step is a 120th of 1 sec
+        self.realTime = realTime
 
         os.environ["JSBSIM_DEBUG"] = str(0)  # set this before creating fdm to stop debug print outs
         self.fdm = jsbsim.FGFDMExec('./src/environments/jsbsim/jsbsim/', None)  # declaring the sim and setting the path
+        self.physicsPerSec = int(1 / self.fdm.get_delta_t())  # default by jsb. Each physics step is a 120th of 1 sec
+        self.realTimeDelay = self.fdm.get_delta_t()
         self.fdm.load_model('c172r')  # loading cassna 172
         if render:  # only when render is True
             # Open Flight gear and enter: --fdm=null --native-fdm=socket,in,60,localhost,5550,udp --aircraft=c172r --airport=RKJJ
             self.fdm.set_output_directive('./data_output/flightgear.xml')  # loads xml that initates udp transfer
         self.fdm.run_ic()  # init the sim
+        self.fdm.print_simulation_configuration()
 
     def send_posi(self, posi, rotation):
         posi[self.dictObservation["pitch"]] = rotation[self.dictRotation["pitch"]]
@@ -242,8 +246,15 @@ class Env():
 
         self.send_Ctrl(newCtrl)
         for i in range(int(self.pauseDelay * self.physicsPerSec)):  # will mean that the input will be applied for pauseDelay seconds
-            self.send_Ctrl(newCtrl)
-            self.fdm.run()
+            # If realTime is True, then the sim will slow down to real time, should only be used for viewing/debugging, not for training
+            if(self.realTime):
+                self.send_Ctrl(newCtrl)
+                self.fdm.run()
+                time.sleep(self.realTimeDelay)
+            # Non realTime code: this is default
+            else:
+                self.send_Ctrl(newCtrl)
+                self.fdm.run()
 
         position = self.get_Posi()
 

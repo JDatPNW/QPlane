@@ -22,7 +22,7 @@ end = 50  # End parameter
 n_states = 729  # Number of states
 gamma = 0.95  # The discount rate - between 0 an 1!  if = 0 then no learning, ! The higher it is the more the new q will factor into the update of the q value
 lr = 0.0001  # Learning Rate. If LR is 0 then the Q value would not update. The higher the value the quicker the agent will adopt the NEW Q value. If lr = 1, the updated value would be exactly be the newly calculated q value, completely ignoring the previous one
-epsilon = 1.0  # Starting Epsilon Rate, affects the exploration probability. Will decay
+epsilon = 0.0  # Starting Epsilon Rate, affects the exploration probability. Will decay
 decayRate = 0.00001  # Rate at which epsilon will decay per step
 epsilonMin = 0.1  # Minimum value at which epsilon will stop decaying
 n_epochsBeforeDecay = 10  # number of games to be played before epsilon starts to decay

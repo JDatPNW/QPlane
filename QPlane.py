@@ -17,7 +17,7 @@ logDecimals = 0  # sets decimals for np.arrays to X for printing
 np.set_printoptions(precision=logDecimals)  # sets decimals for np.arrays to X for printing
 
 n_epochs = 5000  # Number of generations
-n_steps = 250  # Number of inputs per generation
+n_steps = 1000  # Number of inputs per generation
 n_actions = 4  # Number of possible inputs to choose from
 end = 50  # End parameter
 
@@ -37,7 +37,7 @@ updateRate = 5  # update target model every so many episodes
 
 loadModel = False  # will load "model.h5" for tf if True (model.npy for non-Deep)
 jsbRender = False  # will send UDP data to flight gear for rendering if True
-
+jsbRealTime = False  # will slow down the physics to portrait real time rendering
 
 dictObservation = {
     "lat": 0,
@@ -99,7 +99,7 @@ Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
            loadModel, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate)
 
 env = Env(flightOrigin, flightDestinaion, n_actions,
-          end, dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender)
+          end, dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender, jsbRealTime)
 
 
 # prints out all metrics

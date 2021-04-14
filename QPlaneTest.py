@@ -35,6 +35,7 @@ updateRate = 5  # update target model every so many steps
 
 loadModel = True  # will load "model.h5" for tf if True
 jsbRender = True  # will send UDP data to flight gear for rendering if True
+jsbRealTime = True  # will slow down the physics to portrait real time rendering
 
 
 dictObservation = {
@@ -86,7 +87,7 @@ Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
            decayRate, epsilonMin, n_epochsBeforeDecay, "testing", numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate, loadModel)
 
 env = Env(flightOrigin, flightDestinaion, n_actions,
-          end, dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender)
+          end, dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender, jsbRealTime)
 
 
 # prints out all metrics

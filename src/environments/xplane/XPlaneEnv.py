@@ -5,12 +5,11 @@ import time
 
 class Env():
 
-    def __init__(self, orig, dest, n_acts, endParam, dictObservation, dictAction, dictRotation, speed, pause, qID, *args, **kwargs):
+    def __init__(self, orig, dest, n_acts, dictObservation, dictAction, dictRotation, speed, pause, qID, *args, **kwargs):
         self.startingPosition = orig
         self.destinationPosition = dest
         self.previousPosition = orig
         self.n_actions = n_acts
-        self.endThreshold = endParam
         self.xpc = imp.load_source('xpc', './src/environments/xplane/xpc.py')  # path is relative to the location of the QPlane.py file
         self.dictObservation = dictObservation
         self.dictAction = dictAction

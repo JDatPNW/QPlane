@@ -6,12 +6,11 @@ import time
 
 class Env():
 
-    def __init__(self, orig, dest, n_acts, endParam, dictObservation, dictAction, dictRotation, speed, pause, qID, render, realTime):
+    def __init__(self, orig, dest, n_acts, dictObservation, dictAction, dictRotation, speed, pause, qID, render, realTime):
         self.startingPosition = orig
         self.destinationPosition = dest
         self.previousPosition = orig
         self.n_actions = n_acts
-        self.endThreshold = endParam
         self.dictObservation = dictObservation
         self.dictAction = dictAction
         self.dictRotation = dictRotation

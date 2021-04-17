@@ -22,6 +22,7 @@ class Env():
         self.radToDeg = 57.2957795  # convertion from radiants to degree
         self.degToRad = 0.0174533  # convertion from deg to rad
         self.realTime = realTime
+        self.id = "JSBSim"
 
         os.environ["JSBSIM_DEBUG"] = str(0)  # set this before creating fdm to stop debug print outs
         self.fdm = jsbsim.FGFDMExec('./src/environments/jsbsim/jsbsim/', None)  # declaring the sim and setting the path

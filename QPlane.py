@@ -235,4 +235,11 @@ for i_epoch in range(n_epochs + 1):
 
 np.save("./Experiments/" + str(experimentName) + "/results_final.npy", movingEpRewards)
 
+endTime = str(time.ctime(time.time()))
+
+setup = f"{experimentName=}\n{dateTime=}\n{endTime=}\n{Q.id=}\n{env.id=}\n{pauseDelay=}\n{n_epochs=}\n{n_steps=}\n{n_actions=}\n"
+setup += f"{n_states=} - states for non deep\n{gamma=}\n{lr=}\n{epsilon=}\n{decayRate=}\n{epsilonMin=}\n{n_epochsBeforeDecay=}\n"
+setup += f"{numOfInputs=} - states for deep\n{minReplayMemSize=}\n{replayMemSize=}\n{batchSize=}\n{updateRate=}\n{loadModel=}\n{movingRate=}\n"
+print(setup, file=open("./Experiments/" + str(experimentName) + "/setup.out", 'w'))
+
 print("<<<<<<<<<<<<<<<<<<<<DONE>>>>>>>>>>>>>>>>>>>>>")

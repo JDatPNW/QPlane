@@ -17,6 +17,7 @@ class Env():
         self.startingVelocity = speed
         self.pauseDelay = pause
         self.qID = qID
+        self.id = "XPlane"
 
     def send_posi(self, posi, rotation):
         posi[self.dictObservation["pitch"]] = rotation[self.dictRotation["pitch"]]

@@ -17,7 +17,6 @@ np.set_printoptions(precision=logDecimals)  # sets decimals for np.arrays to X f
 n_epochs = 5000  # Number of generations
 n_steps = 1250  # Number of inputs per generation
 n_actions = 4  # Number of possible inputs to choose from
-end = 50  # End parameter
 
 n_states = 729  # Number of states
 gamma = 0.95  # The discount rate - between 0 an 1!  if = 0 then no learning, ! The higher it is the more the new q will factor into the update of the q value
@@ -83,11 +82,13 @@ flightStartRotation = [[-flightStartPitch, -flightStartRoll, -flightStartVelocit
                        [flightStartPitch, 0, flightStartVelocityY],
                        [flightStartPitch, flightStartRoll, flightStartVelocityY]]
 
+fallbackState = [0] * numOfInputs  # Used in case of connection error to XPlane
+
 Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
            decayRate, epsilonMin, n_epochsBeforeDecay, "testing", numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate, loadModel)
 
 env = Env(flightOrigin, flightDestinaion, n_actions,
-          end, dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender, jsbRealTime)
+          dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender, jsbRealTime)
 
 
 # prints out all metrics
@@ -140,7 +141,10 @@ def step(i_step, done, reward, oldState):
             break
     else:  # if all 10 attempts fail
         errors += 1
-        newState = [0, 0, 0, 0, 0, 0, 0, 0]
+        if(Q.id == "deep"):
+            newState = fallbackState
+        else:
+            newState = 0
         reward = 0
         done = False
         info = [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], 0]
@@ -170,7 +174,10 @@ def epoch(i_epoch):
         else:
             break
     else:  # if all 25 attempts fail
-        oldState = [0, 0, 0, 0, 0, 0, 0, 0]  # Error was during reset
+        if(Q.id == "deep"):
+            oldState = fallbackState  # Error was during reset
+        else:
+            oldState = 0
         errors += 1
 
     done = False

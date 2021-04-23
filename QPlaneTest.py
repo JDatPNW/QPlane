@@ -33,6 +33,7 @@ batchSize = 256  # Batch size for the model
 updateRate = 5  # update target model every so many steps
 
 loadModel = True  # will load "model.h5" for tf if True
+loadMemory = False  # will load "memory.pickle" if True
 jsbRender = True  # will send UDP data to flight gear for rendering if True
 jsbRealTime = True  # will slow down the physics to portrait real time rendering
 
@@ -85,7 +86,8 @@ flightStartRotation = [[-flightStartPitch, -flightStartRoll, -flightStartVelocit
 fallbackState = [0] * numOfInputs  # Used in case of connection error to XPlane
 
 Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
-           decayRate, epsilonMin, n_epochsBeforeDecay, "testing", numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate, loadModel)
+           decayRate, epsilonMin, n_epochsBeforeDecay, "testing", loadModel,
+           loadMemory, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate)
 
 env = Env(flightOrigin, flightDestinaion, n_actions,
           dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender, jsbRealTime)

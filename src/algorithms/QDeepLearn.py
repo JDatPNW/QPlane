@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import os
+import pickle
 import tensorflow as tf
 from tensorflow.keras import Input
 from tensorflow.keras.models import Sequential
@@ -11,7 +12,7 @@ from collections import deque
 
 class QLearn():
 
-    def __init__(self, n_stat, n_acts, gamm, lr, eps, dec, min, epsDecay, expName, loadModel, inputs, minReplay, replay, batch, update):
+    def __init__(self, n_stat, n_acts, gamm, lr, eps, dec, min, epsDecay, expName, loadModel, loadMemory, inputs, minReplay, replay, batch, update):
         self.n_states = n_stat
         self.n_actions = n_acts
         self.gamma = gamm
@@ -23,7 +24,7 @@ class QLearn():
         self.n_epochsBeforeDecay = epsDecay
         self.experimentName = expName
         self.model = DQNAgent(inputs, self.n_actions, self.learningRate,
-                              minReplay, replay, batch, self.gamma, update, loadModel)
+                              minReplay, replay, batch, self.gamma, update, loadModel, loadMemory)
         self.id = "deep"
         self.currentTable = []
 
@@ -59,13 +60,15 @@ class QLearn():
     def archive(self, epoch):
         if not os.path.exists("./Experiments/" + self.experimentName):
             os.makedirs("./Experiments/" + self.experimentName)
-        self.model.targetModel.save(
-            "./Experiments/" + str(self.experimentName) + "/model" + str(epoch) + ".h5")
+        self.model.targetModel.save("./Experiments/" + str(self.experimentName) + "/model" + str(epoch) + ".h5")
+        replayMemFile = open("./Experiments/" + str(self.experimentName) + "/memory" + str(epoch) + ".pickle", 'wb')
+        pickle.dump(self.model.replayMemory, replayMemFile)
+        replayMemFile.close()
 
 
 # Agent class by https://pythonprogramming.net/q-learning-reinforcement-learning-python-tutorial/ with changes and adaptations
 class DQNAgent:
-    def __init__(self, inputs, outputs, learningRate, minReplay, replay, batch, gamma, update, loadModel):
+    def __init__(self, inputs, outputs, learningRate, minReplay, replay, batch, gamma, update, loadModel, loadMemory):
         self.numOfInputs = inputs
         self.numOfOutputs = outputs
         self.learningRate = learningRate
@@ -75,6 +78,7 @@ class DQNAgent:
         self.gamma = gamma
         self.updateRate = update
         self.loadModel = loadModel
+        self.loadMemory = loadMemory
 
         # The model used for training at every step
         self.model = self.createModel()
@@ -88,6 +92,12 @@ class DQNAgent:
 
         # saves replayMemSize many steps, so that the network does not just train on a single input
         self.replayMemory = deque(maxlen=self.replayMemSize)
+
+        if(self.loadMemory):
+            replayMemFile = open("memory.pickle", 'rb')
+            self.replayMemory = pickle.load(replayMemFile)
+            replayMemFile.close()
+            print("\nMemory Loaded!\n")
 
         # This number is the ammount of epochs before the target Net will take over the other nets weights
         self.targetUpdateCounter = 0

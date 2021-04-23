@@ -1,5 +1,6 @@
 import socket
 import time
+import os
 import numpy as np
 from src.algorithms.QDeepLearn import QLearn  # can be QLearn or QDeepLearn
 from src.environments.jsbsim.JSBSimEnv import Env  # can be jsbsim.JSBSimEnv or xplane.XPlaneEnv
@@ -107,6 +108,14 @@ Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
 
 env = Env(flightOrigin, flightDestinaion, n_actions,
           dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender, jsbRealTime)
+
+# saving setup pre run
+if not os.path.exists("./Experiments/" + experimentName):
+    os.makedirs("./Experiments/" + experimentName)
+    setup = f"{experimentName=}\n{dateTime=}\nendTime=not yet defined - first save\n{Q.id=}\n{env.id=}\n{pauseDelay=}\n{n_epochs=}\n{n_steps=}\n{n_actions=}\n"
+    setup += f"{n_states=} - states for non deep\n{gamma=}\n{lr=}\n{epsilon=}\n{decayRate=}\n{epsilonMin=}\n{n_epochsBeforeDecay=}\n"
+    setup += f"{numOfInputs=} - states for deep\n{minReplayMemSize=}\n{replayMemSize=}\n{batchSize=}\n{updateRate=}\n{loadModel=}\n{movingRate=}\n"
+    print(setup, file=open("./Experiments/" + str(experimentName) + "/setup.out", 'w'))  # saves hyperparameters to the experiment folder
 
 
 # prints out all metrics
@@ -240,6 +249,7 @@ np.save("./Experiments/" + str(experimentName) + "/results_final.npy", movingEpR
 
 endTime = str(time.ctime(time.time()))
 
+# saving setup post run
 setup = f"{experimentName=}\n{dateTime=}\n{endTime=}\n{Q.id=}\n{env.id=}\n{pauseDelay=}\n{n_epochs=}\n{n_steps=}\n{n_actions=}\n"
 setup += f"{n_states=} - states for non deep\n{gamma=}\n{lr=}\n{epsilon=}\n{decayRate=}\n{epsilonMin=}\n{n_epochsBeforeDecay=}\n"
 setup += f"{numOfInputs=} - states for deep\n{minReplayMemSize=}\n{replayMemSize=}\n{batchSize=}\n{updateRate=}\n{loadModel=}\n{movingRate=}\n"

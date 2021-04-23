@@ -40,6 +40,7 @@ batchSize = 256  # Batch size for the model
 updateRate = 5  # update target model every so many episodes
 
 loadModel = False  # will load "model.h5" for tf if True (model.npy for non-Deep)
+loadMemory = False  # will load "memory.npy" if True
 jsbRender = False  # will send UDP data to flight gear for rendering if True
 jsbRealTime = False  # will slow down the physics to portrait real time rendering
 
@@ -101,8 +102,8 @@ movingEpRewards = {
 fallbackState = [0] * numOfInputs  # Used in case of connection error to XPlane
 
 Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
-           decayRate, epsilonMin, n_epochsBeforeDecay, experimentName,
-           loadModel, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate)
+           decayRate, epsilonMin, n_epochsBeforeDecay, experimentName, loadModel,
+           loadMemory, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate)
 
 env = Env(flightOrigin, flightDestinaion, n_actions,
           dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender, jsbRealTime)
@@ -151,6 +152,8 @@ def step(i_step, done, reward, oldState):
     for attempt in range(10):
         try:
             newState, reward, done, info = env.step(action)
+            if(i_step == n_steps):
+                done = True  # mark done if episode is finished
         except socket.error as socketError:  # the specific error for connections used by xpc
             dictErrors["step"] = socketError
             continue

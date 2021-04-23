@@ -91,7 +91,7 @@ Tested and running with:
 
 1. Clone the repo
    ```sh
-   git clone git clone https://github.com/JDatPNW/QPlane
+   git clone https://github.com/JDatPNW/QPlane
    ```
 2. Install the above listed software (other versions might work)
     * For JSBSim clone the JSBsim repo into `src/environments/jsbsim`

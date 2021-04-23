@@ -9,7 +9,7 @@
   <h3 align="center">QPlane</h3>
 
   <p align="center">
-    XPlane flight simulation controlled by a QLearning / Deep QLearning Algorithm
+    Fixed Wing Flight Simulation Environment for Reinforcement Learning
     <br />
     <br />
     <a href="https://github.com/JDatPNW/QPlane/issues">Report Bug</a>
@@ -91,7 +91,7 @@ Tested and running with:
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/your_username_/Project-Name.git
+   git clone git clone https://github.com/JDatPNW/QPlane
    ```
 2. Install the above listed software (other versions might work)
     * For JSBSim clone the JSBsim repo into `src/environments/jsbsim`

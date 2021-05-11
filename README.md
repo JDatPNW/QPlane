@@ -54,7 +54,7 @@ This repository is being written as part of my masters thesis. I am trying to de
 
 ### Built With
 
-This section should list any major frameworks that you built your project using. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
+This project is built with these frameworks, libraries, repositories and software:
 * [tensorflow](https://www.tensorflow.org/)
 * [XPlaneConnect](https://github.com/nasa/XPlaneConnect)
 * [XPlane 11](https://www.x-plane.com/)

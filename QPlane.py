@@ -110,7 +110,7 @@ if(loadResults):
     movingEpRewards = np.load("results.npy", allow_pickle=True).item()  # loads the file - .item() turns the loaded nparray back to a dict
     startingOffset = np.max(movingEpRewards["epoch"])  # loads the episode where it previously stopped
     epsilon = np.min(movingEpRewards["epsilon"])  # loads the epsilon where the previously experiment stopped
-
+    n_epochsBeforeDecay = max(0, n_epochsBeforeDecay - startingOffset)  # sets n_epochsBeforeDecay to the according value - max makes it so it's not negative but 0
 
 Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
            decayRate, epsilonMin, n_epochsBeforeDecay, experimentName, loadModel,

@@ -23,7 +23,7 @@ logDecimals = 0  # sets decimals for np.arrays to X for printing
 np.set_printoptions(precision=logDecimals)  # sets decimals for np.arrays to X for printing
 
 n_epochs = 5000  # Number of generations
-n_steps = 10  # Number of inputs per generation
+n_steps = 1000  # Number of inputs per generation
 n_actions = 4  # Number of possible inputs to choose from
 
 n_states = 729  # Number of states for non-Deep QLearning
@@ -43,7 +43,7 @@ startingOffset = 0  # is used if previous Results are loaded.
 
 loadModel = False  # will load "model.h5" for tf if True (model.npy for non-Deep)
 loadMemory = False  # will load "memory.pickle" if True
-loadResults = True  # will load "results.npy" if True
+loadResults = False  # will load "results.npy" if True
 jsbRender = False  # will send UDP data to flight gear for rendering if True
 jsbRealTime = False  # will slow down the physics to portrait real time rendering
 

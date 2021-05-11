@@ -109,9 +109,6 @@ fallbackState = [0] * numOfInputs  # Used in case of connection error to XPlane
 if(loadResults):
     movingEpRewards = np.load("results.npy", allow_pickle=True).item()  # loads the file - .item() turns the loaded nparray back to a dict
     startingOffset = np.max(movingEpRewards["epoch"])  # loads the episode where it previously stopped
-    print(startingOffset)
-    print(movingEpRewards["epoch"])
-    print(movingEpRewards)
     epsilon = np.min(movingEpRewards["epsilon"])  # loads the epsilon where the previously experiment stopped
 
 

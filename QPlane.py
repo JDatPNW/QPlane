@@ -23,7 +23,7 @@ logDecimals = 0  # sets decimals for np.arrays to X for printing
 np.set_printoptions(precision=logDecimals)  # sets decimals for np.arrays to X for printing
 
 n_epochs = 5000  # Number of generations
-n_steps = 1000  # Number of inputs per generation
+n_steps = 10  # Number of inputs per generation
 n_actions = 4  # Number of possible inputs to choose from
 
 n_states = 729  # Number of states for non-Deep QLearning
@@ -39,9 +39,11 @@ minReplayMemSize = 1_000  # min size determines when the replay will start being
 replayMemSize = 100_000  # Max size for the replay buffer
 batchSize = 256  # Batch size for the model
 updateRate = 5  # update target model every so many episodes
+startingOffset = 0  # is used if previous Results are loaded.
 
 loadModel = False  # will load "model.h5" for tf if True (model.npy for non-Deep)
 loadMemory = False  # will load "memory.pickle" if True
+loadResults = True  # will load "results.npy" if True
 jsbRender = False  # will send UDP data to flight gear for rendering if True
 jsbRealTime = False  # will slow down the physics to portrait real time rendering
 
@@ -98,9 +100,20 @@ movingEpRewards = {
     "average": [],
     "minimum": [],
     "maximum": [],
-    "averageQ": []}
+    "averageQ": [],
+    "epsilon": []}
 
 fallbackState = [0] * numOfInputs  # Used in case of connection error to XPlane
+
+# Will load previous results in case a experiment needs to be continued
+if(loadResults):
+    movingEpRewards = np.load("results.npy", allow_pickle=True).item()  # loads the file - .item() turns the loaded nparray back to a dict
+    startingOffset = np.max(movingEpRewards["epoch"])  # loads the episode where it previously stopped
+    print(startingOffset)
+    print(movingEpRewards["epoch"])
+    print(movingEpRewards)
+    epsilon = np.min(movingEpRewards["epsilon"])  # loads the epsilon where the previously experiment stopped
+
 
 Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
            decayRate, epsilonMin, n_epochsBeforeDecay, experimentName, loadModel,
@@ -196,8 +209,7 @@ def epoch(i_epoch):
     epochQ = 0
     for attempt in range(25):
         try:
-            oldState = env.reset(
-                env.startingPosition, flightStartRotation[i_epoch % len(flightStartRotation)])
+            oldState = env.reset(env.startingPosition, flightStartRotation[i_epoch % len(flightStartRotation)])
         except socket.error as socketError:  # the specific error for connections used by xpc
             dictErrors["reset"] = socketError
             continue
@@ -238,9 +250,10 @@ def epoch(i_epoch):
         movingEpRewards["maximum"].append(max(epochRewards[-movingRate:]))
         averageQ = sum(epochQs[-movingRate:]) / len(epochQs[-movingRate:])
         movingEpRewards["averageQ"].append(averageQ)
+        movingEpRewards["epsilon"].append(logList[7])
 
 
-for i_epoch in range(n_epochs + 1):
+for i_epoch in range(startingOffset, startingOffset + n_epochs + 1):
     epoch(i_epoch)
     if(i_epoch % savePeriod == 0):
         np.save("./Experiments/" + str(experimentName) + "/results" + str(i_epoch) + ".npy", movingEpRewards)

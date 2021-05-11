@@ -7,5 +7,6 @@ plt.plot(results.item().get('epoch'), results.item().get('average'), label="aver
 plt.plot(results.item().get('epoch'), results.item().get('averageQ'), label="average Qs")
 plt.plot(results.item().get('epoch'), results.item().get('maximum'), label="max rewards")
 plt.plot(results.item().get('epoch'), results.item().get('minimum'), label="min rewards")
+plt.plot(results.item().get('epoch'), results.item().get('epsilon'), label="epsilon")
 plt.legend(loc=4)
 plt.show()

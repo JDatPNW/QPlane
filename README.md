@@ -108,8 +108,7 @@ Once downloaded and installed, simply execute the `QPlane.py` file to run and te
 ## Roadmap
 
 Planned future features are:
-* PPO implementation
-* JSBSim implementation (currently working on)
+* Double Deep Q Learning
 
 
 <!-- CONTRIBUTING -->

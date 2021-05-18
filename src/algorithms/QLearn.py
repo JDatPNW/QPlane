@@ -5,7 +5,7 @@ import os
 
 class QLearn():
 
-    def __init__(self, n_stat, n_acts, gamm, lr, eps, dec, min, epsDecay, expName, loadModel, *args, **kwargs):
+    def __init__(self, n_stat, n_acts, gamm, lr, eps, dec, min, epsDecay, expName, loadModel, usePredefinedSeeds, *args, **kwargs):
         self.n_states = n_stat
         self.n_actions = n_acts
         self.gamma = gamm
@@ -22,6 +22,10 @@ class QLearn():
 
         if(loadModel):
             self.qTable = np.load("model.npy")
+
+        if(usePredefinedSeeds):
+            random.seed(42)
+            np.random.seed(42)
 
     # get action for current state
     def selectAction(self, state, episode, n_epochs):

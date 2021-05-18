@@ -5,7 +5,7 @@ import time
 
 class Env():
 
-    def __init__(self, orig, dest, n_acts, dictObservation, dictAction, dictRotation, speed, pause, qID, *args, **kwargs):
+    def __init__(self, orig, dest, n_acts, usePredefinedSeeds, dictObservation, dictAction, dictRotation, speed, pause, qID, *args, **kwargs):
         self.startingPosition = orig
         self.destinationPosition = dest
         self.previousPosition = orig
@@ -18,6 +18,9 @@ class Env():
         self.pauseDelay = pause
         self.qID = qID
         self.id = "XPlane"
+
+        if(usePredefinedSeeds):
+            np.random.seed(42)
 
     def send_posi(self, posi, rotation):
         posi[self.dictObservation["pitch"]] = rotation[self.dictRotation["pitch"]]

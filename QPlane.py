@@ -46,6 +46,7 @@ loadMemory = False  # will load "memory.pickle" if True
 loadResults = False  # will load "results.npy" if True
 jsbRender = False  # will send UDP data to flight gear for rendering if True
 jsbRealTime = False  # will slow down the physics to portrait real time rendering
+usePredefinedSeeds = False  # Sets seeds for tf, np and random for more replicable results (not fully replicable due to stochastic environments)
 
 dictObservation = {
     "lat": 0,
@@ -112,11 +113,14 @@ if(loadResults):
     epsilon = np.min(movingEpRewards["epsilon"])  # loads the epsilon where the previously experiment stopped
     n_epochsBeforeDecay = max(0, n_epochsBeforeDecay - startingOffset)  # sets n_epochsBeforeDecay to the according value - max makes it so it's not negative but 0
 
+if(usePredefinedSeeds):
+    np.random.seed(42)
+
 Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
-           decayRate, epsilonMin, n_epochsBeforeDecay, experimentName, loadModel,
+           decayRate, epsilonMin, n_epochsBeforeDecay, experimentName, loadModel, usePredefinedSeeds,
            loadMemory, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate)
 
-env = Env(flightOrigin, flightDestinaion, n_actions,
+env = Env(flightOrigin, flightDestinaion, n_actions, usePredefinedSeeds,
           dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender, jsbRealTime)
 
 # saving setup pre run

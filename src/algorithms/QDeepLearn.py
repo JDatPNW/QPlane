@@ -12,7 +12,7 @@ from collections import deque
 
 class QLearn():
 
-    def __init__(self, n_stat, n_acts, gamm, lr, eps, dec, min, epsDecay, expName, loadModel, loadMemory, inputs, minReplay, replay, batch, update):
+    def __init__(self, n_stat, n_acts, gamm, lr, eps, dec, min, epsDecay, expName, loadModel, usePredefinedSeeds, loadMemory, inputs, minReplay, replay, batch, update):
         self.n_states = n_stat
         self.n_actions = n_acts
         self.gamma = gamm
@@ -23,6 +23,12 @@ class QLearn():
         self.qTable = np.zeros([self.n_states, self.n_actions])
         self.n_epochsBeforeDecay = epsDecay
         self.experimentName = expName
+
+        if(usePredefinedSeeds):
+            random.seed(42)
+            np.random.seed(42)
+            tf.set_random_seed(42)
+
         self.model = DQNAgent(inputs, self.n_actions, self.learningRate,
                               minReplay, replay, batch, self.gamma, update, loadModel, loadMemory)
         self.id = "deep"

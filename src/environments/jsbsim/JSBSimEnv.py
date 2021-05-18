@@ -6,7 +6,7 @@ import time
 
 class Env():
 
-    def __init__(self, orig, dest, n_acts, dictObservation, dictAction, dictRotation, speed, pause, qID, render, realTime):
+    def __init__(self, orig, dest, n_acts, usePredefinedSeeds, dictObservation, dictAction, dictRotation, speed, pause, qID, render, realTime):
         self.startingPosition = orig
         self.destinationPosition = dest
         self.previousPosition = orig
@@ -23,6 +23,9 @@ class Env():
         self.degToRad = 0.0174533  # convertion from deg to rad
         self.realTime = realTime
         self.id = "JSBSim"
+
+        if(usePredefinedSeeds):
+            np.random.seed(42)
 
         os.environ["JSBSIM_DEBUG"] = str(0)  # set this before creating fdm to stop debug print outs
         self.fdm = jsbsim.FGFDMExec('./src/environments/jsbsim/jsbsim/', None)  # declaring the sim and setting the path

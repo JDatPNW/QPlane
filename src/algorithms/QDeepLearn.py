@@ -27,7 +27,7 @@ class QLearn():
         if(usePredefinedSeeds):
             random.seed(42)
             np.random.seed(42)
-            tf.set_random_seed(42)
+            tf.random.set_seed(42)
 
         self.model = DQNAgent(inputs, self.n_actions, self.learningRate,
                               minReplay, replay, batch, self.gamma, update, loadModel, loadMemory)

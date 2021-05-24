@@ -84,6 +84,7 @@ Tested and running with:
 |Python Version: | 3.8.2|
 |numpy Version: | 1.19.4|
 |tensorflow Version: | 2.3.0|
+|Anaconda Version: | 4.9.2|
 |Windows Version: | 1909|
 
 

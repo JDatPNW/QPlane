@@ -12,7 +12,7 @@ from collections import deque
 
 class QLearn():
 
-    def __init__(self, n_stat, n_acts, gamm, lr, eps, dec, min, epsDecay, expName, loadModel, usePredefinedSeeds, loadMemory, inputs, minReplay, replay, batch, update):
+    def __init__(self, n_stat, n_acts, gamm, lr, eps, dec, min, epsDecay, expName, saveForAutoReload, loadModel, usePredefinedSeeds, loadMemory, inputs, minReplay, replay, batch, update):
         self.n_states = n_stat
         self.n_actions = n_acts
         self.gamma = gamm
@@ -23,6 +23,7 @@ class QLearn():
         self.qTable = np.zeros([self.n_states, self.n_actions])
         self.n_epochsBeforeDecay = epsDecay
         self.experimentName = expName
+        self.saveForAutoReload = saveForAutoReload
 
         if(usePredefinedSeeds):
             random.seed(42)
@@ -70,6 +71,11 @@ class QLearn():
         replayMemFile = open("./Experiments/" + str(self.experimentName) + "/memory" + str(epoch) + ".pickle", 'wb')
         pickle.dump(self.model.replayMemory, replayMemFile)
         replayMemFile.close()
+        if(self.saveForAutoReload):
+            self.model.targetModel.save("model.h5")
+            replayMemFile = open("memory.pickle", 'wb')
+            pickle.dump(self.model.replayMemory, replayMemFile)
+            replayMemFile.close()
 
 
 # Agent class by https://pythonprogramming.net/q-learning-reinforcement-learning-python-tutorial/ with changes and adaptations

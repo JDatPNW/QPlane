@@ -47,6 +47,7 @@ loadResults = False  # will load "results.npy" if True
 jsbRender = False  # will send UDP data to flight gear for rendering if True
 jsbRealTime = False  # will slow down the physics to portrait real time rendering
 usePredefinedSeeds = False  # Sets seeds for tf, np and random for more replicable results (not fully replicable due to stochastic environments)
+saveForAutoReload = False  # Saves and overrides models, results and memory to the root
 
 dictObservation = {
     "lat": 0,
@@ -117,7 +118,7 @@ if(usePredefinedSeeds):
     np.random.seed(42)
 
 Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
-           decayRate, epsilonMin, n_epochsBeforeDecay, experimentName, loadModel, usePredefinedSeeds,
+           decayRate, epsilonMin, n_epochsBeforeDecay, experimentName, saveForAutoReload, loadModel, usePredefinedSeeds,
            loadMemory, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate)
 
 env = Env(flightOrigin, flightDestinaion, n_actions, usePredefinedSeeds,
@@ -257,6 +258,9 @@ for i_epoch in range(startingOffset, startingOffset + n_epochs + 1):
     epoch(i_epoch)
     if(i_epoch % savePeriod == 0):
         np.save("./Experiments/" + str(experimentName) + "/results" + str(i_epoch) + ".npy", movingEpRewards)
+        if(saveForAutoReload):
+            np.save("results.npy", movingEpRewards)
+
 
 np.save("./Experiments/" + str(experimentName) + "/results_final.npy", movingEpRewards)
 

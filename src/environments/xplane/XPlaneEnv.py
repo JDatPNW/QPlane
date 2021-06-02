@@ -279,7 +279,7 @@ class Env():
 
         position = self.get_Posi()
 
-        if self.qID == "deep":
+        if self.qID == "deep" or self.qID == "doubleDeep":
             state = self.getDeepState(position)
         else:
             state = self.getState(position)
@@ -297,7 +297,7 @@ class Env():
         #  self.send_envParam()
         self.send_Ctrl([0, 0, 0, 0, 0, 0, 1])  # this means it will not control the stick during the reset
         new_posi = self.get_Posi()
-        if self.qID == "deep":
+        if self.qID == "deep" or self.qID == "doubleDeep":
             state = self.getDeepState(new_posi)
         else:
             state = self.getState(new_posi)

@@ -2,10 +2,10 @@ import socket
 import time
 import os
 import numpy as np
-from src.algorithms.QDeepLearn import QLearn  # can be QLearn or QDeepLearn
+from src.algorithms.QDoubleDeepLearn import QLearn  # can be QLearn, QDeepLearn or QDoubleDeepLearn
 from src.environments.jsbsim.JSBSimEnv import Env  # can be jsbsim.JSBSimEnv or xplane.XPlaneEnv
 
-experimentName = "NewFitDeep"
+experimentName = "Experiment"
 
 dateTime = str(time.ctime(time.time()))
 dateTime = dateTime.replace(":", "-")
@@ -184,7 +184,7 @@ def step(i_step, done, reward, oldState):
             break
     else:  # if all 10 attempts fail
         errors += 1
-        if(Q.id == "deep"):
+        if(Q.id == "deep" or Q.id == "doubleDeep"):
             newState = fallbackState
         else:
             newState = 0
@@ -217,7 +217,7 @@ def epoch(i_epoch):
         else:
             break
     else:  # if all 25 attempts fail
-        if(Q.id == "deep"):
+        if(Q.id == "deep" or Q.id == "doubleDeep"):
             oldState = fallbackState  # Error was during reset
         else:
             oldState = 0

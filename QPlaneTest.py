@@ -1,7 +1,7 @@
 import socket
 import time
 import numpy as np
-from src.algorithms.QDeepLearn import QLearn  # can be QLearn or QDeepLearn
+from src.algorithms.QDoubleDeepLearn import QLearn  # can be QLearn, QDeepLearn or QDoubleDeepLearn
 from src.environments.jsbsim.JSBSimEnv import Env  # can be jsbsim.JSBSimEnv or xplane.XPlaneEnv
 
 errors = 0.0  # counts everytime the UDP packages are lost on all retries
@@ -15,7 +15,7 @@ logDecimals = 4  # sets decimals for np.arrays to X for printing
 np.set_printoptions(precision=logDecimals)  # sets decimals for np.arrays to X for printing
 
 n_epochs = 5000  # Number of generations
-n_steps = 1250  # Number of inputs per generation
+n_steps = 1750  # Number of inputs per generation
 n_actions = 4  # Number of possible inputs to choose from
 
 n_states = 729  # Number of states
@@ -30,12 +30,16 @@ numOfInputs = 8  # Number of inputs fed to the model
 minReplayMemSize = 1_000  # min size determines when the replay will start being used
 replayMemSize = 100_000  # Max size for the replay buffer
 batchSize = 256  # Batch size for the model
-updateRate = 5  # update target model every so many steps
+updateRate = 5  # update target model every so many episodes
+startingOffset = 0  # is used if previous Results are loaded.
 
-loadModel = True  # will load "model.h5" for tf if True
-loadMemory = False  # will load "memory.pickle" if True
+loadModel = True  # will load "model.h5" for tf if True (model.npy for non-Deep)
+loadMemory = True  # will load "memory.pickle" if True
+loadResults = True  # will load "results.npy" if True
 jsbRender = True  # will send UDP data to flight gear for rendering if True
 jsbRealTime = True  # will slow down the physics to portrait real time rendering
+usePredefinedSeeds = True  # Sets seeds for tf, np and random for more replicable results (not fully replicable due to stochastic environments)
+saveForAutoReload = False  # Saves and overrides models, results and memory to the root
 
 
 dictObservation = {
@@ -85,11 +89,20 @@ flightStartRotation = [[-flightStartPitch, -flightStartRoll, -flightStartVelocit
 
 fallbackState = [0] * numOfInputs  # Used in case of connection error to XPlane
 
+# Will load previous results in case a experiment needs to be continued
+if(loadResults):
+    movingEpRewards = np.load("results.npy", allow_pickle=True).item()  # loads the file - .item() turns the loaded nparray back to a dict
+    startingOffset = np.max(movingEpRewards["epoch"])  # loads the episode where it previously stopped
+    epsilon = np.min(movingEpRewards["epsilon"])  # loads the epsilon where the previously experiment stopped
+    n_epochsBeforeDecay = max(0, n_epochsBeforeDecay - startingOffset)  # sets n_epochsBeforeDecay to the according value - max makes it so it's not negative but 0
+
+if(usePredefinedSeeds):
+    np.random.seed(42)
 Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
-           decayRate, epsilonMin, n_epochsBeforeDecay, "testing", loadModel,
+           decayRate, epsilonMin, n_epochsBeforeDecay, "testing", saveForAutoReload, loadModel, usePredefinedSeeds,
            loadMemory, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate)
 
-env = Env(flightOrigin, flightDestinaion, n_actions,
+env = Env(flightOrigin, flightDestinaion, n_actions, usePredefinedSeeds,
           dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender, jsbRealTime)
 
 
@@ -115,8 +128,7 @@ def log(i_epoch, i_step, reward, logList):
           "\n\t\t\tactions_binary = ", actions_binary,
           "\n\t\t\tCurrent Control:", control,
           "\n\t\t\tCurrent Qs:", Q.currentTable,
-          "\n\t\t\tCurrent Orientation: ",
-          observation[dictObservation["pitch"]:dictObservation["gear"]],
+          "\n\t\t\tCurrent Orientation: ", np.array(observation[dictObservation["pitch"]:dictObservation["gear"]]).round(logDecimals),
           "\n\t\t\tCurrent AVE of QTable: ", np.average(Q.qTable),
           "\n\t\t\tExplored (Random): ", explore,
           "\n\t\t\tCurrent Epsilon: ", currentEpsilon,
@@ -136,6 +148,8 @@ def step(i_step, done, reward, oldState):
     for attempt in range(10):
         try:
             newState, reward, done, info = env.step(action)
+            if(i_step == n_steps):
+                done = True  # mark done if episode is finished
         except socket.error as socketError:  # the specific error for connections used by xpc
             dictErrors["step"] = socketError
             continue
@@ -143,7 +157,7 @@ def step(i_step, done, reward, oldState):
             break
     else:  # if all 10 attempts fail
         errors += 1
-        if(Q.id == "deep"):
+        if(Q.id == "deep" or Q.id == "doubleDeep"):
             newState = fallbackState
         else:
             newState = 0
@@ -168,15 +182,14 @@ def epoch(i_epoch):
     epochQ = 0
     for attempt in range(25):
         try:
-            oldState = env.reset(
-                env.startingPosition, flightStartRotation[i_epoch % len(flightStartRotation)])
+            oldState = env.reset(env.startingPosition, flightStartRotation[i_epoch % len(flightStartRotation)])
         except socket.error as socketError:  # the specific error for connections used by xpc
             dictErrors["reset"] = socketError
             continue
         else:
             break
     else:  # if all 25 attempts fail
-        if(Q.id == "deep"):
+        if(Q.id == "deep" or Q.id == "doubleDeep"):
             oldState = fallbackState  # Error was during reset
         else:
             oldState = 0

@@ -36,6 +36,8 @@ if(plotMinimum):
 if(plotEpsilon):
     plt.plot(results.item().get('epoch'), epsilon, label="epsilon")
 plt.title("Normalized Results")
+plt.xlabel("episodes")
+plt.ylabel("reward")
 plt.legend(loc=4)
 plt.show()
 
@@ -55,5 +57,7 @@ if(plotEpsilon):
     plt.plot(results.item().get('epoch'),
              results.item().get('epsilon'), label="epsilon")
 plt.title("Results")
+plt.xlabel("episodes")
+plt.ylabel("reward")
 plt.legend(loc=4)
 plt.show()

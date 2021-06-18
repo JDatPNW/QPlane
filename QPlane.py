@@ -4,6 +4,7 @@ import os
 import numpy as np
 from src.algorithms.QDoubleDeepLearn import QLearn  # can be QLearn, QDeepLearn or QDoubleDeepLearn
 from src.environments.jsbsim.JSBSimEnv import Env  # can be jsbsim.JSBSimEnv or xplane.XPlaneEnv
+from src.scenarios.deltaAttitudeControlScene import Scene  # can be deltaAttitudeControllScene or cheatingAttitudeControllScene
 
 experimentName = "Experiment"
 
@@ -121,13 +122,15 @@ Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
            decayRate, epsilonMin, n_epochsBeforeDecay, experimentName, saveForAutoReload, loadModel, usePredefinedSeeds,
            loadMemory, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate)
 
-env = Env(flightOrigin, flightDestinaion, n_actions, usePredefinedSeeds,
+scene = Scene(dictObservation, dictAction, n_actions)
+
+env = Env(scene, flightOrigin, flightDestinaion, n_actions, usePredefinedSeeds,
           dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender, jsbRealTime)
 
 # saving setup pre run
 if not os.path.exists("./Experiments/" + experimentName):
     os.makedirs("./Experiments/" + experimentName)
-    setup = f"{experimentName=}\n{dateTime=}\nendTime=not yet defined - first save\n{Q.id=}\n{env.id=}\n{pauseDelay=}\n{n_epochs=}\n{n_steps=}\n{n_actions=}\n"
+    setup = f"{experimentName=}\n{dateTime=}\nendTime=not yet defined - first save\n{Q.id=}\n{env.id=}\n{scene.id=}\n{pauseDelay=}\n{n_epochs=}\n{n_steps=}\n{n_actions=}\n"
     setup += f"{n_states=} - states for non deep\n{gamma=}\n{lr=}\n{epsilon=}\n{decayRate=}\n{epsilonMin=}\n{n_epochsBeforeDecay=}\n"
     setup += f"{numOfInputs=} - states for deep\n{minReplayMemSize=}\n{replayMemSize=}\n{batchSize=}\n{updateRate=}\n{loadModel=}\n{movingRate=}\n"
     print(setup, file=open("./Experiments/" + str(experimentName) + "/setup.out", 'w'))  # saves hyperparameters to the experiment folder
@@ -267,7 +270,7 @@ np.save("./Experiments/" + str(experimentName) + "/results_final.npy", movingEpR
 endTime = str(time.ctime(time.time()))
 
 # saving setup post run
-setup = f"{experimentName=}\n{dateTime=}\n{endTime=}\n{Q.id=}\n{env.id=}\n{pauseDelay=}\n{n_epochs=}\n{n_steps=}\n{n_actions=}\n"
+setup = f"{experimentName=}\n{dateTime=}\n{endTime=}\n{Q.id=}\n{env.id=}\n{scene.id=}\n{pauseDelay=}\n{n_epochs=}\n{n_steps=}\n{n_actions=}\n"
 setup += f"{n_states=} - states for non deep\n{gamma=}\n{lr=}\n{epsilon=}\n{decayRate=}\n{epsilonMin=}\n{n_epochsBeforeDecay=}\n"
 setup += f"{numOfInputs=} - states for deep\n{minReplayMemSize=}\n{replayMemSize=}\n{batchSize=}\n{updateRate=}\n{loadModel=}\n{movingRate=}\n"
 print(setup, file=open("./Experiments/" + str(experimentName) + "/setup.out", 'w'))  # saves hyperparameters to the experiment folder

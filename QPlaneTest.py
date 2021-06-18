@@ -3,6 +3,7 @@ import time
 import numpy as np
 from src.algorithms.QDoubleDeepLearn import QLearn  # can be QLearn, QDeepLearn or QDoubleDeepLearn
 from src.environments.jsbsim.JSBSimEnv import Env  # can be jsbsim.JSBSimEnv or xplane.XPlaneEnv
+from src.scenarios.deltaAttitudeControlScene import Scene  # can be deltaAttitudeControllScene or cheatingAttitudeControllScene
 
 errors = 0.0  # counts everytime the UDP packages are lost on all retries
 
@@ -102,7 +103,9 @@ Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
            decayRate, epsilonMin, n_epochsBeforeDecay, "testing", saveForAutoReload, loadModel, usePredefinedSeeds,
            loadMemory, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate)
 
-env = Env(flightOrigin, flightDestinaion, n_actions, usePredefinedSeeds,
+scene = Scene(dictObservation, dictAction, n_actions)
+
+env = Env(scene, flightOrigin, flightDestinaion, n_actions, usePredefinedSeeds,
           dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender, jsbRealTime)
 
 

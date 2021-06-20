@@ -37,56 +37,56 @@ class Scene():
         if (action == 0):
             pitch_level_sign = newObservation[3]
             if (pitch_level_sign <= 0.0):
-                reward = 10.0  # * (abs(pitch_level_sign)/denominator)
+                reward = 1.0  # * (abs(pitch_level_sign)/denominator)
             else:
-                reward = -10.0  # * (abs(pitch_level_sign)/denominator)
+                reward = -1.0  # * (abs(pitch_level_sign)/denominator)
 
         # if action == pitch down
         if (action == 1):
             pitch_level_sign = newObservation[3]
             if (pitch_level_sign > 0.0):
-                reward = 10.0  # * (abs(pitch_level_sign)/denominator)
+                reward = 1.0  # * (abs(pitch_level_sign)/denominator)
             else:
-                reward = -10.0  # * (abs(pitch_level_sign)/denominator)
+                reward = -1.0  # * (abs(pitch_level_sign)/denominator)
 
         # if action == roll right
         if (action == 2):
             roll_level_sign = newObservation[4]
             if (roll_level_sign <= 0.0):
-                reward = 10.0  # * (abs(roll_level_sign)/denominator)
+                reward = 1.0  # * (abs(roll_level_sign)/denominator)
             else:
-                reward = -10.0  # * (abs(roll_level_sign)/denominator)
+                reward = -1.0  # * (abs(roll_level_sign)/denominator)
 
         # if action == roll left
         if (action == 3):
             roll_level_sign = newObservation[4]
             if (roll_level_sign > 0.0):
-                reward = 10.0  # * (abs(roll_level_sign)/denominator)
+                reward = 1.0  # * (abs(roll_level_sign)/denominator)
             else:
-                reward = -10.0  # * (abs(roll_level_sign)/denominator)
+                reward = -1.0  # * (abs(roll_level_sign)/denominator)
 
         # if action == rudder +
         if (action == 4):
             rudder_level_sign = self.convertRangeAtoRangeB(newObservation[5])
 
             if (rudder_level_sign <= 0.0):
-                reward = 10.0  # * (abs(rudder_level_sign)/denominator)
+                reward = 1.0  # * (abs(rudder_level_sign)/denominator)
             else:
-                reward = -10.0  # * (abs(rudder_level_sign)/denominator)
+                reward = -1.0  # * (abs(rudder_level_sign)/denominator)
 
         # if action == rudder -
         if (action == 5):
 
             rudder_level_sign = self.convertRangeAtoRangeB(newObservation[5])
             if (rudder_level_sign > 0.0):
-                reward = 10.0  # * (abs(rudder_level_sign)/denominator)
+                reward = 1.0  # * (abs(rudder_level_sign)/denominator)
             else:
-                reward = -10.0  # * (abs(rudder_level_sign)/denominator)
+                reward = -1.0  # * (abs(rudder_level_sign)/denominator)
 
         done = False
         if(self.getTermination(alt, alpha)):  # Would be used for end parameter - for example, if plane crahsed done, or if plane reached end done
             done = True
-            reward = -1
+            reward = -10
 
         return reward, done
 

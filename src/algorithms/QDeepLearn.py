@@ -34,6 +34,8 @@ class QLearn():
                               minReplay, replay, batch, self.gamma, update, loadModel, loadMemory)
         self.id = "deep"
         self.currentTable = []
+        self.numGPUs = len(tf.config.list_physical_devices('GPU'))
+        print("Num GPUs Available: ", self.numGPUs)
 
     # get action for current state
     def selectAction(self, state, episode, n_epochs):

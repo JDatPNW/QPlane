@@ -114,6 +114,9 @@ class DQNAgent:
         # This number is the ammount of epochs before the target Net will take over the other nets weights
         self.targetUpdateCounter = 0
 
+        self.numGPUs = len(tf.config.list_physical_devices('GPU'))
+        print("Num GPUs Available: ", self.numGPUs)
+
     def createModel(self):
         modelShape = (self.numOfInputs, )
         model = Sequential()

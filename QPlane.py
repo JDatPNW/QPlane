@@ -200,6 +200,18 @@ def step(i_step, done, reward, oldState):
     actions_binary = info[1]
     control = info[2]
 
+    # checking if state includes a NaN (happens in JSBSim sometimes)
+    if(np.isnan(newState).any()):
+        if(Q.id == "deep" or Q.id == "doubleDeep"):
+            newState = fallbackState
+        else:
+            newState = 0
+        reward = 0
+        info = [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], 0]
+        dictErrors["step"] = "NaN in state"
+        errors += 1
+        done = True
+
     Q.learn(oldState, action, reward, newState, done)
     oldState = newState
     logList = [oldState, newState, action, actions_binary, newPosition, control, explore, currentEpsilon]

@@ -4,7 +4,7 @@ import os
 import numpy as np
 from src.algorithms.QDoubleDeepLearn import QLearn  # can be QLearn, QDeepLearn or QDoubleDeepLearn
 from src.environments.jsbsim.JSBSimEnv import Env  # can be jsbsim.JSBSimEnv or xplane.XPlaneEnv
-from src.scenarios.deltaAttitudeControlScene import Scene  # can be deltaAttitudeControllScene or cheatingAttitudeControllScene
+from src.scenarios.deltaAttitudeControlScene import Scene  # can be deltaAttitudeControlScene, sparseAttitudeControlScene or cheatingAttitudeControlScene
 
 experimentName = "Experiment"
 
@@ -17,14 +17,14 @@ errors = 0.0  # counts everytime the UDP packages are lost on all retries
 
 timeStart = time.time()  # used to measure time
 timeEnd = time.time()  # used to measure time
-logPeriod = 10  # every so many epochs the metrics will be printed into the console
+logPeriod = 100  # every so many epochs the metrics will be printed into the console
 savePeriod = 25  # every so many epochs the table/model will be saved to a file
 pauseDelay = 0.01  # time an action is being applied to the environment
 logDecimals = 0  # sets decimals for np.arrays to X for printing
 np.set_printoptions(precision=logDecimals)  # sets decimals for np.arrays to X for printing
 
-n_epochs = 5000  # Number of generations
-n_steps = 1000  # Number of inputs per generation
+n_epochs = 50_000  # Number of generations
+n_steps = 1_000  # Number of inputs per generation
 n_actions = 4  # Number of possible inputs to choose from
 
 n_states = 729  # Number of states for non-Deep QLearning

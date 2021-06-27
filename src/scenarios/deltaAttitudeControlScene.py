@@ -7,7 +7,7 @@ class Scene():
         self.dictObservation = dictObservation
         self.dictAction = dictAction
         self.n_actions = actions
-        self.id = "cheatAttitude"
+        self.id = "deltaAttitude"
 
     def getTermination(self, alt, alpha):
 

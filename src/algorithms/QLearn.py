@@ -20,6 +20,7 @@ class QLearn():
         self.currentTable = []
         self.loadModel = loadModel
         self.saveForAutoReload = saveForAutoReload
+        self.numGPUs = "not using tf"
 
         if(loadModel):
             self.qTable = np.load("model.npy")

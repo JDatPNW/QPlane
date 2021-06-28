@@ -3,7 +3,7 @@ import time
 import numpy as np
 from src.algorithms.QDoubleDeepLearn import QLearn  # can be QLearn, QDeepLearn or QDoubleDeepLearn
 from src.environments.jsbsim.JSBSimEnv import Env  # can be jsbsim.JSBSimEnv or xplane.XPlaneEnv
-from src.scenarios.deltaAttitudeControlScene import Scene  # can be deltaAttitudeControllScene or cheatingAttitudeControllScene
+from src.scenarios.deltaAttitudeControlScene import Scene  # can be deltaAttitudeControlScene, sparseAttitudeControlScene or cheatingAttitudeControlScene
 
 errors = 0.0  # counts everytime the UDP packages are lost on all retries
 

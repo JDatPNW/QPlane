@@ -160,7 +160,7 @@ class Env():
         self.send_velo(rotation)
 
         self.fdm.run_ic()
-
+        self.scenario.resetStateDepth()
         self.send_Ctrl([0, 0, 0, 0, 0, 0, 1])  # this means it will not control the stick during the reset
         new_posi = self.get_Posi()
         if self.qID == "deep" or self.qID == "doubleDeep":

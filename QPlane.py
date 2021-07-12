@@ -220,9 +220,9 @@ def step(i_step, done, reward, oldState):
         done = True
 
     Q.learn(oldState, action, reward, newState, done)
-    oldState = newState
     logList = [oldState, newState, action, actions_binary, newPosition, control, explore, currentEpsilon]
-    return done, reward, logList
+    oldState = newState
+    return done, reward, logList, oldState
 
 
 # A epoch is one full run, from respawn/reset to the final step.
@@ -252,7 +252,7 @@ def epoch(i_epoch):
     reward = 0
 
     for i_step in range(n_steps + 1):
-        done, reward, logList = step(i_step, done, reward, oldState)
+        done, reward, logList, oldState = step(i_step, done, reward, oldState)
         epochReward += reward
         epochQ += np.argmax(Q.currentTable)
         if(i_step % logPeriod == 0):  # log every logPeriod steps

@@ -5,14 +5,14 @@ import pickle
 import tensorflow as tf
 from tensorflow.keras import Input
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dense, Flatten
 from tensorflow.keras.optimizers import Adam
 from collections import deque
 
 
 class QLearn():
 
-    def __init__(self, n_stat, n_acts, gamm, lr, eps, dec, min, epsDecay, expName, saveForAutoReload, loadModel, usePredefinedSeeds, loadMemory, inputs, minReplay, replay, batch, update):
+    def __init__(self, n_stat, n_acts, gamm, lr, eps, dec, min, epsDecay, expName, saveForAutoReload, loadModel, usePredefinedSeeds, loadMemory, inputs, minReplay, replay, batch, update, stateDepth):
         self.n_states = n_stat
         self.n_actions = n_acts
         self.gamma = gamm
@@ -31,7 +31,9 @@ class QLearn():
             tf.random.set_seed(42)
 
         self.model = DQNAgent(inputs, self.n_actions, self.learningRate,
-                              minReplay, replay, batch, self.gamma, update, loadModel, loadMemory)
+                              minReplay, replay, batch, self.gamma, update, loadModel, loadMemory, stateDepth)
+
+        self.stateDepth = stateDepth
         self.id = "doubleDeep"
         self.currentTable = []
 
@@ -43,7 +45,7 @@ class QLearn():
         explorationTreshold = random.uniform(0, 1)
         explore = False
         # Check if explore or explore with current epsilon vs random number between 0 and 1
-        if explorationTreshold > self.epsilon:
+        if explorationTreshold > self.epsilon and len(state) == self.stateDepth:
             # explore, which means predicted action
             action = np.argmax(self.model.getQs(state))
         else:
@@ -64,8 +66,12 @@ class QLearn():
 
     # update q table
     def learn(self, state, action, reward, new_state, done):
-        self.model.updateReplayMemory((state, action, reward, new_state, done))
-        self.model.train(done)
+        if(len(state) == self.stateDepth):
+            self.model.updateReplayMemory((state, action, reward, new_state, done))
+            self.model.train(done)
+
+    def resetStateDepth(self):
+        self.model.resetStateDepth()
 
     def archive(self, epoch):
         if not os.path.exists("./Experiments/" + self.experimentName):
@@ -83,7 +89,7 @@ class QLearn():
 
 # Agent class by https://pythonprogramming.net/q-learning-reinforcement-learning-python-tutorial/ with changes and adaptations
 class DQNAgent:
-    def __init__(self, inputs, outputs, learningRate, minReplay, replay, batch, gamma, update, loadModel, loadMemory):
+    def __init__(self, inputs, outputs, learningRate, minReplay, replay, batch, gamma, update, loadModel, loadMemory, stateDepth):
         self.numOfInputs = inputs
         self.numOfOutputs = outputs
         self.learningRate = learningRate
@@ -94,6 +100,7 @@ class DQNAgent:
         self.updateRate = update
         self.loadModel = loadModel
         self.loadMemory = loadMemory
+        self.stateDepth = stateDepth
 
         # The model used for training at every step
         self.model = self.createModel()
@@ -118,11 +125,12 @@ class DQNAgent:
         self.targetUpdateCounter = 0
 
     def createModel(self):
-        modelShape = (self.numOfInputs, )
+        modelShape = (self.stateDepth, self.numOfInputs, )
         model = Sequential()
         model.add(Input(shape=modelShape))
-        model.add(Dense(int(modelShape[0]), activation='relu'))
-        model.add(Dense(int(modelShape[0] * 0.75), activation='relu'))
+        model.add(Dense(int(modelShape[1]), activation='relu'))
+        model.add(Flatten())
+        model.add(Dense(int(modelShape[1] * 0.75), activation='relu'))
         model.add(Dense(int(self.numOfOutputs * 1.25), activation='relu'))
         model.add(Dense(self.numOfOutputs, activation='linear'))
         model.compile(loss="mse", optimizer=Adam(
@@ -137,7 +145,7 @@ class DQNAgent:
     # This trains the main network at every step
     def train(self, done):
         # Start training only if certain number of samples is already saved
-        if len(self.replayMemory) < self.minReplayMemSize:
+        if(len(self.replayMemory) < self.minReplayMemSize):
             return
 
         # Get a miniBatch of random samples from memory replay table
@@ -193,5 +201,8 @@ class DQNAgent:
     # Queries main network for Q values given current observation space (environment state)
     def getQs(self, state):
         # Important to get the right shape, therefore put shape in [] - test with print(state.ndim)
-        state = np.array(np.array([state]))
-        return self.model.predict(state)
+        if(len(state) == self.stateDepth):
+            state = np.array(np.array([state]))
+            return self.model.predict(state)
+        else:
+            return "State not Deep enough yet"

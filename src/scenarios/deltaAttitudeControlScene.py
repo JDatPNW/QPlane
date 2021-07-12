@@ -14,7 +14,7 @@ class Scene():
     def getTermination(self, alt, alpha):
 
         # checks if plane is less than x feet off the ground, if not it will count as a crash
-        if (alt < 200):
+        if (alt < 1000):
             terminate = True
         elif(alpha >= 16):
             terminate = True

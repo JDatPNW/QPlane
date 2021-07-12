@@ -28,6 +28,7 @@ epsilonMin = 0.1  # Minimum value at which epsilon will stop decaying
 n_epochsBeforeDecay = 10  # number of games to be played before epsilon starts to decay
 
 numOfInputs = 8  # Number of inputs fed to the model
+stateDepth = 1  # Number of old observations kept for current state. State will consist of s(t) ... s(t_n)
 minReplayMemSize = 1_000  # min size determines when the replay will start being used
 replayMemSize = 100_000  # Max size for the replay buffer
 batchSize = 256  # Batch size for the model
@@ -101,9 +102,9 @@ if(usePredefinedSeeds):
     np.random.seed(42)
 Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
            decayRate, epsilonMin, n_epochsBeforeDecay, "testing", saveForAutoReload, loadModel, usePredefinedSeeds,
-           loadMemory, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate)
+           loadMemory, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate, stateDepth)
 
-scene = Scene(dictObservation, dictAction, n_actions)
+scene = Scene(dictObservation, dictAction, n_actions, stateDepth)
 
 env = Env(scene, flightOrigin, flightDestinaion, n_actions, usePredefinedSeeds,
           dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender, jsbRealTime)
@@ -120,13 +121,19 @@ def log(i_epoch, i_step, reward, logList):
     control = logList[5]
     explore = logList[6]
     currentEpsilon = logList[7]
+    if(Q.id == "deep" or Q.id == "doubleDeep"):
+        depth = len(state)
+        depth = "Depth " + str(depth)
+        state = state[-1]
+    else:
+        depth = ""
 
     timeEnd = time.time()  # End timer here
     print("\t\tGame ", i_epoch,
           "\n\t\t\tMove ", i_step,
           "\n\t\t\tStarting Rotation ", flightStartRotation[i_epoch % len(flightStartRotation)],
           "\n\t\t\tTime taken ", timeEnd - timeStart,
-          "\n\t\t\tState ", np.array(state).round(logDecimals),
+          "\n\t\t\tState ", np.array(state).round(logDecimals), depth,
           "\n\t\t\t\t\t[p+,p-,r+,r-]",
           "\n\t\t\tactions_binary = ", actions_binary,
           "\n\t\t\tCurrent Control:", control,
@@ -173,9 +180,9 @@ def step(i_step, done, reward, oldState):
     actions_binary = info[1]
     control = info[2]
 
-    oldState = newState
     logList = [oldState, newState, action, actions_binary, newPosition, control, explore, currentEpsilon]
-    return done, reward, logList
+    oldState = newState
+    return done, reward, logList, oldState
 
 
 # A epoch is one full run, from respawn/reset to the final step.
@@ -202,7 +209,7 @@ def epoch(i_epoch):
     reward = 0
 
     for i_step in range(n_steps + 1):
-        done, reward, logList = step(i_step, done, reward, oldState)
+        done, reward, logList, oldState = step(i_step, done, reward, oldState)
         epochReward += reward
         epochQ += np.argmax(Q.currentTable)
         if(i_step % logPeriod == 0):  # log every logPeriod steps

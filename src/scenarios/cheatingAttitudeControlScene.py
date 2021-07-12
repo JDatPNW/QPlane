@@ -3,10 +3,12 @@ import numpy as np
 
 class Scene():
 
-    def __init__(self, dictObservation, dictAction, actions):
+    def __init__(self, dictObservation, dictAction, actions, stateDepth):
         self.dictObservation = dictObservation
         self.dictAction = dictAction
         self.n_actions = actions
+        self.stateList = []
+        self.stateDepth = stateDepth
         self.id = "cheatAttitude"
 
     def getTermination(self, alt, alpha):
@@ -146,7 +148,10 @@ class Scene():
         for i in range(len(velocities)):
             vel.append(velocities[i])
         state = tuple(positions) + tuple(vel)
-        return state
+        self.stateList.append(state)
+        if(len(self.stateList) > self.stateDepth):
+            self.stateList.pop(0)
+        return self.stateList
 
     def getState(self, observation):
         pitch = observation[self.dictObservation["pitch"]]
@@ -192,3 +197,6 @@ class Scene():
         rollEnc = self.encodeRotation(roll)
         yawEnc = self.encodeRotation(yaw)
         return pitchEnc, rollEnc, yawEnc
+
+    def resetStateDepth(self):
+        self.stateList = []

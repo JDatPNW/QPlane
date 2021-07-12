@@ -111,8 +111,6 @@ class Scene():
         i = pitch
         i = i * 9
         i = i + roll
-        i = i * 9
-        i = i + yaw
         return i
 
     def encodeRotation(self, i):

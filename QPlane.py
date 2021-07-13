@@ -2,6 +2,7 @@ import socket
 import time
 import os
 import numpy as np
+import matplotlib.pyplot as plt
 from src.algorithms.QDoubleDeepLearn import QLearn  # can be QLearn, QDeepLearn or QDoubleDeepLearn
 from src.environments.jsbsim.JSBSimEnv import Env  # can be jsbsim.JSBSimEnv or xplane.XPlaneEnv
 from src.scenarios.deltaAttitudeControlScene import Scene  # can be deltaAttitudeControlScene, sparseAttitudeControlScene or cheatingAttitudeControlScene
@@ -49,6 +50,7 @@ loadResults = False  # will load "results.npy" if True
 jsbRender = False  # will send UDP data to flight gear for rendering if True
 jsbRealTime = False  # will slow down the physics to portrait real time rendering
 usePredefinedSeeds = False  # Sets seeds for tf, np and random for more replicable results (not fully replicable due to stochastic environments)
+saveResultsToPlot = False  # Saves results to png in the experiment folder at runetime
 saveForAutoReload = False  # Saves and overrides models, results and memory to the root
 
 dictObservation = {
@@ -282,7 +284,18 @@ for i_epoch in range(startingOffset, startingOffset + n_epochs + 1):
         np.save("./Experiments/" + str(experimentName) + "/results" + str(i_epoch) + ".npy", movingEpRewards)
         if(saveForAutoReload):
             np.save("results.npy", movingEpRewards)
-
+        if(saveResultsToPlot):
+            plt.plot(movingEpRewards['epoch'], movingEpRewards['average'], label="average rewards")
+            plt.plot(movingEpRewards['epoch'], movingEpRewards['averageQ'], label="average Qs")
+            plt.plot(movingEpRewards['epoch'], movingEpRewards['maximum'], label="max rewards")
+            plt.plot(movingEpRewards['epoch'], movingEpRewards['minimum'], label="min rewards")
+            plt.plot(movingEpRewards['epoch'], movingEpRewards['epsilon'], label="epsilon")
+            plt.title("Results")
+            plt.xlabel("episodes")
+            plt.ylabel("reward")
+            plt.legend(loc=4)
+            plt.savefig("./Experiments/" + str(experimentName) + "/plot" + str(i_epoch) + ".png")
+            plt.clf()
 
 np.save("./Experiments/" + str(experimentName) + "/results_final.npy", movingEpRewards)
 

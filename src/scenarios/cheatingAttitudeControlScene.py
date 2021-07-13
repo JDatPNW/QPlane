@@ -111,21 +111,21 @@ class Scene():
             if observation[actionDimension] < -180 or observation[actionDimension] > 180:
                 ctrl[actionCtrl] = 1
             elif -180 <= observation[actionDimension] < -50 or 50 <= observation[actionDimension] < 180:
-                ctrl[actionCtrl] = 0.5
+                ctrl[actionCtrl] = 0.75
             elif -50 <= observation[actionDimension] < -25 or 25 <= observation[actionDimension] < 50:
-                ctrl[actionCtrl] = 0.2
+                ctrl[actionCtrl] = 0.66
             elif -25 <= observation[actionDimension] < -15 or 15 <= observation[actionDimension] < 25:
-                ctrl[actionCtrl] = 0.15
+                ctrl[actionCtrl] = 0.5
             elif -15 <= observation[actionDimension] < -10 or 10 <= observation[actionDimension] < 15:
-                ctrl[actionCtrl] = 0.12
+                ctrl[actionCtrl] = 0.33
             elif -10 <= observation[actionDimension] < -5 or 5 <= observation[actionDimension] < 10:
-                ctrl[actionCtrl] = 0.1
+                ctrl[actionCtrl] = 0.25
             elif -5 <= observation[actionDimension] < -2 or 2 <= observation[actionDimension] < 5:
-                ctrl[actionCtrl] = 0.05
+                ctrl[actionCtrl] = 0.1
             elif -2 <= observation[actionDimension] < -1 or 1 <= observation[actionDimension] < 2:
-                ctrl[actionCtrl] = 0.02
+                ctrl[actionCtrl] = 0.05
             elif -1 <= observation[actionDimension] < 0 or 0 <= observation[actionDimension] < 1:
-                ctrl[actionCtrl] = 0.01
+                ctrl[actionCtrl] = 0.025
             else:
                 print("DEBUG - should not get here")
         else:
@@ -164,29 +164,37 @@ class Scene():
 
     def encodeState(self, pitch, roll, yaw):
         i = pitch
-        i = i * 9
+        i = i * 13
         i = i + roll
         return i
 
     def encodeRotation(self, i):
-        if -180 <= i < -35:
+        if -180 <= i < -75:
             return 0
-        elif -35 <= i < -25:
+        elif -75 <= i < -35:
             return 1
-        elif -25 <= i < -15:
+        elif -35 <= i < -15:
             return 2
         elif -15 <= i < -5:
             return 3
-        elif -5 <= i < 5:
+        elif -5 <= i < -2:
             return 4
-        elif 5 <= i < 15:
+        elif -2 <= i < -1:
             return 5
-        elif 15 <= i < 25:
+        elif -1 <= i < 1:
             return 6
-        elif 25 <= i < 35:
+        elif 1 <= i < 2:
             return 7
-        elif 35 <= i < 180:
+        elif 2 <= i < 5:
             return 8
+        elif 5 <= i < 15:
+            return 9
+        elif 15 <= i < 35:
+            return 10
+        elif 35 <= i < 75:
+            return 11
+        elif 75 <= i < 180:
+            return 12
         else:
             return 0
 

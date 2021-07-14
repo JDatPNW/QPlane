@@ -10,6 +10,7 @@ class Env():
         self.startingPosition = orig
         self.destinationPosition = dest
         self.previousPosition = orig
+        self.startingOrientation = []
         self.n_actions = n_acts
         self.xpc = imp.load_source('xpc', './src/environments/xplane/xpc.py')  # path is relative to the location of the QPlane.py file
         self.dictObservation = dictObservation
@@ -26,6 +27,7 @@ class Env():
     def send_posi(self, posi, rotation):
         posi[self.dictObservation["pitch"]] = rotation[self.dictRotation["pitch"]]
         posi[self.dictObservation["roll"]] = rotation[self.dictRotation["roll"]]
+        posi[self.dictObservation["yaw"]] = rotation[self.dictRotation["yaw"]]
         client = self.xpc.XPlaneConnect()
         client.sendPOSI(posi)
         client.close()
@@ -33,9 +35,9 @@ class Env():
     def send_velo(self, rotation):
         client = self.xpc.XPlaneConnect()
         #  I could try the q DREF https://developer.x-plane.com/article/movingtheplane/
-        client.sendDREF("sim/flightmodel/position/local_vx", 0)  # The velocity in local OGL coordinates +vx=E -vx=W
-        client.sendDREF("sim/flightmodel/position/local_vy", rotation[self.dictRotation["velocityY"]])  # The velocity in local OGL coordinates +=Vertical (up)
-        client.sendDREF("sim/flightmodel/position/local_vz", self.startingVelocity)  # The velocity in local OGL coordinates +vz=S -vz=N
+        client.sendDREF("sim/flightmodel/position/local_vx", rotation[self.dictRotation["eastVelo"]])  # The velocity in local OGL coordinates +vx=E -vx=W
+        client.sendDREF("sim/flightmodel/position/local_vy", rotation[self.dictRotation["verticalVelo"]])  # The velocity in local OGL coordinates +=Vertical (up)
+        client.sendDREF("sim/flightmodel/position/local_vz", rotation[self.dictRotation["northVelo"]])  # The velocity in local OGL coordinates +vz=S -vz=N
 
         client.sendDREF("sim/flightmodel/position/local_ax", 0)  # The acceleration in local OGL coordinates +ax=E -ax=W
         client.sendDREF("sim/flightmodel/position/local_ay", 0)  # The acceleration in local OGL coordinates +=Vertical (up)
@@ -180,9 +182,11 @@ class Env():
         info = [position, actions_binary, newCtrl]
         return state, reward, done, info
 
-    def reset(self, posi, rotation):
-        self.send_posi(posi, rotation)
-        self.send_velo(rotation)
+    def reset(self):
+        resetPosition = self.scenario.resetStartingPosition()
+        self.startingOrientation = resetPosition
+        self.send_posi(self.startingPosition, resetPosition)
+        self.send_velo(resetPosition)
         #  self.send_envParam()
         self.scenario.resetStateDepth()
         self.send_Ctrl([0, 0, 0, 0, 0, 0, 1])  # this means it will not control the stick during the reset

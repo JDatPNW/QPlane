@@ -11,6 +11,7 @@ class Env():
         self.startingPosition = orig
         self.destinationPosition = dest
         self.previousPosition = orig
+        self.startingOrientation = []
         self.n_actions = n_acts
         self.dictObservation = dictObservation
         self.dictAction = dictAction
@@ -42,6 +43,7 @@ class Env():
     def send_posi(self, posi, rotation):
         posi[self.dictObservation["pitch"]] = rotation[self.dictRotation["pitch"]]
         posi[self.dictObservation["roll"]] = rotation[self.dictRotation["roll"]]
+        posi[self.dictObservation["yaw"]] = rotation[self.dictRotation["yaw"]]
 
         self.fdm["ic/lat-gc-deg"] = posi[self.dictObservation["lat"]]  # Latitude initial condition in degrees
         self.fdm["ic/long-gc-deg"] = posi[self.dictObservation["long"]]  # Longitude initial condition in degrees
@@ -53,9 +55,9 @@ class Env():
 
     def send_velo(self, rotation):
 
-        self.fdm["ic/ve-fps"] = 0 * self.msToFs  # Local frame y-axis (east) velocity initial condition in feet/second
-        self.fdm["ic/vd-fps"] = -rotation[self.dictRotation["velocityY"]] * self.msToFs  # Local frame z-axis (down) velocity initial condition in feet/second
-        self.fdm["ic/vn-fps"] = -self.startingVelocity * self.msToFs  # Local frame x-axis (north) velocity initial condition in feet/second
+        self.fdm["ic/ve-fps"] = rotation[self.dictRotation["eastVelo"]] * self.msToFs  # Local frame y-axis (east) velocity initial condition in feet/second
+        self.fdm["ic/vd-fps"] = -rotation[self.dictRotation["verticalVelo"]] * self.msToFs  # Local frame z-axis (down) velocity initial condition in feet/second
+        self.fdm["ic/vn-fps"] = -rotation[self.dictRotation["northVelo"]] * self.msToFs  # Local frame x-axis (north) velocity initial condition in feet/second
         self.fdm["propulsion/refuel"] = True  # refules the plane?
         self.fdm["propulsion/active_engine"] = True  # starts the engine?
         self.fdm["propulsion/set-running"] = 0  # starts the engine?
@@ -155,9 +157,11 @@ class Env():
         info = [position, actions_binary, newCtrl]
         return state, reward, done, info
 
-    def reset(self, posi, rotation):
-        self.send_posi(posi, rotation)
-        self.send_velo(rotation)
+    def reset(self):
+        resetPosition = self.scenario.resetStartingPosition()
+        self.startingOrientation = resetPosition
+        self.send_posi(self.startingPosition, resetPosition)
+        self.send_velo(resetPosition)
 
         self.fdm.run_ic()
         self.scenario.resetStateDepth()

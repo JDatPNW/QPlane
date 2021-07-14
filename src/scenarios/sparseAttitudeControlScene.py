@@ -1,15 +1,20 @@
 import numpy as np
+import math
+import random
 
 
 class Scene():
 
-    def __init__(self, dictObservation, dictAction, actions, stateDepth):
+    def __init__(self, dictObservation, dictAction, actions, stateDepth, startingVelocity, usePredefinedSeeds):
         self.dictObservation = dictObservation
         self.dictAction = dictAction
         self.n_actions = actions
         self.stateList = []
         self.stateDepth = stateDepth
+        self.startingVelocity = startingVelocity
         self.id = "sparseAttitude"
+        if(usePredefinedSeeds):
+            random.seed(42)
 
     def getTermination(self, alt, alpha):
 
@@ -151,3 +156,36 @@ class Scene():
 
     def resetStateDepth(self):
         self.stateList = []
+
+    def resetStartingPosition(self):
+        startingPitch = int(random.randrange(-10, 10))
+        startingRoll = int(random.randrange(-15, 15))
+        startingYaw = int(random.randrange(0, 360))
+
+        angleRadPitch = math.radians(startingPitch)
+        verticalVelocity = self.startingVelocity * math.sin(angleRadPitch)
+        forwardVelocity = self.startingVelocity * math.cos(angleRadPitch)
+
+        if(startingPitch == 0):
+            verticalVelocity = 0
+            forwardVelocity = self.startingVelocity
+
+        if(startingPitch == 180):
+            verticalVelocity = 0
+            forwardVelocity = -self.startingVelocity
+
+        angleRadYaw = math.radians(startingYaw)
+        eastVelocity = forwardVelocity * math.sin(angleRadYaw)
+        northVelocity = - forwardVelocity * math.cos(angleRadYaw)
+
+        if(startingYaw == 0):
+            eastVelocity = 0
+            northVelocity = - forwardVelocity
+
+        if(startingYaw == 180):
+            eastVelocity = 0
+            northVelocity = forwardVelocity
+
+        startingPosition = [startingRoll, startingPitch, startingYaw, northVelocity, eastVelocity, verticalVelocity]
+
+        return startingPosition

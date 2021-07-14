@@ -92,7 +92,7 @@ flightDestinaion = [33.508, 126.487, 6000, -998, -998, -998, 1]  # Jeju SK
 
 epochRewards = []
 epochQs = []
-movingRate = 100  # gives the number by which the moving average will be done
+movingRate = 100  # gives the number by which the moving average will be done, best if n * savePeriod
 
 movingEpRewards = {
     "epoch": [],
@@ -277,7 +277,7 @@ for i_epoch in range(startingOffset, startingOffset + n_epochs + 1):
         np.save("./Experiments/" + str(experimentName) + "/results" + str(i_epoch) + ".npy", movingEpRewards)
         if(saveForAutoReload):
             np.save("results.npy", movingEpRewards)
-        if(saveResultsToPlot):
+        if(saveResultsToPlot and i_epoch % movingRate == 0):
             plt.plot(movingEpRewards['epoch'], movingEpRewards['average'], label="average rewards")
             plt.plot(movingEpRewards['epoch'], movingEpRewards['averageQ'], label="average Qs")
             plt.plot(movingEpRewards['epoch'], movingEpRewards['maximum'], label="max rewards")

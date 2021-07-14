@@ -9,14 +9,14 @@ errors = 0.0  # counts everytime the UDP packages are lost on all retries
 
 timeStart = time.time()  # used to measure time
 timeEnd = time.time()  # used to measure time
-logPeriod = 10  # every so many epochs the metrics will be printed into the console
+logPeriod = 100  # every so many epochs the metrics will be printed into the console
 savePeriod = 25  # every so many epochs the table/model will be saved to a file
 pauseDelay = 0.01  # time an action is being applied to the environment
 logDecimals = 4  # sets decimals for np.arrays to X for printing
 np.set_printoptions(precision=logDecimals)  # sets decimals for np.arrays to X for printing
 
-n_epochs = 5000  # Number of generations
-n_steps = 1750  # Number of inputs per generation
+n_epochs = 5_000  # Number of generations
+n_steps = 2_500  # Number of inputs per generation
 n_actions = 4  # Number of possible inputs to choose from
 
 n_states = 182  # Number of states
@@ -43,6 +43,10 @@ jsbRealTime = True  # will slow down the physics to portrait real time rendering
 usePredefinedSeeds = True  # Sets seeds for tf, np and random for more replicable results (not fully replicable due to stochastic environments)
 saveForAutoReload = False  # Saves and overrides models, results and memory to the root
 
+startingVelocity = 60
+startingPitchRange = 10
+startingRollRange = 15
+
 
 dictObservation = {
     "lat": 0,
@@ -65,29 +69,17 @@ dictErrors = {
     "update": 0,
     "step": 0}
 dictRotation = {
-    "pitch": 0,
-    "roll": 1,
-    "velocityY": 2}
+    "roll": 0,
+    "pitch": 1,
+    "yaw": 2,
+    "northVelo": 3,
+    "eastVelo": 4,
+    "verticalVelo": 5}
 
 # -998->NO CHANGE
 flightOrigin = [35.126, 126.809, 6000, 0, 0, 0, 1]  # Gwangju SK
 flightDestinaion = [33.508, 126.487, 6000, -998, -998, -998, 1]  # Jeju SK
-startingVelocity = -55
 #  Other locations to use: Memmingen: [47.988, 10.240], Chicago: [41.976, -87.902]
-
-flightStartPitch = 10  # Will be used as -value / 0 / value
-flightStartRoll = 15  # Will be used as -value / 0 / value
-flightStartVelocityY = 10  # Will be used as -value / 0 / value
-
-flightStartRotation = [[-flightStartPitch, -flightStartRoll, -flightStartVelocityY],
-                       [-flightStartPitch, 0, -flightStartVelocityY],
-                       [-flightStartPitch, flightStartRoll, -flightStartVelocityY],
-                       [0, -flightStartRoll, -0],
-                       [0, 0, 0],
-                       [0, flightStartRoll, 0],
-                       [flightStartPitch, -flightStartRoll, flightStartVelocityY],
-                       [flightStartPitch, 0, flightStartVelocityY],
-                       [flightStartPitch, flightStartRoll, flightStartVelocityY]]
 
 fallbackState = [0] * numOfInputs  # Used in case of connection error to XPlane
 
@@ -100,11 +92,12 @@ if(loadResults):
 
 if(usePredefinedSeeds):
     np.random.seed(42)
+
 Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
            decayRate, epsilonMin, n_epochsBeforeDecay, "testing", saveForAutoReload, loadModel, usePredefinedSeeds,
            loadMemory, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate, stateDepth)
 
-scene = Scene(dictObservation, dictAction, n_actions, stateDepth)
+scene = Scene(dictObservation, dictAction, n_actions, stateDepth, startingVelocity, startingPitchRange, startingRollRange, usePredefinedSeeds)
 
 env = Env(scene, flightOrigin, flightDestinaion, n_actions, usePredefinedSeeds,
           dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender, jsbRealTime)
@@ -131,7 +124,7 @@ def log(i_epoch, i_step, reward, logList):
     timeEnd = time.time()  # End timer here
     print("\t\tGame ", i_epoch,
           "\n\t\t\tMove ", i_step,
-          "\n\t\t\tStarting Rotation ", flightStartRotation[i_epoch % len(flightStartRotation)],
+          "\n\t\t\tStarting Rotation ", env.startingOrientation,
           "\n\t\t\tTime taken ", timeEnd - timeStart,
           "\n\t\t\tState ", np.array(state).round(logDecimals), depth,
           "\n\t\t\t\t\t[p+,p-,r+,r-]",
@@ -192,7 +185,7 @@ def epoch(i_epoch):
     epochQ = 0
     for attempt in range(25):
         try:
-            oldState = env.reset(env.startingPosition, flightStartRotation[i_epoch % len(flightStartRotation)])
+            oldState = env.reset()
         except socket.error as socketError:  # the specific error for connections used by xpc
             dictErrors["reset"] = socketError
             continue

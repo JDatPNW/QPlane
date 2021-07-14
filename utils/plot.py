@@ -7,7 +7,7 @@ plotMaximum = True
 plotMinimum = True
 plotEpsilon = True
 
-plotNormalized = True
+plotNormalized = False
 
 results = np.load("results.npy", allow_pickle=True)
 

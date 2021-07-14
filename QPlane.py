@@ -53,6 +53,10 @@ usePredefinedSeeds = False  # Sets seeds for tf, np and random for more replicab
 saveResultsToPlot = False  # Saves results to png in the experiment folder at runetime
 saveForAutoReload = False  # Saves and overrides models, results and memory to the root
 
+startingVelocity = 60
+startingPitchRange = 10
+startingRollRange = 15
+
 dictObservation = {
     "lat": 0,
     "long": 1,
@@ -86,8 +90,6 @@ flightOrigin = [35.126, 126.809, 6000, 0, 0, 0, 1]  # Gwangju SK
 flightDestinaion = [33.508, 126.487, 6000, -998, -998, -998, 1]  # Jeju SK
 #  Other locations to use: Memmingen: [47.988, 10.240], Chicago: [41.976, -87.902]
 
-startingVelocity = 60
-
 epochRewards = []
 epochQs = []
 movingRate = 100  # gives the number by which the moving average will be done
@@ -116,7 +118,7 @@ Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
            decayRate, epsilonMin, n_epochsBeforeDecay, experimentName, saveForAutoReload, loadModel, usePredefinedSeeds,
            loadMemory, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate, stateDepth)
 
-scene = Scene(dictObservation, dictAction, n_actions, stateDepth, startingVelocity, usePredefinedSeeds)
+scene = Scene(dictObservation, dictAction, n_actions, stateDepth, startingVelocity, startingPitchRange, startingRollRange, usePredefinedSeeds)
 
 env = Env(scene, flightOrigin, flightDestinaion, n_actions, usePredefinedSeeds,
           dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender, jsbRealTime)

@@ -5,13 +5,15 @@ import random
 
 class Scene():
 
-    def __init__(self, dictObservation, dictAction, actions, stateDepth, startingVelocity, usePredefinedSeeds):
+    def __init__(self, dictObservation, dictAction, actions, stateDepth, startingVelocity, startingPitchRange, startingRollRange, usePredefinedSeeds):
         self.dictObservation = dictObservation
         self.dictAction = dictAction
         self.n_actions = actions
         self.stateList = []
         self.stateDepth = stateDepth
         self.startingVelocity = startingVelocity
+        self.startingPitchRange = startingPitchRange
+        self.startingRollRange = startingRollRange
         self.id = "cheatAttitude"
         if(usePredefinedSeeds):
             random.seed(42)
@@ -213,8 +215,8 @@ class Scene():
         self.stateList = []
 
     def resetStartingPosition(self):
-        startingPitch = int(random.randrange(-10, 10))
-        startingRoll = int(random.randrange(-15, 15))
+        startingPitch = int(random.randrange(-self.startingPitchRange, self.startingPitchRange))
+        startingRoll = int(random.randrange(-self.startingRollRange, self.startingRollRange))
         startingYaw = int(random.randrange(0, 360))
 
         angleRadPitch = math.radians(startingPitch)

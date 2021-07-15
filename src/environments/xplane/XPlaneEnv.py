@@ -98,9 +98,13 @@ class Env():
 
         values = client.getDREFs(drefs)
 
+        vel = []
+        for i in range(len(values)):
+            vel.append(values[i][0])
+
         client.close()
 
-        return values
+        return vel
 
     def send_Pause(self, pause):
         client = self.xpc.XPlaneConnect()

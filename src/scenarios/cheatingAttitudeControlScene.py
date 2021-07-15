@@ -151,10 +151,7 @@ class Scene():
         return ctrl, actions_binary
 
     def getDeepState(self, velocities, positions):
-        vel = []
-        for i in range(len(velocities)):
-            vel.append(velocities[i])
-        state = tuple(positions) + tuple(vel)
+        state = tuple(positions) + tuple(velocities)
         self.stateList.append(state)
         if(len(self.stateList) > self.stateDepth):
             self.stateList.pop(0)
@@ -223,11 +220,11 @@ class Scene():
         verticalVelocity = self.startingVelocity * math.sin(angleRadPitch)
         forwardVelocity = self.startingVelocity * math.cos(angleRadPitch)
 
-        if(startingPitch == 0):
+        if(startingPitch == 0 or startingPitch == 360):
             verticalVelocity = 0
             forwardVelocity = self.startingVelocity
 
-        if(startingPitch == 180):
+        if(startingPitch == 180 or startingPitch == -180):
             verticalVelocity = 0
             forwardVelocity = -self.startingVelocity
 
@@ -235,11 +232,11 @@ class Scene():
         eastVelocity = forwardVelocity * math.sin(angleRadYaw)
         northVelocity = - forwardVelocity * math.cos(angleRadYaw)
 
-        if(startingYaw == 0):
+        if(startingYaw == 0 or startingYaw == 360):
             eastVelocity = 0
             northVelocity = - forwardVelocity
 
-        if(startingYaw == 180):
+        if(startingYaw == 180 or startingYaw == -180):
             eastVelocity = 0
             northVelocity = forwardVelocity
 

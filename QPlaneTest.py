@@ -1,7 +1,7 @@
 import socket
 import time
 import numpy as np
-from src.algorithms.QDoubleDeepLearn import QLearn  # can be QLearn, QDeepLearn or QDoubleDeepLearn
+from src.algorithms.QDoubleDeepLearn import QLearn  # can be QLearn, QDeepLearn, QDoubleDeepLearn or RandomAgent
 from src.environments.jsbsim.JSBSimEnv import Env  # can be jsbsim.JSBSimEnv or xplane.XPlaneEnv
 from src.scenarios.deltaAttitudeControlScene import Scene  # can be deltaAttitudeControlScene, sparseAttitudeControlScene or cheatingAttitudeControlScene
 

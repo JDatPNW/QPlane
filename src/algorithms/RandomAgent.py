@@ -13,7 +13,7 @@ class QLearn():
         self.qTable = [0]
 
     # get action for current state
-    def selectAction(self, state, episode, n_epochs):
+    def selectAction(self, *args, **kwargs):
         action = int(random.uniform(0, self.n_actions))
         explore = True
         return action, explore, self.epsilon

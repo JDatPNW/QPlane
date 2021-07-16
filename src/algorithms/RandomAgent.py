@@ -16,9 +16,6 @@ class QLearn():
     def selectAction(self, state, episode, n_epochs):
         action = int(random.uniform(0, self.n_actions))
         explore = True
-
-        self.currentTable = [0]
-
         return action, explore, self.epsilon
 
     # update q table

@@ -46,6 +46,9 @@ saveForAutoReload = False  # Saves and overrides models, results and memory to t
 startingVelocity = 60
 startingPitchRange = 10
 startingRollRange = 15
+randomDesiredState = True  # Set a new state to stabalize towards every episode
+desiredPitchRange = 15
+desiredRollRange = 15
 
 
 dictObservation = {

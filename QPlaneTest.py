@@ -97,7 +97,7 @@ Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
            decayRate, epsilonMin, n_epochsBeforeDecay, "testing", saveForAutoReload, loadModel, usePredefinedSeeds,
            loadMemory, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate, stateDepth)
 
-scene = Scene(dictObservation, dictAction, n_actions, stateDepth, startingVelocity, startingPitchRange, startingRollRange, usePredefinedSeeds)
+scene = Scene(dictObservation, dictAction, n_actions, stateDepth, startingVelocity, startingPitchRange, startingRollRange, usePredefinedSeeds, randomDesiredState, desiredPitchRange, desiredRollRange)
 
 env = Env(scene, flightOrigin, flightDestinaion, n_actions, usePredefinedSeeds,
           dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender, jsbRealTime)
@@ -125,6 +125,7 @@ def log(i_epoch, i_step, reward, logList):
     print("\t\tGame ", i_epoch,
           "\n\t\t\tMove ", i_step,
           "\n\t\t\tStarting Rotation ", env.startingOrientation,
+          "\n\t\t\tDestination Rotation ", env.desiredState,
           "\n\t\t\tTime taken ", timeEnd - timeStart,
           "\n\t\t\tState ", np.array(state).round(logDecimals), depth,
           "\n\t\t\t\t\t[p+,p-,r+,r-]",

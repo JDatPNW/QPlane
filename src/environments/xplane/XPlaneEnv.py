@@ -11,6 +11,7 @@ class Env():
         self.destinationPosition = dest
         self.previousPosition = orig
         self.startingOrientation = []
+        self.desiredState = []
         self.n_actions = n_acts
         self.xpc = imp.load_source('xpc', './src/environments/xplane/xpc.py')  # path is relative to the location of the QPlane.py file
         self.dictObservation = dictObservation
@@ -25,11 +26,12 @@ class Env():
             np.random.seed(42)
 
     def send_posi(self, posi, rotation):
-        posi[self.dictObservation["pitch"]] = rotation[self.dictRotation["pitch"]]
-        posi[self.dictObservation["roll"]] = rotation[self.dictRotation["roll"]]
-        posi[self.dictObservation["yaw"]] = rotation[self.dictRotation["yaw"]]
+        position = posi[:]
+        position[self.dictObservation["pitch"]] = rotation[self.dictRotation["pitch"]]
+        position[self.dictObservation["roll"]] = rotation[self.dictRotation["roll"]]
+        position[self.dictObservation["yaw"]] = rotation[self.dictRotation["yaw"]]
         client = self.xpc.XPlaneConnect()
-        client.sendPOSI(posi)
+        client.sendPOSI(position)
         client.close()
 
     def send_velo(self, rotation):
@@ -187,8 +189,9 @@ class Env():
         return state, reward, done, info
 
     def reset(self):
-        resetPosition = self.scenario.resetStartingPosition()
+        resetPosition, desintaionState = self.scenario.resetStartingPosition()
         self.startingOrientation = resetPosition
+        self.desiredState = desintaionState
         self.send_posi(self.startingPosition, resetPosition)
         self.send_velo(resetPosition)
         #  self.send_envParam()

@@ -56,6 +56,9 @@ saveForAutoReload = False  # Saves and overrides models, results and memory to t
 startingVelocity = 60
 startingPitchRange = 10
 startingRollRange = 15
+randomDesiredState = True  # Set a new state to stabalize towards every episode
+desiredPitchRange = 5
+desiredRollRange = 5
 
 dictObservation = {
     "lat": 0,
@@ -118,7 +121,7 @@ Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
            decayRate, epsilonMin, n_epochsBeforeDecay, experimentName, saveForAutoReload, loadModel, usePredefinedSeeds,
            loadMemory, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate, stateDepth)
 
-scene = Scene(dictObservation, dictAction, n_actions, stateDepth, startingVelocity, startingPitchRange, startingRollRange, usePredefinedSeeds)
+scene = Scene(dictObservation, dictAction, n_actions, stateDepth, startingVelocity, startingPitchRange, startingRollRange, usePredefinedSeeds, randomDesiredState, desiredPitchRange, desiredRollRange)
 
 env = Env(scene, flightOrigin, flightDestinaion, n_actions, usePredefinedSeeds,
           dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender, jsbRealTime)
@@ -154,6 +157,7 @@ def log(i_epoch, i_step, reward, logList):
     print("\t\tGame ", i_epoch,
           "\n\t\t\tMove ", i_step,
           "\n\t\t\tStarting Rotation ", env.startingOrientation,
+          "\n\t\t\tDestination Rotation ", env.desiredState,
           "\n\t\t\tTime taken ", timeEnd - timeStart,
           "\n\t\t\tState ", np.array(state).round(logDecimals), depth,
           "\n\t\t\t\t\t[p+,p-,r+,r-]",
@@ -201,7 +205,6 @@ def step(i_step, done, reward, oldState):
     newPosition = info[0]
     actions_binary = info[1]
     control = info[2]
-
     # checking if state includes a NaN (happens in JSBSim sometimes)
     if(np.isnan(newState).any()):
         if(Q.id == "deep" or Q.id == "doubleDeep"):

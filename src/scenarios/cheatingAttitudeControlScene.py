@@ -5,7 +5,7 @@ import random
 
 class Scene():
 
-    def __init__(self, dictObservation, dictAction, actions, stateDepth, startingVelocity, startingPitchRange, startingRollRange, usePredefinedSeeds):
+    def __init__(self, dictObservation, dictAction, actions, stateDepth, startingVelocity, startingPitchRange, startingRollRange, usePredefinedSeeds, randomDesiredState, desiredPitchRange, desiredRollRange):
         self.dictObservation = dictObservation
         self.dictAction = dictAction
         self.n_actions = actions
@@ -14,6 +14,22 @@ class Scene():
         self.startingVelocity = startingVelocity
         self.startingPitchRange = startingPitchRange
         self.startingRollRange = startingRollRange
+        self.desiredPitchRange = desiredPitchRange
+        self.desiredRollRange = desiredRollRange
+        self.desiredPosition = {
+            "roll": 0,
+            "pitch": 0}
+        self.dictState = {
+            "pitch": 0,
+            "roll": 1,
+            "yaw": 2,
+            "P": 3,
+            "Q": 4,
+            "R": 5,
+            "Aoa": 6,
+            "AoS": 7}
+        self.randomDesiredState = randomDesiredState
+
         self.id = "cheatAttitude"
         if(usePredefinedSeeds):
             random.seed(42)
@@ -39,58 +55,44 @@ class Scene():
 
     def rewardFunction(self, action, newObservation, alt, alpha):
         reward = 0
+        observation = newObservation[:]
+        if(self.randomDesiredState):
+            observation[self.dictObservation["pitch"]] = -(self.desiredPosition["pitch"] - observation[self.dictObservation["pitch"]])
+            observation[self.dictObservation["roll"]] = -(self.desiredPosition["roll"] - observation[self.dictObservation["roll"]])
 
         # actions_binary = [pi+, pi-, ro+, ro-, ru+, ru-]
 
         # if action == pitch up
         if (action == 0):
-            pitch_level_sign = newObservation[3]
-            if (pitch_level_sign <= 0.0):
+            pitch_level_sign = observation[3]
+            if (pitch_level_sign <= self.desiredPosition["pitch"]):
                 reward = 1.0  # * (abs(pitch_level_sign)/denominator)
             else:
                 reward = -1.0  # * (abs(pitch_level_sign)/denominator)
 
         # if action == pitch down
         if (action == 1):
-            pitch_level_sign = newObservation[3]
-            if (pitch_level_sign > 0.0):
+            pitch_level_sign = observation[3]
+            if (pitch_level_sign > self.desiredPosition["pitch"]):
                 reward = 1.0  # * (abs(pitch_level_sign)/denominator)
             else:
                 reward = -1.0  # * (abs(pitch_level_sign)/denominator)
 
         # if action == roll right
         if (action == 2):
-            roll_level_sign = newObservation[4]
-            if (roll_level_sign <= 0.0):
+            roll_level_sign = observation[4]
+            if (roll_level_sign <= self.desiredPosition["roll"]):
                 reward = 1.0  # * (abs(roll_level_sign)/denominator)
             else:
                 reward = -1.0  # * (abs(roll_level_sign)/denominator)
 
         # if action == roll left
         if (action == 3):
-            roll_level_sign = newObservation[4]
-            if (roll_level_sign > 0.0):
+            roll_level_sign = observation[4]
+            if (roll_level_sign > self.desiredPosition["roll"]):
                 reward = 1.0  # * (abs(roll_level_sign)/denominator)
             else:
                 reward = -1.0  # * (abs(roll_level_sign)/denominator)
-
-        # if action == rudder +
-        if (action == 4):
-            rudder_level_sign = self.convertRangeAtoRangeB(newObservation[5])
-
-            if (rudder_level_sign <= 0.0):
-                reward = 1.0  # * (abs(rudder_level_sign)/denominator)
-            else:
-                reward = -1.0  # * (abs(rudder_level_sign)/denominator)
-
-        # if action == rudder -
-        if (action == 5):
-
-            rudder_level_sign = self.convertRangeAtoRangeB(newObservation[5])
-            if (rudder_level_sign > 0.0):
-                reward = 1.0  # * (abs(rudder_level_sign)/denominator)
-            else:
-                reward = -1.0  # * (abs(rudder_level_sign)/denominator)
 
         done = False
         if(self.getTermination(alt, alpha)):  # Would be used for end parameter - for example, if plane crahsed done, or if plane reached end done
@@ -151,6 +153,10 @@ class Scene():
         return ctrl, actions_binary
 
     def getDeepState(self, velocities, positions):
+        observation = positions[:]
+        if(self.randomDesiredState):
+            observation[self.dictState["pitch"]] = -(self.desiredPosition["pitch"] - observation[self.dictState["pitch"]])
+            observation[self.dictState["roll"]] = -(self.desiredPosition["roll"] - observation[self.dictState["roll"]])
         state = tuple(positions) + tuple(velocities)
         self.stateList.append(state)
         if(len(self.stateList) > self.stateDepth):
@@ -161,6 +167,10 @@ class Scene():
         pitch = observation[self.dictObservation["pitch"]]
         roll = observation[self.dictObservation["roll"]]
         yaw = observation[self.dictObservation["yaw"]]
+        if(self.randomDesiredState):
+            pitch = -(self.desiredPosition["pitch"] - pitch)
+            roll = -(self.desiredPosition["roll"] - roll)
+
         pitchEnc, rollEnc, yawEnc = self.encodeRotations(pitch, roll, yaw)
 
         state = self.encodeState(pitchEnc, rollEnc, yawEnc)
@@ -216,6 +226,12 @@ class Scene():
         startingRoll = int(random.randrange(-self.startingRollRange, self.startingRollRange))
         startingYaw = int(random.randrange(0, 360))
 
+        if(self.randomDesiredState):
+            destinationPitch = int(random.randrange(-self.desiredPitchRange, self.desiredPitchRange))
+            destinationRoll = int(random.randrange(-self.desiredRollRange, self.desiredRollRange))
+            self.desiredPosition["roll"] = destinationRoll
+            self.desiredPosition["pitch"] = destinationPitch
+
         angleRadPitch = math.radians(startingPitch)
         verticalVelocity = self.startingVelocity * math.sin(angleRadPitch)
         forwardVelocity = self.startingVelocity * math.cos(angleRadPitch)
@@ -242,4 +258,4 @@ class Scene():
 
         startingPosition = [startingRoll, startingPitch, startingYaw, northVelocity, eastVelocity, verticalVelocity]
 
-        return startingPosition
+        return startingPosition, [self.desiredPosition["roll"], self.desiredPosition["pitch"]]

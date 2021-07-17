@@ -5,7 +5,7 @@ import random
 
 class Scene():
 
-    def __init__(self, dictObservation, dictAction, actions, stateDepth, startingVelocity, startingPitchRange, startingRollRange, usePredefinedSeeds):
+    def __init__(self, dictObservation, dictAction, actions, stateDepth, startingVelocity, startingPitchRange, startingRollRange, usePredefinedSeeds, randomDesiredState, desiredPitchRange, desiredRollRange):
         self.dictObservation = dictObservation
         self.dictAction = dictAction
         self.n_actions = actions
@@ -14,6 +14,22 @@ class Scene():
         self.startingVelocity = startingVelocity
         self.startingPitchRange = startingPitchRange
         self.startingRollRange = startingRollRange
+        self.desiredPitchRange = desiredPitchRange
+        self.desiredRollRange = desiredRollRange
+        self.desiredPosition = {
+            "roll": 0,
+            "pitch": 0}
+        self.dictState = {
+            "pitch": 0,
+            "roll": 1,
+            "yaw": 2,
+            "P": 3,
+            "Q": 4,
+            "R": 5,
+            "Aoa": 6,
+            "AoS": 7}
+        self.randomDesiredState = randomDesiredState
+
         self.id = "sparseAttitude"
         if(usePredefinedSeeds):
             random.seed(42)
@@ -31,10 +47,14 @@ class Scene():
 
     def rewardFunction(self, action, newObservation, alt, alpha):
         reward = 0
+        observation = newObservation[:]
+        if(self.randomDesiredState):
+            observation[self.dictObservation["pitch"]] = -(self.desiredPosition["pitch"] - observation[self.dictObservation["pitch"]])
+            observation[self.dictObservation["roll"]] = -(self.desiredPosition["roll"] - observation[self.dictObservation["roll"]])
 
-        if(abs(newObservation[self.dictObservation["roll"]]) < 5 and abs(newObservation[self.dictObservation["pitch"]]) < 5):
+        if(abs(observation[self.dictObservation["roll"]]) < 5 and abs(observation[self.dictObservation["pitch"]]) < 5):
             reward = 10
-        if(newObservation[self.dictObservation["alt"]] <= 1000):
+        if(observation[self.dictObservation["alt"]] <= 1000):
             reward = -1
 
         done = False
@@ -96,6 +116,10 @@ class Scene():
         return ctrl, actions_binary
 
     def getDeepState(self, velocities, positions):
+        observation = positions[:]
+        if(self.randomDesiredState):
+            observation[self.dictState["pitch"]] = -(self.desiredPosition["pitch"] - observation[self.dictState["pitch"]])
+            observation[self.dictState["roll"]] = -(self.desiredPosition["roll"] - observation[self.dictState["roll"]])
         state = tuple(positions) + tuple(velocities)
         self.stateList.append(state)
         if(len(self.stateList) > self.stateDepth):
@@ -106,6 +130,10 @@ class Scene():
         pitch = observation[self.dictObservation["pitch"]]
         roll = observation[self.dictObservation["roll"]]
         yaw = observation[self.dictObservation["yaw"]]
+        if(self.randomDesiredState):
+            pitch = -(self.desiredPosition["pitch"] - pitch)
+            roll = -(self.desiredPosition["roll"] - roll)
+
         pitchEnc, rollEnc, yawEnc = self.encodeRotations(pitch, roll, yaw)
 
         state = self.encodeState(pitchEnc, rollEnc, yawEnc)
@@ -161,6 +189,12 @@ class Scene():
         startingRoll = int(random.randrange(-self.startingRollRange, self.startingRollRange))
         startingYaw = int(random.randrange(0, 360))
 
+        if(self.randomDesiredState):
+            destinationPitch = int(random.randrange(-self.desiredPitchRange, self.desiredPitchRange))
+            destinationRoll = int(random.randrange(-self.desiredRollRange, self.desiredRollRange))
+            self.desiredPosition["roll"] = destinationRoll
+            self.desiredPosition["pitch"] = destinationPitch
+
         angleRadPitch = math.radians(startingPitch)
         verticalVelocity = self.startingVelocity * math.sin(angleRadPitch)
         forwardVelocity = self.startingVelocity * math.cos(angleRadPitch)
@@ -187,4 +221,4 @@ class Scene():
 
         startingPosition = [startingRoll, startingPitch, startingYaw, northVelocity, eastVelocity, verticalVelocity]
 
-        return startingPosition
+        return startingPosition, [self.desiredPosition["roll"], self.desiredPosition["pitch"]]

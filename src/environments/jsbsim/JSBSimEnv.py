@@ -12,6 +12,7 @@ class Env():
         self.destinationPosition = dest
         self.previousPosition = orig
         self.startingOrientation = []
+        self.desiredState = []
         self.n_actions = n_acts
         self.dictObservation = dictObservation
         self.dictAction = dictAction
@@ -41,17 +42,18 @@ class Env():
         self.fdm.print_simulation_configuration()
 
     def send_posi(self, posi, rotation):
-        posi[self.dictObservation["pitch"]] = rotation[self.dictRotation["pitch"]]
-        posi[self.dictObservation["roll"]] = rotation[self.dictRotation["roll"]]
-        posi[self.dictObservation["yaw"]] = rotation[self.dictRotation["yaw"]]
+        position = posi[:]
+        position[self.dictObservation["pitch"]] = rotation[self.dictRotation["pitch"]]
+        position[self.dictObservation["roll"]] = rotation[self.dictRotation["roll"]]
+        position[self.dictObservation["yaw"]] = rotation[self.dictRotation["yaw"]]
 
-        self.fdm["ic/lat-gc-deg"] = posi[self.dictObservation["lat"]]  # Latitude initial condition in degrees
-        self.fdm["ic/long-gc-deg"] = posi[self.dictObservation["long"]]  # Longitude initial condition in degrees
-        self.fdm["ic/h-sl-ft"] = posi[self.dictObservation["alt"]]  # Height above sea level initial condition in feet
+        self.fdm["ic/lat-gc-deg"] = position[self.dictObservation["lat"]]  # Latitude initial condition in degrees
+        self.fdm["ic/long-gc-deg"] = position[self.dictObservation["long"]]  # Longitude initial condition in degrees
+        self.fdm["ic/h-sl-ft"] = position[self.dictObservation["alt"]]  # Height above sea level initial condition in feet
 
-        self.fdm["ic/theta-deg"] = posi[self.dictObservation["pitch"]]  # Pitch angle initial condition in degrees
-        self.fdm["ic/phi-deg"] = posi[self.dictObservation["roll"]]  # Roll angle initial condition in degrees
-        self.fdm["ic/psi-true-deg"] = posi[self.dictObservation["yaw"]]  # Heading angle initial condition in degrees
+        self.fdm["ic/theta-deg"] = position[self.dictObservation["pitch"]]  # Pitch angle initial condition in degrees
+        self.fdm["ic/phi-deg"] = position[self.dictObservation["roll"]]  # Roll angle initial condition in degrees
+        self.fdm["ic/psi-true-deg"] = position[self.dictObservation["yaw"]]  # Heading angle initial condition in degrees
 
     def send_velo(self, rotation):
 
@@ -144,7 +146,6 @@ class Env():
                 self.fdm.run()
 
         position = self.get_Posi()
-
         if self.qID == "deep" or self.qID == "doubleDeep":
             state = self.getDeepState(position)
         else:
@@ -155,11 +156,13 @@ class Env():
         reward, done = self.rewardFunction(action, position)
 
         info = [position, actions_binary, newCtrl]
+
         return state, reward, done, info
 
     def reset(self):
-        resetPosition = self.scenario.resetStartingPosition()
+        resetPosition, desintaionState = self.scenario.resetStartingPosition()
         self.startingOrientation = resetPosition
+        self.desiredState = desintaionState
         self.send_posi(self.startingPosition, resetPosition)
         self.send_velo(resetPosition)
 
@@ -171,4 +174,5 @@ class Env():
             state = self.getDeepState(new_posi)
         else:
             state = self.getState(new_posi)
+
         return state

@@ -47,8 +47,8 @@ startingVelocity = 60
 startingPitchRange = 10
 startingRollRange = 15
 randomDesiredState = True  # Set a new state to stabalize towards every episode
-desiredPitchRange = 15
-desiredRollRange = 15
+desiredPitchRange = 5
+desiredRollRange = 5
 
 
 dictObservation = {

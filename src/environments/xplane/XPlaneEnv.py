@@ -125,9 +125,10 @@ class Env():
 
     def get_Posi(self):
         client = self.xpc.XPlaneConnect()
-        r = client.getPOSI(0)
+        position = client.getPOSI(0)
         client.close()
-        return r
+        pos = list(position)
+        return pos
 
     def get_Ctrl(self):
         client = self.xpc.XPlaneConnect()
@@ -143,7 +144,9 @@ class Env():
     def getDeepState(self, observation):
         velocities = self.getVelo()
         positions = observation[3:-1]
+
         state = self.scenario.getDeepState(velocities, positions)
+
         return state
 
     def getState(self, observation):

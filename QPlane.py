@@ -36,7 +36,7 @@ decayRate = 0.00001  # Rate at which epsilon will decay per step
 epsilonMin = 0.1  # Minimum value at which epsilon will stop decaying
 n_epochsBeforeDecay = 10  # number of games to be played before epsilon starts to decay
 
-numOfInputs = 8  # Number of inputs fed to the model
+numOfInputs = 7  # Number of inputs fed to the model
 stateDepth = 1  # Number of old observations kept for current state. State will consist of s(t) ... s(t_n)
 minReplayMemSize = 1_000  # min size determines when the replay will start being used
 replayMemSize = 100_000  # Max size for the replay buffer

@@ -128,11 +128,11 @@ class Scene():
         return ctrl, actions_binary
 
     def getDeepState(self, velocities, positions):
-        observation = positions[:]
+        observation = positions[:self.dictState["yaw"]]  # positions except yaw
         if(self.randomDesiredState):
             observation[self.dictState["pitch"]] = -(self.desiredPosition["pitch"] - observation[self.dictState["pitch"]])
             observation[self.dictState["roll"]] = -(self.desiredPosition["roll"] - observation[self.dictState["roll"]])
-        state = tuple(positions) + tuple(velocities)
+        state = tuple(observation) + tuple(velocities)
         self.stateList.append(state)
         if(len(self.stateList) > self.stateDepth):
             self.stateList.pop(0)

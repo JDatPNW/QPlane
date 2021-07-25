@@ -106,6 +106,7 @@ movingEpRewards = {
     "epsilon": []}
 
 fallbackState = [0] * numOfInputs  # Used in case of connection error to XPlane
+fallbackState = [tuple(fallbackState)]
 
 # Will load previous results in case a experiment needs to be continued
 if(loadResults):

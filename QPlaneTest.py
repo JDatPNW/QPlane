@@ -85,6 +85,7 @@ flightDestinaion = [33.508, 126.487, 6000, -998, -998, -998, 1]  # Jeju SK
 #  Other locations to use: Memmingen: [47.988, 10.240], Chicago: [41.976, -87.902]
 
 fallbackState = [0] * numOfInputs  # Used in case of connection error to XPlane
+fallbackState = [tuple(fallbackState)]
 
 # Will load previous results in case a experiment needs to be continued
 if(loadResults):

@@ -47,13 +47,15 @@ class QLearn():
         # Check if explore or explore with current epsilon vs random number between 0 and 1
         if explorationTreshold > self.epsilon and len(state) == self.stateDepth:
             # explore, which means predicted action
-            action = np.argmax(self.model.getQs(state))
+            Qs = self.model.getQs(state)
+            action = np.argmax(Qs)
         else:
             # Explore, which means random action
             action = int(random.uniform(0, self.n_actions))
             explore = True
+            Qs = ["Random"]
 
-        self.currentTable = self.model.getQs(state)
+        self.currentTable = Qs
 
         # decay epsilon
         if(episode >= self.n_epochsBeforeDecay):

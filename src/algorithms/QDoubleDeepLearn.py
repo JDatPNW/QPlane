@@ -33,6 +33,8 @@ class QLearn():
         self.model = DQNAgent(inputs, self.n_actions, self.learningRate,
                               minReplay, replay, batch, self.gamma, update, loadModel, loadMemory, stateDepth)
 
+        self.modelSummary = self.model.modelSummary
+
         self.stateDepth = stateDepth
         self.id = "doubleDeep"
         self.currentTable = []
@@ -103,6 +105,7 @@ class DQNAgent:
         self.loadModel = loadModel
         self.loadMemory = loadMemory
         self.stateDepth = stateDepth
+        self.modelSummary = ""
 
         # The model used for training at every step
         self.model = self.createModel()
@@ -138,6 +141,7 @@ class DQNAgent:
         model.compile(loss="mse", optimizer=Adam(
             lr=self.learningRate), metrics=['accuracy'])
         model.summary()
+        self.modelSummary = str(model.get_config())
         return model
 
     # Adds the current data to the replayMemoryList - (observation space, action, reward, new observation space, done)
@@ -195,10 +199,12 @@ class DQNAgent:
         if done:
             self.targetUpdateCounter += 1
 
+        print(self.targetUpdateCounter)
         # If counter reaches set value, update target network with weights of main network
         if self.targetUpdateCounter > self.updateRate:
             self.targetModel.set_weights(self.model.get_weights())
             self.targetUpdateCounter = 0
+            print("I am HERE")
 
     # Queries main network for Q values given current observation space (environment state)
     def getQs(self, state):

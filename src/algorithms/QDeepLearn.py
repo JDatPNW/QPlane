@@ -33,6 +33,8 @@ class QLearn():
         self.model = DQNAgent(inputs, self.n_actions, self.learningRate,
                               minReplay, replay, batch, self.gamma, update, loadModel, loadMemory, stateDepth)
 
+        self.modelSummary = self.model.modelSummary
+
         self.stateDepth = stateDepth
         self.id = "deep"
         self.currentTable = []
@@ -54,16 +56,16 @@ class QLearn():
             action = int(random.uniform(0, self.n_actions))
             explore = True
             Qs = ["Random"]
-    
+
         self.currentTable = Qs
-    
+
         # decay epsilon
         if(episode >= self.n_epochsBeforeDecay):
             if(self.epsilon > self.epsMin):  # decay the value
                 self.epsilon = self.epsilon * (1 - self.decay)
             elif(self.epsilon < self.epsMin):  # if decayed too far set to min
                 self.epsilon = self.epsMin
-    
+
         return action, explore, self.epsilon
 
     # update q table
@@ -103,6 +105,7 @@ class DQNAgent:
         self.loadModel = loadModel
         self.loadMemory = loadMemory
         self.stateDepth = stateDepth
+        self.modelSummary = ""
 
         # The model used for training at every step
         self.model = self.createModel()
@@ -138,6 +141,7 @@ class DQNAgent:
         model.compile(loss="mse", optimizer=Adam(
             lr=self.learningRate), metrics=['accuracy'])
         model.summary()
+        self.modelSummary = str(model.get_config())
         return model
 
     # Adds the current data to the replayMemoryList - (observation space, action, reward, new observation space, done)

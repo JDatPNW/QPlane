@@ -105,11 +105,24 @@ Once downloaded and installed, simply execute the `QPlane.py` file to run and te
 * For the XPlane Environment, XPlane (the game) needs to run.
 * For JSBSim with rendering, Flightgear needs to run with the following flags `--fdm=null --native-fdm=socket,in,60,localhost,5550,udp --aircraft=c172r --airport=RKJJ`
 
+<!-- FEATURES -->
+## Features
+
+Currently implemented features include:
+* Swappable Flight Sim Environments (XPlane & JSBSim)
+* Swappable Algorithms (Q-Learning, DQN, DDQN)
+* Scenarios for ease of modification/addition
+* Logging, Saving, Reloading and Testing modes
+* Large number of modifiable parameters
+* Random Initial and Goal states
+
+
 <!-- ROADMAP -->
 ## Roadmap
 
 Planned future features are:
-* Double Deep Q Learning
+* OpenAI GYM Wrapper environment
+* PyTorch support
 
 
 <!-- CONTRIBUTING -->

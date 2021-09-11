@@ -198,12 +198,10 @@ class DQNAgent:
         if done:
             self.targetUpdateCounter += 1
 
-        print(self.targetUpdateCounter)
         # If counter reaches set value, update target network with weights of main network
         if self.targetUpdateCounter > self.updateRate:
             self.targetModel.set_weights(self.model.get_weights())
             self.targetUpdateCounter = 0
-            print("I am HERE")
 
     # Queries main network for Q values given current observation space (environment state)
     def getQs(self, state):

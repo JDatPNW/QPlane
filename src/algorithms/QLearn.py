@@ -22,7 +22,8 @@ class QLearn():
         self.saveForAutoReload = saveForAutoReload
         self.numGPUs = "not using tf"
         self.stateDepth = "no depth in regular QLearning"
-
+        self.modelSummary = "non Deep"
+        
         if(loadModel):
             self.qTable = np.load("model.npy")
 

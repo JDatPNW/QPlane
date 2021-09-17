@@ -112,26 +112,29 @@ def log(i_epoch, i_step, reward, logList):
     global timeStart  # Used to print time ellapsed between log calls
     global timeEnd  # Used to print time ellapsed between log calls
 
-    state = logList[1]
+    old_state = logList[0]
+    new_state = logList[1]
     actions_binary = logList[3]
     observation = logList[4]
     control = logList[5]
     explore = logList[6]
     currentEpsilon = logList[7]
     if(Q.id == "deep" or Q.id == "doubleDeep"):
-        depth = len(state)
+        depth = len(old_state)
         depth = "Depth " + str(depth)
-        state = state[-1]
+        old_state = old_state[-1]
+        new_state = new_state[-1]
     else:
         depth = ""
 
     timeEnd = time.time()  # End timer here
     print("\t\tGame ", i_epoch,
           "\n\t\t\tMove ", i_step,
-          "\n\t\t\tStarting Rotation ", env.startingOrientation,
+          "\n\t\t\tStarting Rotation ", np.array(env.startingOrientation).round(logDecimals),
           "\n\t\t\tDestination Rotation ", env.desiredState,
           "\n\t\t\tTime taken ", timeEnd - timeStart,
-          "\n\t\t\tState ", np.array(state).round(logDecimals), depth,
+          "\n\t\t\tOld State ", np.array(old_state).round(logDecimals), depth,
+          "\n\t\t\tNew State ", np.array(new_state).round(logDecimals), depth,
           "\n\t\t\t\t\t[p+,p-,r+,r-]",
           "\n\t\t\tactions_binary = ", actions_binary,
           "\n\t\t\tCurrent Control:", control,

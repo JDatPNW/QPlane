@@ -153,6 +153,8 @@ def log(i_epoch, i_step, reward, logList):
 def step(i_step, done, reward, oldState):
     global errors
 
+    if(Q.id == "deep" or Q.id == "doubleDeep"):
+        oldState = list(oldState)
     action, explore, currentEpsilon = Q.selectAction(oldState, i_epoch, n_epochs)
 
     # Check if connections can be established 10x
@@ -182,7 +184,11 @@ def step(i_step, done, reward, oldState):
     control = info[2]
 
     logList = [oldState, newState, action, actions_binary, newPosition, control, explore, currentEpsilon]
-    oldState = newState
+
+    if(Q.id == "deep" or Q.id == "doubleDeep"):
+        oldState = list(newState)
+    else:
+        oldState = newState
     return done, reward, logList, oldState
 
 

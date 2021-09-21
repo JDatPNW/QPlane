@@ -3,9 +3,8 @@ import random
 import os
 import pickle
 import tensorflow as tf
-from tensorflow.keras import Input
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Flatten
+from tensorflow.keras.layers import Dense, Flatten, InputLayer
 from tensorflow.keras.optimizers import Adam
 from collections import deque
 
@@ -132,13 +131,13 @@ class DQNAgent:
     def createModel(self):
         modelShape = (self.stateDepth, self.numOfInputs, )
         model = Sequential()
-        model.add(Input(shape=modelShape))
+        model.add(InputLayer(input_shape=modelShape))
         model.add(Flatten())
         model.add(Dense(int(128), activation='relu'))
         model.add(Dense(int(128), activation='relu'))
         model.add(Dense(self.numOfOutputs, activation='linear'))
         model.compile(loss="mse", optimizer=Adam(
-            lr=self.learningRate), metrics=['accuracy'])
+            learning_rate=self.learningRate), metrics=['accuracy'])
         model.summary()
         self.modelSummary = str(model.get_config())
         return model

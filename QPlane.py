@@ -275,7 +275,7 @@ def epoch(i_epoch):
 
     epochRewards.append(epochReward)
     epochQs.append(epochQ)
-    if(i_epoch % movingRate == 0):
+    if(i_epoch % movingRate == 0 and i_epoch != 0):
         movingEpRewards["epoch"].append(i_epoch)
         averageReward = sum(epochRewards[-movingRate:]) / len(epochRewards[-movingRate:])
         movingEpRewards["average"].append(averageReward)

@@ -9,6 +9,8 @@ from src.scenarios.deltaAttitudeControlScene import Scene  # can be deltaAttitud
 
 experimentName = "Experiment"
 
+notes = "This experiment was run with..."  # add notes that will be saved to the setup file to clearify the experiment setup better
+
 dateTime = str(time.ctime(time.time()))
 dateTime = dateTime.replace(":", "-")
 dateTime = dateTime.replace(" ", "_")
@@ -134,7 +136,7 @@ if not os.path.exists("./Experiments/" + experimentName):
     setup = f"{experimentName=}\n{Q.numGPUs=}\n{dateTime=}\nendTime=not yet defined - first save\n{Q.id=}\n{env.id=}\n{scene.id=}\n{pauseDelay=}\n{n_epochs=}\n"
     setup += f"{n_steps=}\n{n_actions=}\n{n_states=} - states for non deep\n{gamma=}\n{lr=}\n{epsilon=}\n{decayRate=}\n{epsilonMin=}\n{n_epochsBeforeDecay=}\n"
     setup += f"{numOfInputs=} - states for deep\n{minReplayMemSize=}\n{replayMemSize=}\n{batchSize=}\n{updateRate=}\n{loadModel=}\n{movingRate=}\n"
-    setup += f"{randomDesiredState=}\n{desiredRollRange=}\n{desiredPitchRange=}\n{startingRollRange=}\n{startingPitchRange=}\n{startingVelocity=}\n{stateDepth=}\n{Q.modelSummary=}\n"
+    setup += f"{randomDesiredState=}\n{desiredRollRange=}\n{desiredPitchRange=}\n{startingRollRange=}\n{startingPitchRange=}\n{startingVelocity=}\n{stateDepth=}\n{Q.modelSummary=}\n{notes=}\n"
     print(setup, file=open("./Experiments/" + str(experimentName) + "/setup.out", 'w'))  # saves hyperparameters to the experiment folder
 
 
@@ -313,7 +315,7 @@ endTime = str(time.ctime(time.time()))
 setup = f"{experimentName=}\n{Q.numGPUs=}\n{dateTime=}\n{endTime=}\n{Q.id=}\n{env.id=}\n{scene.id=}\n{pauseDelay=}\n{n_epochs=}\n"
 setup += f"{n_steps=}\n{n_actions=}\n{n_states=} - states for non deep\n{gamma=}\n{lr=}\n{epsilon=}\n{decayRate=}\n{epsilonMin=}\n{n_epochsBeforeDecay=}\n"
 setup += f"{numOfInputs=} - states for deep\n{minReplayMemSize=}\n{replayMemSize=}\n{batchSize=}\n{updateRate=}\n{loadModel=}\n{movingRate=}\n"
-setup += f"{randomDesiredState=}\n{desiredRollRange=}\n{desiredPitchRange=}\n{startingRollRange=}\n{startingPitchRange=}\n{startingVelocity=}\n{stateDepth=}\n{Q.modelSummary=}\n"
+setup += f"{randomDesiredState=}\n{desiredRollRange=}\n{desiredPitchRange=}\n{startingRollRange=}\n{startingPitchRange=}\n{startingVelocity=}\n{stateDepth=}\n{Q.modelSummary=}\n{notes=}\n"
 print(setup, file=open("./Experiments/" + str(experimentName) + "/setup.out", 'w'))  # saves hyperparameters to the experiment folder
 
 print("<<<<<<<<<<<<<<<<<<<<DONE>>>>>>>>>>>>>>>>>>>>>")

@@ -3,7 +3,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-selector = "rewards"  # Canbe "pitch", "roll", or "rewards"
+selector = "pitch"  # Canbe "pitch", "roll", or "rewards"
 
 plotList = []
 dir = "./"

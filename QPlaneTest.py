@@ -1,11 +1,20 @@
 import socket
 import time
 import numpy as np
+import os
 from src.algorithms.QDoubleDeepLearn import QLearn  # can be QLearn, QDeepLearn, QDoubleDeepLearn or RandomAgent
 from src.environments.jsbsim.JSBSimEnv import Env  # can be jsbsim.JSBSimEnv or xplane.XPlaneEnv
 from src.scenarios.deltaAttitudeControlScene import Scene  # can be deltaAttitudeControlScene, sparseAttitudeControlScene or cheatingAttitudeControlScene
 
 errors = 0.0  # counts everytime the UDP packages are lost on all retries
+
+experimentName = "Testing"
+
+dateTime = str(time.ctime(time.time()))
+dateTime = dateTime.replace(":", "-")
+dateTime = dateTime.replace(" ", "_")
+experimentName = experimentName + "-" + dateTime
+
 
 timeStart = time.time()  # used to measure time
 timeEnd = time.time()  # used to measure time
@@ -15,7 +24,7 @@ pauseDelay = 0.01  # time an action is being applied to the environment
 logDecimals = 4  # sets decimals for np.arrays to X for printing
 np.set_printoptions(precision=logDecimals)  # sets decimals for np.arrays to X for printing
 
-n_epochs = 5_000  # Number of generations
+n_epochs = 5  # Number of generations
 n_steps = 2_500  # Number of inputs per generation
 n_actions = 4  # Number of possible inputs to choose from
 
@@ -36,12 +45,13 @@ updateRate = 5  # update target model every so many episodes
 startingOffset = 0  # is used if previous Results are loaded.
 
 loadModel = True  # will load "model.h5" for tf if True (model.npy for non-Deep)
-loadMemory = True  # will load "memory.pickle" if True
-loadResults = True  # will load "results.npy" if True
+loadMemory = False  # will load "memory.pickle" if True
+loadResults = False  # will load "results.npy" if True
 jsbRender = True  # will send UDP data to flight gear for rendering if True
-jsbRealTime = True  # will slow down the physics to portrait real time rendering
-usePredefinedSeeds = True  # Sets seeds for tf, np and random for more replicable results (not fully replicable due to stochastic environments)
+jsbRealTime = False  # will slow down the physics to portrait real time rendering
+usePredefinedSeeds = False  # Sets seeds for tf, np and random for more replicable results (not fully replicable due to stochastic environments)
 saveForAutoReload = False  # Saves and overrides models, results and memory to the root
+plotTest = True  # Will plot roll, pitch and reward per episode
 
 startingVelocity = 60
 startingPitchRange = 10
@@ -50,6 +60,9 @@ randomDesiredState = True  # Set a new state to stabalize towards every episode
 desiredPitchRange = 5
 desiredRollRange = 5
 
+rewardListSingleEpisode = []
+pitchListSingleEpisode = []
+rollListSingleEpisode = []
 
 dictObservation = {
     "lat": 0,
@@ -106,6 +119,9 @@ scene = Scene(dictObservation, dictAction, n_actions, stateDepth, startingVeloci
 env = Env(scene, flightOrigin, flightDestinaion, n_actions, usePredefinedSeeds,
           dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender, jsbRealTime)
 
+if not os.path.exists("./TestingResults/" + experimentName):
+    os.makedirs("./TestingResults/" + experimentName)
+
 
 # prints out all metrics
 def log(i_epoch, i_step, reward, logList):
@@ -152,6 +168,14 @@ def log(i_epoch, i_step, reward, logList):
 # A single step(input), this will repeat n_steps times throughout a epoch
 def step(i_step, done, reward, oldState):
     global errors
+    global rewardListSingleEpisode
+    global pitchListSingleEpisode
+    global rollListSingleEpisode
+
+    if(i_step == 0):
+        rewardListSingleEpisode = []
+        pitchListSingleEpisode = []
+        rollListSingleEpisode = []
 
     if(Q.id == "deep" or Q.id == "doubleDeep"):
         oldState = list(oldState)
@@ -184,7 +208,9 @@ def step(i_step, done, reward, oldState):
     control = info[2]
 
     logList = [oldState, newState, action, actions_binary, newPosition, control, explore, currentEpsilon]
-
+    rewardListSingleEpisode.append(reward)
+    pitchListSingleEpisode.append(newPosition[3])
+    rollListSingleEpisode.append(newPosition[4])
     if(Q.id == "deep" or Q.id == "doubleDeep"):
         oldState = list(newState)
     else:
@@ -195,6 +221,10 @@ def step(i_step, done, reward, oldState):
 # A epoch is one full run, from respawn/reset to the final step.
 def epoch(i_epoch):
     global errors
+    global rewardListSingleEpisode
+    global pitchListSingleEpisode
+    global rollListSingleEpisode
+
     epochReward = 0
     epochQ = 0
     for attempt in range(25):
@@ -226,6 +256,10 @@ def epoch(i_epoch):
 
         if done:
             break
+    if(plotTest):
+        np.save("./TestingResults/" + str(experimentName) + "/rewards_ep" + str(i_epoch) + ".npy", rewardListSingleEpisode)
+        np.save("./TestingResults/" + str(experimentName) + "/pitch_ep" + str(i_epoch) + ".npy", pitchListSingleEpisode)
+        np.save("./TestingResults/" + str(experimentName) + "/roll_ep" + str(i_epoch) + ".npy", rollListSingleEpisode)
 
 
 for i_epoch in range(n_epochs + 1):

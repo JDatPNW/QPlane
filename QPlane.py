@@ -23,7 +23,7 @@ timeEnd = time.time()  # used to measure time
 logPeriod = 100  # every so many epochs the metrics will be printed into the console
 savePeriod = 25  # every so many epochs the table/model will be saved to a file
 movingRate = 1  # Is multiplied with savePeriod The rate at which the metrics will be averaged and saved and plotted.
-pauseDelay = 0.01  # time an action is being applied to the environment
+pauseDelay = 0.1  # time an action is being applied to the environment
 logDecimals = 0  # sets decimals for np.arrays to X for printing
 np.set_printoptions(precision=logDecimals)  # sets decimals for np.arrays to X for printing
 
@@ -32,7 +32,7 @@ n_steps = 1_000  # Number of inputs per generation
 n_actions = 4  # Number of possible inputs to choose from
 
 n_states = 182  # Number of states for non-Deep QLearning
-gamma = 0.95  # The discount rate - between 0 an 1!  if = 0 then no learning, ! The higher it is the more the new q will factor into the update of the q value
+gamma = 0.75  # The discount rate - between 0 an 1!  if = 0 then no learning, ! The higher it is the more the new q will factor into the update of the q value
 lr = 0.0001  # Learning Rate. Deep ~0.0001 / non-Deep ~0.01 - If LR is 0 then the Q value would not update. The higher the value the quicker the agent will adopt the NEW Q value. If lr = 1, the updated value would be exactly be the newly calculated q value, completely ignoring the previous one
 epsilon = 1.0  # Starting Epsilon Rate, affects the exploration probability. Will decay
 decayRate = 0.00001  # Rate at which epsilon will decay per step
@@ -53,7 +53,7 @@ loadResults = False  # will load "results.npy" if True
 jsbRender = False  # will send UDP data to flight gear for rendering if True
 jsbRealTime = False  # will slow down the physics to portrait real time rendering
 usePredefinedSeeds = False  # Sets seeds for tf, np and random for more replicable results (not fully replicable due to stochastic environments)
-saveResultsToPlot = False  # Saves results to png in the experiment folder at runetime
+saveResultsToPlot = True  # Saves results to png in the experiment folder at runetime
 saveForAutoReload = False  # Saves and overrides models, results and memory to the root
 
 startingVelocity = 60

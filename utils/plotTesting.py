@@ -16,9 +16,9 @@ if(selector == "rewards"):
     regex = re.compile("rewards_ep*")
 
 for root, dirs, files in os.walk(dir):
-  for file in files:
-    if regex.match(file):
-       plotList.append([np.load(file, allow_pickle=True), file])
+    for file in files:
+        if regex.match(file):
+            plotList.append([np.load(file, allow_pickle=True), file])
 
 for i in range(len(plotList)):
     plt.plot(plotList[i][0], label=plotList[i][1])

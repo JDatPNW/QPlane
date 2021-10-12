@@ -12,7 +12,7 @@ if(selector == "pitch"):
 
 elif(selector == "roll"):
     regex = re.compile("roll_ep*")
-if(selector == "rewards"):
+elif(selector == "rewards"):
     regex = re.compile("rewards_ep*")
 
 for root, dirs, files in os.walk(dir):

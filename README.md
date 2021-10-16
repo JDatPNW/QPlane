@@ -105,6 +105,17 @@ Once downloaded and installed, simply execute the `QPlane.py` file to run and te
 * For the XPlane Environment, XPlane (the game) needs to run.
 * For JSBSim with rendering, Flightgear needs to run with the following flags `--fdm=null --native-fdm=socket,in,60,localhost,5550,udp --aircraft=c172r --airport=RKJJ`
 
+<!-- Proof -->
+## Proof
+This gif shows an attitude agent (using Q-Learning) in action and compares it to the baseline random agent.
+
+<p align="center">
+    <img src="misc/proof.gif" alt="Logo" width="80%">
+</p>
+
+[Full Video in HD](https://www.youtube.com/watch?v=Puq8paN3BKs)
+
+
 <!-- ROADMAP -->
 ## Roadmap
 

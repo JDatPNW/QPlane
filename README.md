@@ -137,6 +137,11 @@ Distributed under the MIT License. See `misc/LICENSE` for more information.
 
 Github Pages: [JDatPNW](https://github.com/JDatPNW/JDatPNW.github.io)
 
+<!-- Publications -->
+## Publications
+* [ACM MMSys'21 - QPlane: An Open-Source Reinforcement Learning Toolkit for Autonomous Fixed Wing Aircraft Simulation](https://dl.acm.org/doi/abs/10.1145/3458305.3478446)
+  * [ACM MMSys'21 Presentation](https://youtu.be/F0RdZFW1EWw)
+
 <!-- Citation -->
 ## Citation
 
@@ -144,15 +149,15 @@ Please cite `QPlane` if you use it in your research.
 ```tex
 @inproceedings{richter2021qplane,
   title={QPlane: An Open-Source Reinforcement Learning Toolkit for Autonomous Fixed Wing Aircraft Simulation},
-  author={Richter, David J. and Calix, Ricardo A.},
+  author={Richter, David J and Calix, Ricardo A},
   booktitle={Proceedings of the 12th ACM Multimedia Systems Conference},
-  pages={xxx--xxx},
+  pages={261--266},
   year={2021}
 }
 ```
 or
 
-> Richter, D., & Calix, R. (2021). QPlane: An Open-Source Reinforcemet Learning Toolkit for Autonomous Fixed Wing Aircraft Simulation. In Proceedings of the 12th ACM Multimedia Systems Conference (pp. xx-xx), Sept. 28-Oct1, 2021.
+> Richter, D. J., & Calix, R. A. (2021, June). QPlane: An Open-Source Reinforcement Learning Toolkit for Autonomous Fixed Wing Aircraft Simulation. In Proceedings of the 12th ACM Multimedia Systems Conference (pp. 261-266).
 
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements

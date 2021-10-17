@@ -146,7 +146,7 @@ Distributed under the MIT License. See `misc/LICENSE` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Github Pages: [JDatPNW](https://github.com/JDatPNW/JDatPNW.github.io)
+Github Pages: [JDatPNW](https://JDatPNW.github.io)
 
 <!-- Publications -->
 ## Publications

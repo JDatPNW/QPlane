@@ -2,7 +2,6 @@
 X-Plane.lnk
 FlightGear.lnk
 Experiments/*
-TestingResults/*
 utils/*.npy
 *.h5
 *.npy

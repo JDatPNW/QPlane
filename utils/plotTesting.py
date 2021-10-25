@@ -24,7 +24,7 @@ for i in range(len(plotList)):
     plt.plot(plotList[i][0], label=plotList[i][1])
 
 
-plt.title(selector + " per Step over Episode")
+plt.title(selector.capitalize() + " per Step over Episode")
 plt.xlabel("steps")
 plt.ylabel(selector)
 plt.legend(loc=4)

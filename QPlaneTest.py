@@ -7,8 +7,10 @@ from src.environments.jsbsim.JSBSimEnv import Env  # can be jsbsim.JSBSimEnv or 
 from src.scenarios.deltaAttitudeControlScene import Scene  # can be deltaAttitudeControlScene, sparseAttitudeControlScene or cheatingAttitudeControlScene
 
 errors = 0.0  # counts everytime the UDP packages are lost on all retries
+connectAttempts = 0.0  # counts everytime the UDP packages are lost on a single retry
 
 experimentName = "Testing"
+notes = "This experiment was run..."  # add notes that will be saved to the setup file to clearify the experiment setup better
 
 dateTime = str(time.ctime(time.time()))
 dateTime = dateTime.replace(":", "-")
@@ -121,6 +123,11 @@ env = Env(scene, flightOrigin, flightDestinaion, n_actions, usePredefinedSeeds,
 
 if not os.path.exists("./TestingResults/" + experimentName):
     os.makedirs("./TestingResults/" + experimentName)
+    setup = f"{experimentName=}\n{Q.numGPUs=}\n{dateTime=}\nendTime=not yet defined - first save\n{Q.id=}\n{env.id=}\n{scene.id=}\n{pauseDelay=}\n{n_epochs=}\n"
+    setup += f"{n_steps=}\n{n_actions=}\n{n_states=} - states for non deep\n{gamma=}\n{lr=}\n{epsilon=}\n{decayRate=}\n{epsilonMin=}\n{n_epochsBeforeDecay=}\n"
+    setup += f"{numOfInputs=} - states for deep\n{minReplayMemSize=}\n{replayMemSize=}\n{batchSize=}\n{updateRate=}\n{loadModel=}\n"
+    setup += f"{randomDesiredState=}\n{desiredRollRange=}\n{desiredPitchRange=}\n{startingRollRange=}\n{startingPitchRange=}\n{startingVelocity=}\n{stateDepth=}\n{Q.modelSummary=}\n{notes=}\n"
+    print(setup, file=open("./TestingResults/" + str(experimentName) + "/setup.out", 'w'))  # saves hyperparameters to the experiment folder
 
 
 # prints out all metrics
@@ -160,6 +167,7 @@ def log(i_epoch, i_step, reward, logList):
           "\n\t\t\tExplored (Random): ", explore,
           "\n\t\t\tCurrent Epsilon: ", currentEpsilon,
           "\n\t\t\tCurrent Reward: ", reward,
+          "\n\t\t\tReconnects Percentage & Count: ", float(connectAttempts / (i_epoch * n_steps + i_step + 1)), ",", connectAttempts,
           "\n\t\t\tError Percentage & Count: ", float(errors / (i_epoch * n_steps + i_step + 1)), ",", errors,
           "\n\t\t\tError Code: ", dictErrors, "\n")
     timeStart = time.time()  # Start timer here
@@ -168,6 +176,7 @@ def log(i_epoch, i_step, reward, logList):
 # A single step(input), this will repeat n_steps times throughout a epoch
 def step(i_step, done, reward, oldState):
     global errors
+    global connectAttempts
     global rewardListSingleEpisode
     global pitchListSingleEpisode
     global rollListSingleEpisode
@@ -189,6 +198,7 @@ def step(i_step, done, reward, oldState):
                 done = True  # mark done if episode is finished
         except socket.error as socketError:  # the specific error for connections used by xpc
             dictErrors["step"] = socketError
+            connectAttempts += 1
             continue
         else:
             break
@@ -221,6 +231,7 @@ def step(i_step, done, reward, oldState):
 # A epoch is one full run, from respawn/reset to the final step.
 def epoch(i_epoch):
     global errors
+    global connectAttempts
     global rewardListSingleEpisode
     global pitchListSingleEpisode
     global rollListSingleEpisode
@@ -232,6 +243,7 @@ def epoch(i_epoch):
             oldState = env.reset()
         except socket.error as socketError:  # the specific error for connections used by xpc
             dictErrors["reset"] = socketError
+            connectAttempts += 1
             continue
         else:
             break
@@ -264,5 +276,14 @@ def epoch(i_epoch):
 
 for i_epoch in range(n_epochs + 1):
     epoch(i_epoch)
+
+endTime = str(time.ctime(time.time()))
+
+setup = f"{experimentName=}\n{Q.numGPUs=}\n{dateTime=}\n{endTime=}\n{Q.id=}\n{env.id=}\n{scene.id=}\n{pauseDelay=}\n{n_epochs=}\n"
+setup += f"{n_steps=}\n{n_actions=}\n{n_states=} - states for non deep\n{gamma=}\n{lr=}\n{epsilon=}\n{decayRate=}\n{epsilonMin=}\n{n_epochsBeforeDecay=}\n"
+setup += f"{numOfInputs=} - states for deep\n{minReplayMemSize=}\n{replayMemSize=}\n{batchSize=}\n{updateRate=}\n{loadModel=}\n"
+setup += f"{randomDesiredState=}\n{desiredRollRange=}\n{desiredPitchRange=}\n{startingRollRange=}\n{startingPitchRange=}\n{startingVelocity=}\n{stateDepth=}\n{Q.modelSummary=}\n{notes=}\n"
+print(setup, file=open("./Experiments/" + str(experimentName) + "/setup.out", 'w'))  # saves hyperparameters to the experiment folder
+
 
 print("<<<<<<<<<<<<<<<<<<<<DONE>>>>>>>>>>>>>>>>>>>>>")

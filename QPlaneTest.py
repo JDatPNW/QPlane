@@ -95,7 +95,7 @@ dictRotation = {
     "verticalVelo": 5}
 
 # -998->NO CHANGE
-flightOrigin = [35.126, 126.809, 6000, 0, 0, 0, 1]  # Gwangju SK
+flightOrigin = [35.126, 126.809, 14_000, 0, 0, 0, 1]  # Gwangju SK
 flightDestinaion = [33.508, 126.487, 6000, -998, -998, -998, 1]  # Jeju SK
 #  Other locations to use: Memmingen: [47.988, 10.240], Chicago: [41.976, -87.902]
 
@@ -283,7 +283,7 @@ setup = f"{experimentName=}\n{Q.numGPUs=}\n{dateTime=}\n{endTime=}\n{Q.id=}\n{en
 setup += f"{n_steps=}\n{n_actions=}\n{n_states=} - states for non deep\n{gamma=}\n{lr=}\n{epsilon=}\n{decayRate=}\n{epsilonMin=}\n{n_epochsBeforeDecay=}\n"
 setup += f"{numOfInputs=} - states for deep\n{minReplayMemSize=}\n{replayMemSize=}\n{batchSize=}\n{updateRate=}\n{loadModel=}\n"
 setup += f"{randomDesiredState=}\n{desiredRollRange=}\n{desiredPitchRange=}\n{startingRollRange=}\n{startingPitchRange=}\n{startingVelocity=}\n{stateDepth=}\n{Q.modelSummary=}\n{notes=}\n"
-print(setup, file=open("./Experiments/" + str(experimentName) + "/setup.out", 'w'))  # saves hyperparameters to the experiment folder
+print(setup, file=open("./TestingResults/" + str(experimentName) + "/setup.out", 'w'))  # saves hyperparameters to the experiment folder
 
 
 print("<<<<<<<<<<<<<<<<<<<<DONE>>>>>>>>>>>>>>>>>>>>>")

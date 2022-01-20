@@ -105,24 +105,22 @@ Once downloaded and installed, simply execute the `QPlane.py` file to run and te
 * For the XPlane Environment, XPlane (the game) needs to run.
 * For JSBSim with rendering, Flightgear needs to run with the following flags `--fdm=null --native-fdm=socket,in,60,localhost,5550,udp --aircraft=c172r --airport=RKJJ`
 
-<!-- FEATURES -->
-## Features
+<!-- Proof -->
+## Proof
+This gif shows an attitude agent (using Q-Learning) in action and compares it to the baseline random agent.
 
-Currently implemented features include:
-* Swappable Flight Sim Environments (XPlane & JSBSim)
-* Swappable Algorithms (Q-Learning, DQN, DDQN)
-* Scenarios for ease of modification/addition
-* Logging, Saving, Reloading and Testing modes
-* Large number of modifiable parameters
-* Random Initial and Goal states
+<p align="center">
+    <img src="misc/proof.gif" alt="Logo" width="80%">
+</p>
+
+[Full Video in HD](https://www.youtube.com/watch?v=Puq8paN3BKs)
 
 
 <!-- ROADMAP -->
 ## Roadmap
 
 Planned future features are:
-* OpenAI GYM Wrapper environment
-* PyTorch support
+* Double Deep Q Learning
 
 
 <!-- CONTRIBUTING -->
@@ -148,9 +146,29 @@ Distributed under the MIT License. See `misc/LICENSE` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Github Pages: [JDatPNW](https://github.com/JDatPNW/JDatPNW.github.io)
+Github Pages: [JDatPNW](https://JDatPNW.github.io)
 
+<!-- Publications -->
+## Publications
+* [ACM MMSys'21 - QPlane: An Open-Source Reinforcement Learning Toolkit for Autonomous Fixed Wing Aircraft Simulation](https://dl.acm.org/doi/abs/10.1145/3458305.3478446)
+  * [ACM MMSys'21 Presentation](https://youtu.be/F0RdZFW1EWw)
 
+<!-- Citation -->
+## Citation
+
+Please cite `QPlane` if you use it in your research.
+```tex
+@inproceedings{richter2021qplane,
+  title={QPlane: An Open-Source Reinforcement Learning Toolkit for Autonomous Fixed Wing Aircraft Simulation},
+  author={Richter, David J and Calix, Ricardo A},
+  booktitle={Proceedings of the 12th ACM Multimedia Systems Conference},
+  pages={261--266},
+  year={2021}
+}
+```
+or
+
+> Richter, D. J., & Calix, R. A. (2021, June). QPlane: An Open-Source Reinforcement Learning Toolkit for Autonomous Fixed Wing Aircraft Simulation. In Proceedings of the 12th ACM Multimedia Systems Conference (pp. 261-266).
 
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements

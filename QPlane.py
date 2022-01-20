@@ -2,10 +2,15 @@ import socket
 import time
 import os
 import numpy as np
-from src.algorithms.QDoubleDeepLearn import QLearn  # can be QLearn, QDeepLearn or QDoubleDeepLearn
+import matplotlib.pyplot as plt
+from src.algorithms.QDoubleDeepLearn import QLearn  # can be QLearn, QDeepLearn, QDoubleDeepLearn or RandomAgent
 from src.environments.jsbsim.JSBSimEnv import Env  # can be jsbsim.JSBSimEnv or xplane.XPlaneEnv
+from src.scenarios.deltaAttitudeControlScene import Scene  # can be deltaAttitudeControlScene, sparseAttitudeControlScene or cheatingAttitudeControlScene
 
 experimentName = "Experiment"
+connectAttempts = 0.0  # counts everytime the UDP packages are lost on a single retry
+
+notes = "This experiment was run with..."  # add notes that will be saved to the setup file to clearify the experiment setup better
 
 dateTime = str(time.ctime(time.time()))
 dateTime = dateTime.replace(":", "-")
@@ -16,25 +21,27 @@ errors = 0.0  # counts everytime the UDP packages are lost on all retries
 
 timeStart = time.time()  # used to measure time
 timeEnd = time.time()  # used to measure time
-logPeriod = 10  # every so many epochs the metrics will be printed into the console
+logPeriod = 100  # every so many epochs the metrics will be printed into the console
 savePeriod = 25  # every so many epochs the table/model will be saved to a file
-pauseDelay = 0.01  # time an action is being applied to the environment
+movingRate = 1  # Is multiplied with savePeriod The rate at which the metrics will be averaged and saved and plotted.
+pauseDelay = 0.1  # time an action is being applied to the environment
 logDecimals = 0  # sets decimals for np.arrays to X for printing
 np.set_printoptions(precision=logDecimals)  # sets decimals for np.arrays to X for printing
 
-n_epochs = 5000  # Number of generations
-n_steps = 1000  # Number of inputs per generation
+n_epochs = 50_000  # Number of generations
+n_steps = 1_000  # Number of inputs per generation
 n_actions = 4  # Number of possible inputs to choose from
 
-n_states = 729  # Number of states for non-Deep QLearning
-gamma = 0.95  # The discount rate - between 0 an 1!  if = 0 then no learning, ! The higher it is the more the new q will factor into the update of the q value
+n_states = 182  # Number of states for non-Deep QLearning
+gamma = 0.75  # The discount rate - between 0 an 1!  if = 0 then no learning, ! The higher it is the more the new q will factor into the update of the q value
 lr = 0.0001  # Learning Rate. Deep ~0.0001 / non-Deep ~0.01 - If LR is 0 then the Q value would not update. The higher the value the quicker the agent will adopt the NEW Q value. If lr = 1, the updated value would be exactly be the newly calculated q value, completely ignoring the previous one
 epsilon = 1.0  # Starting Epsilon Rate, affects the exploration probability. Will decay
 decayRate = 0.00001  # Rate at which epsilon will decay per step
 epsilonMin = 0.1  # Minimum value at which epsilon will stop decaying
 n_epochsBeforeDecay = 10  # number of games to be played before epsilon starts to decay
 
-numOfInputs = 8  # Number of inputs fed to the model
+numOfInputs = 7  # Number of inputs fed to the model
+stateDepth = 1  # Number of old observations kept for current state. State will consist of s(t) ... s(t_n)
 minReplayMemSize = 1_000  # min size determines when the replay will start being used
 replayMemSize = 100_000  # Max size for the replay buffer
 batchSize = 256  # Batch size for the model
@@ -47,7 +54,15 @@ loadResults = False  # will load "results.npy" if True
 jsbRender = False  # will send UDP data to flight gear for rendering if True
 jsbRealTime = False  # will slow down the physics to portrait real time rendering
 usePredefinedSeeds = False  # Sets seeds for tf, np and random for more replicable results (not fully replicable due to stochastic environments)
+saveResultsToPlot = True  # Saves results to png in the experiment folder at runetime
 saveForAutoReload = False  # Saves and overrides models, results and memory to the root
+
+startingVelocity = 60
+startingPitchRange = 10
+startingRollRange = 15
+randomDesiredState = True  # Set a new state to stabalize towards every episode
+desiredPitchRange = 5
+desiredRollRange = 5
 
 dictObservation = {
     "lat": 0,
@@ -70,33 +85,22 @@ dictErrors = {
     "update": 0,
     "step": 0}
 dictRotation = {
-    "pitch": 0,
-    "roll": 1,
-    "velocityY": 2}
+    "roll": 0,
+    "pitch": 1,
+    "yaw": 2,
+    "northVelo": 3,
+    "eastVelo": 4,
+    "verticalVelo": 5}
 
 # -998->NO CHANGE
 flightOrigin = [35.126, 126.809, 6000, 0, 0, 0, 1]  # Gwangju SK
 flightDestinaion = [33.508, 126.487, 6000, -998, -998, -998, 1]  # Jeju SK
-startingVelocity = -55
 #  Other locations to use: Memmingen: [47.988, 10.240], Chicago: [41.976, -87.902]
-
-flightStartPitch = 10  # Will be used as -value / 0 / value
-flightStartRoll = 15  # Will be used as -value / 0 / value
-flightStartVelocityY = 10  # Will be used as -value / 0 / value
-
-flightStartRotation = [[-flightStartPitch, -flightStartRoll, -flightStartVelocityY],
-                       [-flightStartPitch, 0, -flightStartVelocityY],
-                       [-flightStartPitch, flightStartRoll, -flightStartVelocityY],
-                       [0, -flightStartRoll, -0],
-                       [0, 0, 0],
-                       [0, flightStartRoll, 0],
-                       [flightStartPitch, -flightStartRoll, flightStartVelocityY],
-                       [flightStartPitch, 0, flightStartVelocityY],
-                       [flightStartPitch, flightStartRoll, flightStartVelocityY]]
 
 epochRewards = []
 epochQs = []
-movingRate = 3 * len(flightStartRotation)  # Number given in number * len(flightStartRotation)
+movingRate = savePeriod * movingRate  # gives the number by which the moving average will be done, best if n * savePeriod
+
 movingEpRewards = {
     "epoch": [],
     "average": [],
@@ -106,6 +110,7 @@ movingEpRewards = {
     "epsilon": []}
 
 fallbackState = [0] * numOfInputs  # Used in case of connection error to XPlane
+fallbackState = [tuple(fallbackState)]
 
 # Will load previous results in case a experiment needs to be continued
 if(loadResults):
@@ -119,17 +124,20 @@ if(usePredefinedSeeds):
 
 Q = QLearn(n_states, n_actions, gamma, lr, epsilon,
            decayRate, epsilonMin, n_epochsBeforeDecay, experimentName, saveForAutoReload, loadModel, usePredefinedSeeds,
-           loadMemory, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate)
+           loadMemory, numOfInputs, minReplayMemSize, replayMemSize, batchSize, updateRate, stateDepth)
 
-env = Env(flightOrigin, flightDestinaion, n_actions, usePredefinedSeeds,
+scene = Scene(dictObservation, dictAction, n_actions, stateDepth, startingVelocity, startingPitchRange, startingRollRange, usePredefinedSeeds, randomDesiredState, desiredPitchRange, desiredRollRange)
+
+env = Env(scene, flightOrigin, flightDestinaion, n_actions, usePredefinedSeeds,
           dictObservation, dictAction, dictRotation, startingVelocity, pauseDelay, Q.id, jsbRender, jsbRealTime)
 
 # saving setup pre run
 if not os.path.exists("./Experiments/" + experimentName):
     os.makedirs("./Experiments/" + experimentName)
-    setup = f"{experimentName=}\n{dateTime=}\nendTime=not yet defined - first save\n{Q.id=}\n{env.id=}\n{pauseDelay=}\n{n_epochs=}\n{n_steps=}\n{n_actions=}\n"
-    setup += f"{n_states=} - states for non deep\n{gamma=}\n{lr=}\n{epsilon=}\n{decayRate=}\n{epsilonMin=}\n{n_epochsBeforeDecay=}\n"
+    setup = f"{experimentName=}\n{Q.numGPUs=}\n{dateTime=}\nendTime=not yet defined - first save\n{Q.id=}\n{env.id=}\n{scene.id=}\n{pauseDelay=}\n{n_epochs=}\n"
+    setup += f"{n_steps=}\n{n_actions=}\n{n_states=} - states for non deep\n{gamma=}\n{lr=}\n{epsilon=}\n{decayRate=}\n{epsilonMin=}\n{n_epochsBeforeDecay=}\n"
     setup += f"{numOfInputs=} - states for deep\n{minReplayMemSize=}\n{replayMemSize=}\n{batchSize=}\n{updateRate=}\n{loadModel=}\n{movingRate=}\n"
+    setup += f"{randomDesiredState=}\n{desiredRollRange=}\n{desiredPitchRange=}\n{startingRollRange=}\n{startingPitchRange=}\n{startingVelocity=}\n{stateDepth=}\n{Q.modelSummary=}\n{notes=}\n"
     print(setup, file=open("./Experiments/" + str(experimentName) + "/setup.out", 'w'))  # saves hyperparameters to the experiment folder
 
 
@@ -138,19 +146,29 @@ def log(i_epoch, i_step, reward, logList):
     global timeStart  # Used to print time ellapsed between log calls
     global timeEnd  # Used to print time ellapsed between log calls
 
-    state = logList[1]
+    old_state = logList[0]
+    new_state = logList[1]
     actions_binary = logList[3]
     observation = logList[4]
     control = logList[5]
     explore = logList[6]
     currentEpsilon = logList[7]
+    if(Q.id == "deep" or Q.id == "doubleDeep"):
+        depth = len(old_state)
+        depth = "Depth " + str(depth)
+        old_state = old_state[-1]
+        new_state = new_state[-1]
+    else:
+        depth = ""
 
     timeEnd = time.time()  # End timer here
     print("\t\tGame ", i_epoch,
           "\n\t\t\tMove ", i_step,
-          "\n\t\t\tStarting Rotation ", flightStartRotation[i_epoch % len(flightStartRotation)],
+          "\n\t\t\tStarting Rotation ", np.array(env.startingOrientation).round(logDecimals),
+          "\n\t\t\tDestination Rotation ", env.desiredState,
           "\n\t\t\tTime taken ", timeEnd - timeStart,
-          "\n\t\t\tState ", np.array(state).round(logDecimals),
+          "\n\t\t\tOld State ", np.array(old_state).round(logDecimals), depth,
+          "\n\t\t\tNew State ", np.array(new_state).round(logDecimals), depth,
           "\n\t\t\t\t\t[p+,p-,r+,r-]",
           "\n\t\t\tactions_binary = ", actions_binary,
           "\n\t\t\tCurrent Control:", control,
@@ -160,6 +178,7 @@ def log(i_epoch, i_step, reward, logList):
           "\n\t\t\tExplored (Random): ", explore,
           "\n\t\t\tCurrent Epsilon: ", currentEpsilon,
           "\n\t\t\tCurrent Reward: ", reward,
+          "\n\t\t\tReconnects Percentage & Count: ", float(connectAttempts / (i_epoch * n_steps + i_step + 1)), ",", connectAttempts,
           "\n\t\t\tError Percentage & Count: ", float(errors / (i_epoch * n_steps + i_step + 1)), ",", errors,
           "\n\t\t\tError Code: ", dictErrors, "\n")
     timeStart = time.time()  # Start timer here
@@ -168,6 +187,8 @@ def log(i_epoch, i_step, reward, logList):
 # A single step(input), this will repeat n_steps times throughout a epoch
 def step(i_step, done, reward, oldState):
     global errors
+    global connectAttempts
+
     if(Q.id == "deep" or Q.id == "doubleDeep"):
         oldState = list(oldState)
 
@@ -181,6 +202,7 @@ def step(i_step, done, reward, oldState):
                 done = True  # mark done if episode is finished
         except socket.error as socketError:  # the specific error for connections used by xpc
             dictErrors["step"] = socketError
+            connectAttempts += 1
             continue
         else:
             break
@@ -198,6 +220,17 @@ def step(i_step, done, reward, oldState):
     newPosition = info[0]
     actions_binary = info[1]
     control = info[2]
+    # checking if state includes a NaN (happens in JSBSim sometimes)
+    if(np.isnan(newState).any()):
+        if(Q.id == "deep" or Q.id == "doubleDeep"):
+            newState = fallbackState
+        else:
+            newState = 0
+        reward = 0
+        info = [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], 0]
+        dictErrors["step"] = "NaN in state"
+        errors += 1
+        done = True
 
     Q.learn(oldState, action, reward, newState, done)
     logList = [oldState, newState, action, actions_binary, newPosition, control, explore, currentEpsilon]
@@ -212,13 +245,16 @@ def step(i_step, done, reward, oldState):
 # A epoch is one full run, from respawn/reset to the final step.
 def epoch(i_epoch):
     global errors
+    global connectAttempts
+
     epochReward = 0
     epochQ = 0
     for attempt in range(25):
         try:
-            oldState = env.reset(env.startingPosition, flightStartRotation[i_epoch % len(flightStartRotation)])
+            oldState = env.reset()
         except socket.error as socketError:  # the specific error for connections used by xpc
             dictErrors["reset"] = socketError
+            connectAttempts += 1
             continue
         else:
             break
@@ -249,7 +285,7 @@ def epoch(i_epoch):
 
     epochRewards.append(epochReward)
     epochQs.append(epochQ)
-    if(i_epoch % movingRate == 0):
+    if(i_epoch % movingRate == 0 and i_epoch != 0):
         movingEpRewards["epoch"].append(i_epoch)
         averageReward = sum(epochRewards[-movingRate:]) / len(epochRewards[-movingRate:])
         movingEpRewards["average"].append(averageReward)
@@ -266,16 +302,28 @@ for i_epoch in range(startingOffset, startingOffset + n_epochs + 1):
         np.save("./Experiments/" + str(experimentName) + "/results" + str(i_epoch) + ".npy", movingEpRewards)
         if(saveForAutoReload):
             np.save("results.npy", movingEpRewards)
-
+        if(saveResultsToPlot and i_epoch % movingRate == 0):
+            plt.plot(movingEpRewards['epoch'], movingEpRewards['average'], label="average rewards")
+            plt.plot(movingEpRewards['epoch'], movingEpRewards['averageQ'], label="average Qs")
+            plt.plot(movingEpRewards['epoch'], movingEpRewards['maximum'], label="max rewards")
+            plt.plot(movingEpRewards['epoch'], movingEpRewards['minimum'], label="min rewards")
+            plt.plot(movingEpRewards['epoch'], movingEpRewards['epsilon'], label="epsilon")
+            plt.title("Results")
+            plt.xlabel("episodes")
+            plt.ylabel("reward")
+            plt.legend(loc=4)
+            plt.savefig("./Experiments/" + str(experimentName) + "/plot" + str(i_epoch) + ".png")
+            plt.clf()
 
 np.save("./Experiments/" + str(experimentName) + "/results_final.npy", movingEpRewards)
 
 endTime = str(time.ctime(time.time()))
 
 # saving setup post run
-setup = f"{experimentName=}\n{dateTime=}\n{endTime=}\n{Q.id=}\n{env.id=}\n{pauseDelay=}\n{n_epochs=}\n{n_steps=}\n{n_actions=}\n"
-setup += f"{n_states=} - states for non deep\n{gamma=}\n{lr=}\n{epsilon=}\n{decayRate=}\n{epsilonMin=}\n{n_epochsBeforeDecay=}\n"
+setup = f"{experimentName=}\n{Q.numGPUs=}\n{dateTime=}\n{endTime=}\n{Q.id=}\n{env.id=}\n{scene.id=}\n{pauseDelay=}\n{n_epochs=}\n"
+setup += f"{n_steps=}\n{n_actions=}\n{n_states=} - states for non deep\n{gamma=}\n{lr=}\n{epsilon=}\n{decayRate=}\n{epsilonMin=}\n{n_epochsBeforeDecay=}\n"
 setup += f"{numOfInputs=} - states for deep\n{minReplayMemSize=}\n{replayMemSize=}\n{batchSize=}\n{updateRate=}\n{loadModel=}\n{movingRate=}\n"
+setup += f"{randomDesiredState=}\n{desiredRollRange=}\n{desiredPitchRange=}\n{startingRollRange=}\n{startingPitchRange=}\n{startingVelocity=}\n{stateDepth=}\n{Q.modelSummary=}\n{notes=}\n"
 print(setup, file=open("./Experiments/" + str(experimentName) + "/setup.out", 'w'))  # saves hyperparameters to the experiment folder
 
 print("<<<<<<<<<<<<<<<<<<<<DONE>>>>>>>>>>>>>>>>>>>>>")

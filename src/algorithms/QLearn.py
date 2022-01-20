@@ -20,6 +20,9 @@ class QLearn():
         self.currentTable = []
         self.loadModel = loadModel
         self.saveForAutoReload = saveForAutoReload
+        self.numGPUs = "not using tf"
+        self.stateDepth = "no depth in regular QLearning"
+        self.modelSummary = "non Deep"
 
         if(loadModel):
             self.qTable = np.load("model.npy")
@@ -62,3 +65,6 @@ class QLearn():
         np.save("./Experiments/" + str(self.experimentName) + "/model" + str(epoch) + ".npy", self.qTable)
         if(self.saveForAutoReload):
             np.save("model.npy", self.qTable)
+
+    def resetStateDepth(self):
+        return
